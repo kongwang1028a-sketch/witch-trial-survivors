@@ -201,10 +201,10 @@ const CLS={
     ds:'HP 最高，受到傷害 -10%。身穿哥德禮服的黑髮紅瞳劍士，以禮儀劍斬向身邊的魔物。'},
   mage:{nm:'緋紅聖歌',ic:'🎶',start:'bolt',hp:90,col:'#8a1e3a',hair:'#ff9ab8',
     ds:'HP 最低，魔法冷卻 -10%。戴黑色貝雷帽、銀白漸層櫻粉短髮的溫柔少女，用歌聲化成的音符追蹤魔物並爆炸。'},
-  archer:{nm:'人偶師',ic:'🎭',start:'arrow',hp:100,col:'#3a4a7a',hair:'#f2d38a',
-    ds:'移速 +10%。戴畫家帽、銀白雙馬尾配彩虹挑染的開朗少女，手持噴漆罐快速射出銀針，射程最遠。'},
-  thief:{nm:'時之證人',ic:'⏱️',start:'blade',hp:105,col:'#1e3a3a',hair:'#7ad8c8',
-    ds:'爆擊率 +7%，衝刺冷卻 -40%。黑髮雙馬尾、身穿戰術機甲制服的呆萌少女，擲出鋒利的時針，身手最靈活。'},
+  archer:{nm:'虹彩畫師',ic:'🎨',start:'arrow',hp:100,col:'#3a4a7a',hair:'#f2d38a',
+    ds:'移速 +10%。戴畫家帽、銀白雙馬尾配彩虹挑染的開朗少女，手持噴漆罐快速射出顏料彈，射程最遠。'},
+  thief:{nm:'鋼鐵哨兵',ic:'🔫',start:'blade',hp:105,col:'#1e3a3a',hair:'#7ad8c8',
+    ds:'爆擊率 +7%，衝刺冷卻 -40%。黑髮雙馬尾、身穿戰術機甲制服的呆萌少女，用霰彈槍近距離掃射，身手最靈活。'},
 };
 const BR={
   warrior:[
@@ -214,11 +214,11 @@ const BR={
     {id:'elem',nm:'業火詠唱',ic:'☄️',sk:'meteor',cape:'#d8402a',ds:'追加魔法「業火流星」：砸向魔物群，留下燃燒的地面。',pv:'全傷害 +10%'},
     {id:'star',nm:'星夜詠唱',ic:'✨',sk:'chrono',cape:'#2a2a6a',ds:'追加魔法「星夜結界」：身邊的魔物變慢並持續受傷。',pv:'技能冷卻再 -10%'}],
   archer:[
-    {id:'gale',nm:'絲雨織者',ic:'🌧️',sk:'rain',cape:'#5a6ab0',ds:'追加魔法「銀針雨」：在魔物群上方降下銀針。',pv:'移速再 +10%'},
-    {id:'beast',nm:'玩偶之友',ic:'🐻',sk:'wolf',cape:'#a07a5a',ds:'追加魔法「熊熊玩偶」：召喚會咬人的布偶熊。',pv:'拾取範圍 +30%'}],
+    {id:'gale',nm:'彩雨畫師',ic:'🌈',sk:'rain',cape:'#5a6ab0',ds:'追加魔法「顏料雨」：在魔物群上方灑下彩色顏料。',pv:'移速再 +10%'},
+    {id:'beast',nm:'塗鴉熊之友',ic:'🐻',sk:'wolf',cape:'#a07a5a',ds:'追加魔法「塗鴉熊」：畫出會咬人的彩色塗鴉熊。',pv:'拾取範圍 +30%'}],
   thief:[
-    {id:'shadow',nm:'鏡像證人',ic:'👯',sk:'clone',cape:'#5a3a90',ds:'追加魔法「鏡中倒影」：倒影跟在身邊一起擲時針。',pv:'爆擊傷害 +30%'},
-    {id:'trap',nm:'發條陷阱師',ic:'⚙️',sk:'mine',cape:'#b08a3a',ds:'追加魔法「發條炸彈」：沿路放下發條炸彈，魔物碰到就爆炸。',pv:'衝刺冷卻再 -25%'}],
+    {id:'shadow',nm:'幻影哨兵',ic:'👯',sk:'clone',cape:'#5a3a90',ds:'追加魔法「全息分身」：分身跟在身邊一起開槍。',pv:'爆擊傷害 +30%'},
+    {id:'trap',nm:'爆破專家',ic:'💣',sk:'mine',cape:'#b08a3a',ds:'追加魔法「感應地雷」：沿路埋下地雷，魔物踩到就爆炸。',pv:'衝刺冷卻再 -25%'}],
 };
 const BRI={}; for(const c in BR)for(const b of BR[c])BRI[b.id]=Object.assign({cls:c},b);
 const ADV_LV=10;
@@ -228,8 +228,8 @@ const ADV_LV=10;
 const SK={
   slash:{t:'w',cls:'warrior',ic:'⚔️',nm:'禮劍斬',ds:'揮舞禮儀劍斬向最近的魔物。Lv2 起前後同時斬擊。'},
   bolt:{t:'w',cls:'mage',ic:'🎶',nm:'聖歌音符',ds:'唱出會追蹤的音符，命中時小範圍爆炸。'},
-  arrow:{t:'w',cls:'archer',ic:'📍',nm:'銀針',ds:'快速朝最近的魔物射出銀針，射程很遠。'},
-  blade:{t:'w',cls:'thief',ic:'⏱️',nm:'時針飛刃',ds:'自動瞄準最近的魔物，擲出能貫穿的時針。'},
+  arrow:{t:'w',cls:'archer',ic:'🎨',nm:'顏料彈',ds:'快速朝最近的魔物噴出彩色顏料彈，射程很遠，命中時顏料四濺。'},
+  blade:{t:'w',cls:'thief',ic:'🔫',nm:'霰彈射擊',ds:'朝最近的魔物扇形噴出大量彈丸，射程短但近距離威力強。'},
   orbit:{t:'w',ic:'🦋',nm:'守護蝶',ds:'魔法蝴蝶繞著身體飛舞，碰到魔物就造成傷害。'},
   thunder:{t:'w',ic:'⚡',nm:'審判之雷',ds:'定時降下紫色落雷，劈向畫面中的魔物。'},
   aura:{t:'w',ic:'🔥',nm:'黑焰結界',ds:'紫黑色的火焰持續灼燒身邊的魔物。'},
@@ -241,8 +241,8 @@ const SK={
   beam:{t:'w',ic:'🔆',nm:'月光射線',ds:'朝魔物射出一道貫穿直線的月光。'},
   slashX:{t:'e',from:'slash',ic:'💫',nm:'千薔薇劍舞',ds:'360 度連續旋斬，範圍與傷害大幅提升。'},
   boltX:{t:'e',from:'bolt',ic:'🎼',nm:'讚美詩終章',ds:'一次唱出 5 顆追蹤音符，爆炸範圍更大。'},
-  arrowX:{t:'e',from:'arrow',ic:'🎯',nm:'千針驟雨',ds:'高速射出 5 支貫穿銀針。'},
-  bladeX:{t:'e',from:'blade',ic:'✴️',nm:'零時刃嵐',ds:'向八方同時擲出時針，貫穿大量魔物。'},
+  arrowX:{t:'e',from:'arrow',ic:'🌈',nm:'彩虹連射',ds:'高速噴出 5 發貫穿的大顆顏料彈。'},
+  bladeX:{t:'e',from:'blade',ic:'✴️',nm:'全方位彈幕',ds:'向四面八方同時掃射，彈丸貫穿大量魔物。'},
   orbitX:{t:'e',from:'orbit',ic:'👑',nm:'蝶之女王',ds:'6 隻巨大魔蝶高速環繞，範圍更廣。'},
   thunderX:{t:'e',from:'thunder',ic:'🌩️',nm:'天罰',ds:'頻繁降下 7 道巨大落雷。'},
   auraX:{t:'e',from:'aura',ic:'🌋',nm:'魔女之釜',ds:'大範圍黑焰灼燒，並讓魔物變慢。'},
@@ -256,10 +256,10 @@ const SK={
   shield:{t:'b',ic:'✝️',nm:'聖十字',ds:'定時擋下一次傷害，並震開周圍魔物。'},
   meteor:{t:'b',ic:'☄️',nm:'業火流星',ds:'流星砸向魔物群，留下燃燒的地面。'},
   chrono:{t:'b',ic:'✨',nm:'星夜結界',ds:'身邊的魔物變慢並持續受傷。'},
-  rain:{t:'b',ic:'🌧️',nm:'銀針雨',ds:'在魔物群上方降下銀針。'},
-  wolf:{t:'b',ic:'🐻',nm:'熊熊玩偶',ds:'召喚會咬人的布偶熊，等級越高熊越多。'},
-  clone:{t:'b',ic:'👯',nm:'鏡中倒影',ds:'倒影跟在身邊一起擲時針，等級越高倒影越多。'},
-  mine:{t:'b',ic:'⚙️',nm:'發條炸彈',ds:'沿路放下發條炸彈，魔物碰到就爆炸。'},
+  rain:{t:'b',ic:'🌈',nm:'顏料雨',ds:'在魔物群上方灑下彩色顏料。'},
+  wolf:{t:'b',ic:'🐻',nm:'塗鴉熊',ds:'畫出會咬人的彩色塗鴉熊，等級越高熊越多。'},
+  clone:{t:'b',ic:'👯',nm:'全息分身',ds:'分身跟在身邊一起開槍，等級越高分身越多。'},
+  mine:{t:'b',ic:'💣',nm:'感應地雷',ds:'沿路埋下地雷，魔物踩到就爆炸。'},
   str:{t:'p',ic:'🔮',nm:'魔力',ds:'所有傷害 +12%'},
   agi:{t:'p',ic:'💨',nm:'詠唱加速',ds:'魔法冷卻 -7%'},
   vit:{t:'p',ic:'❤️',nm:'堅定意志',ds:'最大 HP +20，並回復 20 HP'},
@@ -539,19 +539,21 @@ function updateWeapons(dt){
     if(t){
       const base=Math.atan2(t.y-P.y,t.x-P.x);
       P.cd.arrow=w.cd*cdm; P.swing=0.12; faceTo(t);
-      for(let i=0;i<w.n;i++)shoot('arrow',P.x,P.y,base+(i-(w.n-1)/2)*0.12,w.evo?680:580,{life:.85,dmg:w.dmg,pierce:w.pierce,big:w.evo});
-      tone(900,0.04,'triangle',0.02,-400);
+      for(let i=0;i<w.n;i++)shoot('arrow',P.x,P.y,base+(i-(w.n-1)/2)*0.12,w.evo?680:580,{life:.85,dmg:w.dmg,pierce:w.pierce,big:w.evo,col:PAINT_COLS[(S.paintI=(S.paintI||0)+1)%PAINT_COLS.length]});
+      tone(520,0.05,'sawtooth',0.012,-300);
     }
   }
   // 飛刃 / 千刃風暴
   if((w=wp('blade'))&&cdReady('blade')){
-    const t=nearest(420);
+    const t=nearest(w.radial?420:270);
     if(t||w.radial){
       const base=t?Math.atan2(t.y-P.y,t.x-P.x):S.t*3;
-      P.cd.blade=w.cd*cdm; P.swing=0.15; faceTo(t);
-      for(let i=0;i<w.n;i++){const a=w.radial?base+i*Math.PI*2/w.n:base+(i-(w.n-1)/2)*0.18;
-        shoot('blade',P.x,P.y,a,w.radial?430:400,{life:.9,dmg:w.dmg,pierce:w.pierce,big:w.evo});}
-      tone(700,0.06,'triangle',0.02,-300);
+      P.cd.blade=w.cd*cdm; P.swing=0.15; P.swingA=base; faceTo(t);
+      if(w.radial){for(let i=0;i<w.n*2;i++)shoot('shot',P.x,P.y,base+i*Math.PI/w.n,560,{life:.7,dmg:w.dmg,pierce:w.pierce,big:1});}
+      else{const n=1+w.n*2; // 1→3、2→5、3→7 顆彈丸
+        for(let i=0;i<n;i++)shoot('shot',P.x,P.y,base+(i-(n-1)/2)*0.13+rand(-0.04,0.04),rand(520,600),{life:.42,dmg:Math.round(w.dmg*0.6),pierce:Math.ceil(w.pierce/2)});}
+      muzzle(P.x+Math.cos(base)*16,P.y+Math.sin(base)*10,base);
+      tone(110,0.09,'square',0.05,-60);tone(1400,0.03,'sawtooth',0.012,-1000);
     }
   }
   // 守護劍環 / 天劍輪舞
@@ -705,7 +707,7 @@ function updateWeapons(dt){
     P.cd.clone=WT.clone.cd[l]*cdm;
     for(let i=0;i<n;i++){
       const c=clonePos(i,n), t=nearestTo(c.x,c.y,400);
-      if(t)shoot('blade',c.x,c.y,Math.atan2(t.y-c.y,t.x-c.x),400,{life:.9,dmg:WT.clone.dmg[l],pierce:2});
+      if(t){const a=Math.atan2(t.y-c.y,t.x-c.x);for(let k=-1;k<=1;k++)shoot('shot',c.x,c.y,a+k*0.14,540,{life:.5,dmg:Math.round(WT.clone.dmg[l]*0.5),pierce:1});}
     }
   }
   if(ready('mine')){ // 機關師：地雷
@@ -714,6 +716,8 @@ function updateWeapons(dt){
     S.mines.push({x:P.x+rand(-6,6),y:P.y+rand(-4,4),arm:0.35,life:12,r:WT.mine.r[l],dmg:WT.mine.dmg[l]});
   }
 }
+const PAINT_COLS=['#ff4a5a','#ff9a3a','#ffe04a','#4ad88a','#4aa8ff','#b06aff','#ff6ac8'];
+function muzzle(x,y,a){if(S.fx.length>440)return;for(let k=0;k<6;k++){const b=a+rand(-0.5,0.5),v=rand(60,200);S.fx.push({type:'p',x,y:y-14,vx:Math.cos(b)*v,vy:Math.sin(b)*v,life:.14,max:.14,col:k%2?'#fff2b0':'#ffb040',size:3});}}
 function explode(x,y,r,dmg,col){
   aoe(x,y,r,dmg,160);
   S.fx.push({type:'boom',x,y,r,life:.3,max:.3,col:col||'255,170,60'});
@@ -974,14 +978,15 @@ function update(dt){
       if(!p.back&&p.vx*p.ax+p.vy*p.ay<0){p.back=true;p.hit=new Set();}
       if(p.back&&Math.hypot(P.x-p.x,P.y-p.y)<18)p.life=0;
     }
-    const hr=p.kind==='wave'?24:p.kind==='bolt'?9:p.kind==='moon'?12*p.sz:7*(p.big?1.4:1);
+    const hr=p.kind==='shot'?6:p.kind==='wave'?24:p.kind==='bolt'?9:p.kind==='moon'?12*p.sz:7*(p.big?1.4:1);
     for(const e of S.enemies){
       if(p.pierce<=0)break;
       if(p.hit.has(e)||e.dead)continue;
       if(Math.hypot(e.x-p.x,e.y-p.y)<e.r+hr){
         if(p.kind==='bolt'){explode(p.x,p.y,p.boom,p.dmg,'190,140,255');p.pierce=0;break;}
         if(p.kind==='pfire'){explode(p.x,p.y,p.boom,p.dmg,'255,140,50');p.pierce=0;break;}
-        hurt(e,p.dmg,p.x-p.vx,p.y-p.vy,p.kind==='wave'?160:80);p.hit.add(e);p.pierce--;
+        hurt(e,p.dmg,p.x-p.vx,p.y-p.vy,p.kind==='wave'?160:p.kind==='shot'?110:80);p.hit.add(e);p.pierce--;
+        if(p.kind==='arrow'&&S.fx.length<420)for(let k=0;k<5;k++)S.fx.push({type:'p',x:p.x,y:p.y-14,vx:rand(-90,90),vy:rand(-110,30),life:.4,max:.4,col:p.col,size:p.big?4:3});
         if(p.kind==='ice'&&!e.boss){e.slowT=Math.max(e.slowT,p.slow);if(p.freeze)e.frzT=1;}
       }
     }
@@ -1375,7 +1380,7 @@ function drawTree(t){
   }
   ctx.globalAlpha=1;
 }
-// 魔法少女：依職業與覺醒型態改變外觀（tint 用於鏡中倒影）
+// 魔法少女：依職業與覺醒型態改變外觀（tint 用於全息分身）
 const GIRL={
   warrior:{iris:'#9a6ad8',frill:'#c8b8e0',rib:'#7a5ac8'},
   mage:{iris:'#e83a6a',frill:'#ffffff',rib:'#1a1420'},
@@ -1391,7 +1396,7 @@ const ROSE_VAR={ // 覺醒後換裝
   sage:{C:'#4a1424',c:'#2a0812',P:'#ff3a52',W:'#f4e8ec',V:'#6a1a2e',Q:'#b01830',L:'#c88a96'},
   guard:{C:'#d6d2e2',c:'#a6a0b8',P:'#3a5ab0',K:'#2a2238',G:'#c8ccd8',g:'#8a8ea0',V:'#8a96c8',Q:'#4a5aa0',L:'#f4f2fa'},
 };
-// ====== 2.5D 點陣角色：櫻音（緋紅聖歌）======
+// ====== 2.5D 點陣角色：緋紅聖歌 ======
 const MR=h=>h+[...h].reverse().join(''); // 左半邊鏡射成完整一列
 const SAKU_BODY=[
   "......KKKKKKKK........", "....KKBBBBBBBBKK......", "...KBBBbbbbBBBBBKKK...", "...KBBBBBBBBBBBBKFFK..",
@@ -1403,7 +1408,7 @@ const SAKU_BODY=[
 const SAKU_LEG=["KSSSK.","KXXXK.","KSSSK.","KXXXK.","KSSsK.","KlWlK.","KXXXXK","KBBbBK","KggggK","KKKKKK"];
 const SAKU_WAND=[".KK.KK.","KRGKRrK","KRRRRrK","KRRRRrK",".KRRrK.","..KrK..","..YYy..",
   ...Array(6).fill("..KYK.."),"..YYy..","..KYK..","...K..."];
-// ====== 2.5D 點陣角色：彩繪少女（人偶師）======
+// ====== 2.5D 點陣角色：虹彩畫師 ======
 const PAINT_BODY=[
   "........KKKKKK........", "......KKBBBBBBKK......", ".....KBB1BBBB5BBK.....", "....KBBBBBB3BBBBBK....",
   "KXK.KKKKKKKKKKKKKK.KXK", "X2XKHHHHHHHHHHHHHHKX4X", "KXKKH1H2H3HHHHHHHHKKXK", "KHhKH1H2H3H4H5HHHHKhHK",
@@ -1415,7 +1420,7 @@ const PAINT_BODY=[
 const PAINT_LEG=[["KSSSK.","KSSSK.","KSSsK.","KSSSK.","K5U5K.","KUU5K.","KUUUK.","KUuUK.","KUUUUK","KUUUUK","KuuuuK","KKKKKK"],
   ["KSSSK.","KSSSK.","KSSsK.","KSSSK.","K1N1K.","KNN1K.","KNNNK.","KNnNK.","KNNNNK","KNNNNK","KnnnnK","KKKKKK"]];
 const PAINT_CAN=["..KK.",".KWWK","KKKKK","K66hK","K6W6K","K333K","K66hK","K66hK","KKKKK"];
-// ====== 2.5D 點陣角色：戰術少女（時之證人）======
+// ====== 2.5D 點陣角色：鋼鐵哨兵 ======
 const TAC_BODY=[
   "........KKKKKK........", "......KKBBBBBBKK......", ".....KBBBBBBBBbBK.....", "....KBBBBBBBBBBbBK....",
   ".KK.KyYYYyyyyyyyyK.KK.", "KHHKHHHHHHHHHHHHHHKHHK", "KHhKHHHHHHHHHHHHHHKhHK", "KHhKHHHhHHHHHHhHHHKhHK",
@@ -1509,16 +1514,18 @@ const PXG={
       if(y>=8&&y<=13&&x>=4&&x<=17)return y<12?'H':'h';
       if(y>=15&&y<=21&&x>=6&&x<=15&&ch!=='.'&&ch!=='K')return 'U';
       return ch;},
-    under(o,spr,pal,px,L,top,back){ // 正面：霰彈槍從肩後露出
-      if(back)return;
+    under(o,spr,pal,px,L,top,back,sw){ // 正面：霰彈槍從肩後露出
+      if(back||sw>=0)return;
       ctx.save();ctx.translate(L+5*px,top+22*px);ctx.rotate(-0.45);
       ctx.drawImage(spr.gun,-2*px,-22*px,4*px,22*px);ctx.restore();},
     weapon(o,spr,pal,px,L,top,back,sw){
       if(back){ctx.save();ctx.translate(L+11*px,top+19*px);ctx.rotate(0.75); // 背面斜背霰彈槍
         ctx.drawImage(spr.gun,-2*px,-11*px,4*px,22*px);ctx.restore();return;}
       if(sw<0)return;
-      ctx.save();ctx.translate(L+18*px,top+22*px);ctx.rotate(-0.9+sw*1.8); // 擲出時針
-      ctx.drawImage(spr.wpn,0,-5*px,5*px,5*px);ctx.restore();}},
+      const kick=Math.sin(sw*Math.PI)*2*px; // 開槍：端起霰彈槍，後座力往後
+      ctx.save();ctx.translate(L+17*px-kick,top+21*px);ctx.rotate(Math.PI/2+0.06);
+      ctx.drawImage(spr.gun,-2*px,-15*px,4*px,22*px);ctx.restore();
+      ctx.fillStyle=pal.S;ctx.fillRect(L+17*px-kick,top+20*px,3*px,3*px);}},
 };const PXC={};
 function pxCanvas(rows,pal){
   const h=rows.length,w=rows[0].length,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
@@ -1553,7 +1560,7 @@ function drawPixelGirl(o,alpha,tint){
   const leg=(x0,dd,i)=>{const X=L+(x0+dd)*px, Y=top+(d.legY||30)*px+bob, lift=dd>0?px:0, lc=spr.legs&&spr.legs[i];
     if(lc)ctx.drawImage(lc,X,Y-lift,lc.width*px,lc.height*px);else d.leg(X,Y,lift,pal,px);};
   const [la,lb]=d.legX;
-  if(d.under)d.under(o,spr,pal,px,L,top,back);
+  if(d.under)d.under(o,spr,pal,px,L,top,back,sw);
   if(back){leg(lb,-lo,1);leg(la,lo,0);}else{leg(la,lo,0);leg(lb,-lo,1);}
   ctx.drawImage(spr.body,L,top,22*px,30*px);
   d.weapon(o,spr,pal,px,L,top,back,sw);
@@ -1726,17 +1733,18 @@ function drawBuddy(b){
   ctx.restore();
   if(b.lv>1){ctx.font='900 8px '+FONT;ctx.textAlign='center';ctx.lineWidth=2.5;ctx.strokeStyle='#1a0e24';ctx.strokeText('Lv'+b.lv,x,y-34+bob);ctx.fillStyle='#ffd27a';ctx.fillText('Lv'+b.lv,x,y-34+bob);}
 }
-function drawWolf(p){ // 熊熊玩偶
+function drawWolf(p){ // 塗鴉熊
   const x=p.x,y=p.y,f=p.face, lg=p.moving?Math.sin(p.anim*16)*2:0, lu=p.lunge*30;
   shadow(x,y,10);
+  if(!p.c1){const i=Math.floor(Math.random()*5);p.c1=['#ff8ab0','#7ac8ff','#9ae07a','#c8a0ff','#ffc86a'][i];p.c0=['#c8507a','#3a80c8','#4aa04a','#7a50c8','#c8862a'][i];p.c2=PAINT_COLS[(i+2)%7];}
   ctx.save();ctx.translate(x+f*lu*0.3,y);ctx.scale(f,1);ctx.lineJoin='round';
-  ctx.fillStyle='#8a5a3a';ctx.fillRect(-6+lg,-4,4,4);ctx.fillRect(2-lg,-4,4,4);
-  ctx.fillStyle='#a8744a';ctx.beginPath();ctx.ellipse(0,-9,8,7,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#e8c8a0';ctx.beginPath();ctx.ellipse(1,-8,4.5,4.2,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#a8744a';ctx.beginPath();ctx.ellipse(-8,-10,2.6,4,0.5,0,Math.PI*2);ctx.ellipse(8,-11+(p.lunge>0?-3:0),2.6,4,-0.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=p.c0;ctx.fillRect(-6+lg,-4,4,4);ctx.fillRect(2-lg,-4,4,4);
+  ctx.fillStyle=p.c1;ctx.beginPath();ctx.ellipse(0,-9,8,7,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff6e8';ctx.beginPath();ctx.ellipse(1,-8,4.5,4.2,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=p.c1;ctx.beginPath();ctx.ellipse(-8,-10,2.6,4,0.5,0,Math.PI*2);ctx.ellipse(8,-11+(p.lunge>0?-3:0),2.6,4,-0.5,0,Math.PI*2);ctx.fill();
   circ(2,-20,7.2);circ(-3.5,-26,2.9);circ(7.5,-26,2.9);
-  ctx.fillStyle='#e8c8a0';circ(-3.5,-26,1.4);circ(7.5,-26,1.4);ctx.beginPath();ctx.ellipse(4,-17.5,3.2,2.4,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#1a1018';circ(0.5,-21,1.5);circ(6,-21,1.5);circ(4.6,-18.4,1);
+  ctx.fillStyle='#fff6e8';circ(-3.5,-26,1.4);circ(7.5,-26,1.4);ctx.beginPath();ctx.ellipse(4,-17.5,3.2,2.4,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=p.c2;circ(-4,-9,1.6);circ(4,-6,1.2);ctx.fillStyle='#1a1018';circ(0.5,-21,1.5);circ(6,-21,1.5);circ(4.6,-18.4,1);
   ctx.fillStyle='#fff';circ(0.9,-21.5,0.5);circ(6.4,-21.5,0.5);
   ctx.strokeStyle='#5a3a2a';ctx.lineWidth=0.7;ctx.beginPath();ctx.moveTo(-2,-25);ctx.lineTo(-1,-23);ctx.moveTo(-3,-23.5);ctx.lineTo(0,-24.5);ctx.stroke();
   ctx.fillStyle='#c8203a';ctx.beginPath();ctx.moveTo(1,-14);ctx.lineTo(-3,-16);ctx.lineTo(-3,-12);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(1,-14);ctx.lineTo(5,-16);ctx.lineTo(5,-12);ctx.closePath();ctx.fill();
@@ -2012,14 +2020,18 @@ function drawGroundFx(){
         ctx.fillStyle=`rgba(${k%2?'150,90,200':'120,190,80'},${0.22*a})`;ctx.beginPath();ctx.ellipse(rx,ry-6,z.r*0.55,z.r*0.32,0,0,Math.PI*2);ctx.fill();}
       if(Math.random()<0.25&&S.fx.length<450)S.fx.push({type:'p',x:z.x+rand(-z.r,z.r)*0.6,y:z.y+rand(-z.r,z.r)*0.3,vx:0,vy:-25,life:.6,max:.6,col:'#b8f080',size:3});
     }else if(z.type==='rain'){
-      ctx.fillStyle='rgba(180,180,240,.14)';ctx.beginPath();ctx.ellipse(z.x,z.y,z.r,z.r*0.55,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(180,180,240,.12)';ctx.beginPath();ctx.ellipse(z.x,z.y,z.r,z.r*0.55,0,0,Math.PI*2);ctx.fill();
+      for(let k=0;k<6;k++){const an=k*1.05+z.x*0.01;ctx.fillStyle=PAINT_COLS[k]+'55';ctx.beginPath();ctx.ellipse(z.x+Math.cos(an)*z.r*0.5,z.y+Math.sin(an)*z.r*0.28,z.r*0.2,z.r*0.11,an,0,Math.PI*2);ctx.fill();}
     }
   }
-  for(const m of S.mines){ // 發條炸彈
-    ctx.fillStyle='rgba(10,5,20,.35)';ctx.beginPath();ctx.ellipse(m.x,m.y+1,6,2,0,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#2a2238';circ(m.x,m.y-4,5);ctx.fillStyle='#4a3e5a';circ(m.x-1.5,m.y-5.5,1.6);
-    ctx.fillStyle='#d8b04a';ctx.fillRect(m.x-0.8,m.y-12,1.6,4);ctx.save();ctx.translate(m.x,m.y-12);ctx.rotate(S.t*4+m.x);ctx.fillRect(-3,-0.8,6,1.6);ctx.restore();
-    ctx.fillStyle=m.arm>0?'#888':(Math.sin(S.t*12+m.x)>0?'#ff3a5a':'#7a1a2a');circ(m.x+2.5,m.y-3,1.2);
+  for(const m of S.mines){ // 感應地雷
+    ctx.fillStyle='rgba(10,5,20,.35)';ctx.beginPath();ctx.ellipse(m.x,m.y+1,8,2.6,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1c1e26';ctx.beginPath();ctx.ellipse(m.x,m.y-2,7.5,3.6,0,0,Math.PI*2);ctx.fill();ctx.fillRect(m.x-7.5,m.y-4,15,2);
+    ctx.fillStyle='#3a3e4c';ctx.beginPath();ctx.ellipse(m.x,m.y-4,7.5,3.4,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#6e7280';ctx.beginPath();ctx.ellipse(m.x,m.y-4.6,3.4,1.6,0,0,Math.PI*2);ctx.fill();
+    const on=m.arm<=0&&Math.sin(S.t*12+m.x)>0, lc=P.br==='trap'?'#ffc84a':'#ff3a5a';
+    ctx.fillStyle=m.arm>0?'#666':on?lc:'#5a1a20';circ(m.x,m.y-5,1.3);
+    if(on)addGlow(m.x,m.y-5,6,'255,90,90',.5);
   }
   for(const r of S.rings){
     const a=Math.min(1,r.life/0.4);
@@ -2040,21 +2052,24 @@ function drawGroundFx(){
   }
 }
 function drawProj(p){
-  if(p.big&&p.kind!=='bolt')addGlow(p.x,p.y-14,16,'255,220,120',.6);
+  if(p.big&&p.kind!=='bolt'&&p.kind!=='shot')addGlow(p.x,p.y-14,16,'255,220,120',.6);
   if(p.kind==='ice')addGlow(p.x,p.y-14,10,'150,210,255',.5);
   if(p.kind==='bolt')addGlow(p.x,p.y-14,p.big?28:20,P.br==='elem'?'255,140,60':P.br==='star'?'110,170,255':'255,90,140',.8);
   else if(p.kind==='wave')addGlow(p.x,p.y-14,30,'255,170,120',.55*Math.min(1,p.life/0.3));
   else if(p.kind==='blade')addGlow(p.x,p.y-14,11,P.br==='shadow'?'190,140,255':'180,220,255',.45);
   ctx.save();ctx.translate(p.x,p.y-14);
-  if(p.kind==='blade'){ctx.rotate(p.rot);
+  if(p.kind==='shot'){ctx.rotate(Math.atan2(p.vy,p.vx));const c=P.br==='shadow'?['176,128,255','#e8d8ff']:P.br==='trap'?['255,200,74','#fff4c8']:['90,216,232','#f4fcff'];
+    const g=ctx.createLinearGradient(-16,0,3,0);g.addColorStop(0,`rgba(${c[0]},0)`);g.addColorStop(1,`rgba(${c[0]},.85)`);
+    ctx.fillStyle=g;ctx.fillRect(-16,-1.2,19,2.4);ctx.fillStyle=c[1];ctx.fillRect(0,-1.5,4,3);}
+  else if(p.kind==='blade'){ctx.rotate(p.rot);
     ctx.fillStyle=P.br==='shadow'?'#c8b0f0':'#e8e4f4';ctx.strokeStyle='#2a2238';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(-5,-1.6);ctx.lineTo(7,-1);ctx.lineTo(7,-3.4);ctx.lineTo(12,0);ctx.lineTo(7,3.4);ctx.lineTo(7,1);ctx.lineTo(-5,1.6);ctx.closePath();ctx.fill();ctx.stroke();
     ctx.fillStyle='#d8b04a';circ(-4,0,2.6);ctx.fillStyle='#2a2238';circ(-4,0,1);}
-  else if(p.kind==='arrow'){ctx.rotate(Math.atan2(p.vy,p.vx));
-    ctx.strokeStyle='rgba(255,120,170,.75)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(-9,0);ctx.quadraticCurveTo(-15,-3,-20,0);ctx.stroke();
-    ctx.strokeStyle='#eef0fa';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(-9,0);ctx.lineTo(9,0);ctx.stroke();
-    ctx.fillStyle='#eef0fa';ctx.beginPath();ctx.moveTo(12,0);ctx.lineTo(8,-1.4);ctx.lineTo(8,1.4);ctx.fill();
-    ctx.strokeStyle='#9a94b0';ctx.lineWidth=0.8;ctx.beginPath();ctx.ellipse(-8,0,1.6,0.9,0,0,Math.PI*2);ctx.stroke();}
+  else if(p.kind==='arrow'){ctx.rotate(Math.atan2(p.vy,p.vx));const k=p.big?1.4:1,c=p.col||'#ff6ac8';
+    ctx.globalAlpha=0.45;ctx.fillStyle=c;circ(-8*k,0,2.2*k);circ(-13*k,0.8,1.5*k);circ(-17*k,-0.5,1*k);ctx.globalAlpha=1;
+    ctx.fillStyle='#16121c';ctx.beginPath();ctx.ellipse(0,0,6*k,4.3*k,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(0,0,5*k,3.4*k,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.75)';circ(1.5*k,-1.2*k,1.2*k);}
   else if(p.kind==='bolt'){
     const col=P.br==='elem'?['#ff8a3a','#ffe0b0']:P.br==='star'?['#7ab0ff','#e8f4ff']:['#ff4a7a','#ffe0ea'];
     ctx.fillStyle=col[0];ctx.beginPath();ctx.ellipse(-2,3,4,3,-0.4,0,Math.PI*2);ctx.fill();ctx.fillRect(1.2,-8,1.8,11);
@@ -2132,10 +2147,9 @@ function drawFx(){
       addGlow(mx,my,26,'255,140,50',.9);
       ctx.fillStyle='rgba(255,150,60,.35)';circ(mx-12*k,my-20*k,14);
       ctx.fillStyle='#7a3a1a';circ(mx,my,10);ctx.fillStyle='#ff8a3a';circ(mx-2,my-2,6);ctx.fillStyle='#ffe0a0';circ(mx-3,my-3,2.5);
-    }else if(z.type==='rain'){
-      ctx.strokeStyle='rgba(90,60,30,.9)';ctx.lineWidth=1.5;
-      for(let i=0;i<6;i++){const ax=z.x+rand(-z.r,z.r)*0.85, ay=z.y+rand(-z.r,z.r)*0.45, h=rand(0,30);
-        ctx.beginPath();ctx.moveTo(ax+6,ay-30-h);ctx.lineTo(ax,ay-h*0.2);ctx.stroke();}
+    }else if(z.type==='rain'){ // 顏料雨
+      for(let i=0;i<7;i++){const ax=z.x+rand(-z.r,z.r)*0.85, ay=z.y+rand(-z.r,z.r)*0.45, h=rand(0,34);
+        ctx.fillStyle=PAINT_COLS[i%PAINT_COLS.length];circ(ax+h*0.15,ay-h,2.2);ctx.fillRect(ax+h*0.15-0.8,ay-h-6,1.6,6);}
     }
   }
 }
