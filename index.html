@@ -199,8 +199,8 @@ const sfx={
 const CLS={
   warrior:{nm:'夜薔薇',ic:'🌹',start:'slash',hp:140,col:'#2a2238',hair:'#1c1726',
     ds:'HP 最高，受到傷害 -10%。身穿哥德學院制服的黑髮紅瞳劍士，以禮儀劍斬向身邊的魔物。'},
-  mage:{nm:'緋紅聖歌',ic:'🎶',start:'bolt',hp:90,col:'#8a1e3a',hair:'#ff9ab8',
-    ds:'HP 最低，魔法冷卻 -10%。戴黑色貝雷帽、銀白漸層櫻粉短髮的溫柔少女，用歌聲化成的音符追蹤魔物並爆炸。'},
+  mage:{nm:'櫻心歌姬',ic:'🌸',start:'bolt',hp:90,col:'#8a1e3a',hair:'#ff9ab8',
+    ds:'HP 最低，魔法冷卻 -10%。戴黑色貝雷帽、銀白漸層櫻粉短髮的溫柔少女，唱出追蹤魔物的櫻心音符，命中時綻放成櫻花並讓魔物變慢。'},
   archer:{nm:'虹彩畫師',ic:'🎨',start:'arrow',hp:100,col:'#3a4a7a',hair:'#f2d38a',
     ds:'移速 +10%。戴畫家帽、銀白雙馬尾配彩虹挑染的開朗少女，手持噴漆罐快速射出顏料彈，射程最遠。'},
   thief:{nm:'鋼鐵哨兵',ic:'🔫',start:'blade',hp:105,col:'#1e3a3a',hair:'#7ad8c8',
@@ -211,8 +211,8 @@ const BR={
     {id:'sage',nm:'血薔薇',ic:'🥀',sk:'wave',cape:'#a01830',ds:'換上深紅禮服。追加魔法「薔薇劍氣」：朝魔物放出貫穿的紅色劍氣。',pv:'爆擊率 +10%'},
     {id:'guard',nm:'白銀近衛',ic:'✝️',sk:'shield',cape:'#d8dce8',ds:'換上白銀禮服。追加魔法「聖十字」：定時擋下一次傷害並震開周圍魔物。',pv:'最大 HP +40，受到傷害再 -15%'}],
   mage:[
-    {id:'elem',nm:'業火詠唱',ic:'☄️',sk:'meteor',cape:'#d8402a',ds:'追加魔法「業火流星」：砸向魔物群，留下燃燒的地面。',pv:'全傷害 +10%'},
-    {id:'star',nm:'星夜詠唱',ic:'✨',sk:'chrono',cape:'#2a2a6a',ds:'追加魔法「星夜結界」：身邊的魔物變慢並持續受傷。',pv:'技能冷卻再 -10%'}],
+    {id:'elem',nm:'緋紅心焰',ic:'💘',sk:'meteor',cape:'#d8402a',ds:'換上緋紅大衣。追加魔法「愛心流星」：巨大愛心砸向魔物群，留下燃燒的心焰。',pv:'全傷害 +10%'},
+    {id:'star',nm:'夜櫻詠唱',ic:'🌙',sk:'chrono',cape:'#2a2a6a',ds:'換上夜藍大衣。追加魔法「夜櫻結界」：櫻花與星光環繞身邊，魔物變慢並持續受傷。',pv:'技能冷卻再 -10%'}],
   archer:[
     {id:'gale',nm:'彩雨畫師',ic:'🌈',sk:'rain',cape:'#5a6ab0',ds:'追加魔法「顏料雨」：在魔物群上方灑下彩色顏料。',pv:'移速再 +10%'},
     {id:'beast',nm:'塗鴉熊之友',ic:'🐻',sk:'wolf',cape:'#a07a5a',ds:'追加魔法「塗鴉熊」：畫出會咬人的彩色塗鴉熊。',pv:'拾取範圍 +30%'}],
@@ -227,7 +227,7 @@ const ADV_LV=10;
 // t: w=一般武器 b=轉職技能 p=被動 x=道具；cls=職業專屬起始技能
 const SK={
   slash:{t:'w',cls:'warrior',ic:'⚔️',nm:'禮劍斬',ds:'揮舞禮儀劍斬向最近的魔物。Lv2 起前後同時斬擊。'},
-  bolt:{t:'w',cls:'mage',ic:'🎶',nm:'聖歌音符',ds:'唱出會追蹤的音符，命中時小範圍爆炸。'},
+  bolt:{t:'w',cls:'mage',ic:'💗',nm:'櫻心音符',ds:'唱出會追蹤的愛心音符，命中時綻放成櫻花，炸傷周圍並讓魔物短暫變慢。'},
   arrow:{t:'w',cls:'archer',ic:'🎨',nm:'顏料彈',ds:'快速朝最近的魔物噴出彩色顏料彈，射程很遠，命中時顏料四濺。'},
   blade:{t:'w',cls:'thief',ic:'🔫',nm:'霰彈射擊',ds:'朝最近的魔物扇形噴出大量彈丸，射程短但近距離威力強。'},
   orbit:{t:'w',ic:'🦋',nm:'守護蝶',ds:'魔法蝴蝶繞著身體飛舞，碰到魔物就造成傷害。'},
@@ -240,7 +240,7 @@ const SK={
   chain:{t:'w',ic:'⛓️',nm:'鎖鏈雷',ds:'帶電的鎖鏈在魔物之間跳躍，等級越高跳越多次。'},
   beam:{t:'w',ic:'🔆',nm:'月光射線',ds:'朝魔物射出一道貫穿直線的月光。'},
   slashX:{t:'e',from:'slash',ic:'💫',nm:'千薔薇劍舞',ds:'360 度連續旋斬，範圍與傷害大幅提升。'},
-  boltX:{t:'e',from:'bolt',ic:'🎼',nm:'讚美詩終章',ds:'一次唱出 5 顆追蹤音符，爆炸範圍更大。'},
+  boltX:{t:'e',from:'bolt',ic:'🌸',nm:'千本櫻終章',ds:'一次唱出 5 顆大型櫻心音符，櫻花綻放範圍更大。'},
   arrowX:{t:'e',from:'arrow',ic:'🌈',nm:'彩虹連射',ds:'高速噴出 5 發貫穿的大顆顏料彈。'},
   bladeX:{t:'e',from:'blade',ic:'✴️',nm:'全方位彈幕',ds:'向四面八方同時掃射，彈丸貫穿大量魔物。'},
   orbitX:{t:'e',from:'orbit',ic:'👑',nm:'蝶之女王',ds:'6 隻巨大魔蝶高速環繞，範圍更廣。'},
@@ -254,8 +254,8 @@ const SK={
   beamX:{t:'e',from:'beam',ic:'☀️',nm:'最終審判',ds:'四道巨大光柱十字旋轉掃射。'},
   wave:{t:'b',ic:'🥀',nm:'薔薇劍氣',ds:'朝魔物放出貫穿一切的紅色劍氣。'},
   shield:{t:'b',ic:'✝️',nm:'聖十字',ds:'定時擋下一次傷害，並震開周圍魔物。'},
-  meteor:{t:'b',ic:'☄️',nm:'業火流星',ds:'流星砸向魔物群，留下燃燒的地面。'},
-  chrono:{t:'b',ic:'✨',nm:'星夜結界',ds:'身邊的魔物變慢並持續受傷。'},
+  meteor:{t:'b',ic:'💘',nm:'愛心流星',ds:'巨大愛心砸向魔物群，留下燃燒的心焰。'},
+  chrono:{t:'b',ic:'🌙',nm:'夜櫻結界',ds:'櫻花與星光環繞身邊，魔物變慢並持續受傷。'},
   rain:{t:'b',ic:'🌈',nm:'顏料雨',ds:'在魔物群上方灑下彩色顏料。'},
   wolf:{t:'b',ic:'🐻',nm:'塗鴉熊',ds:'畫出會咬人的彩色塗鴉熊，等級越高熊越多。'},
   clone:{t:'b',ic:'👯',nm:'全息分身',ds:'分身跟在身邊一起開槍，等級越高分身越多。'},
@@ -523,14 +523,14 @@ function updateWeapons(dt){
       }
     }
   }
-  // 魔法彈 / 星爆魔彈
+  // 櫻心音符 / 千本櫻終章
   if((w=wp('bolt'))&&cdReady('bolt')){
     const t=nearest(380);
     if(t){
       const base=Math.atan2(t.y-P.y,t.x-P.x);
       P.cd.bolt=w.cd*cdm; P.swing=0.15; faceTo(t);
       for(let i=0;i<w.n;i++)shoot('bolt',P.x+P.face*8,P.y-4,base+(i-(w.n-1)/2)*0.6,240,{life:1.8,dmg:w.dmg,tgt:t,boom:w.boom,big:w.evo});
-      tone(600,0.1,'sine',0.03,300);
+      tone(880,0.08,'sine',0.025,220);tone(1320,0.12,'triangle',0.015,0);
     }
   }
   // 連射 / 千羽連矢
@@ -669,14 +669,14 @@ function updateWeapons(dt){
     }
   }
   if(sk.shield&&P.shieldT>0)P.shieldT-=dt; // 鐵壁守護者：聖盾（觸發在 damageP）
-  if(ready('meteor')){ // 元素使：隕石
+  if(ready('meteor')){ // 緋紅心焰：愛心流星
     const l=sk.meteor-1, ts=randOnScreen(WT.meteor.n[l]);
     if(ts.length){
       P.cd.meteor=WT.meteor.cd[l]*cdm;
       for(const t of ts)S.zones.push({type:'fall',x:t.x,y:t.y,t:0.55,max:0.55,r:WT.meteor.r[l],dmg:WT.meteor.dmg[l]});
     }
   }
-  if(ready('chrono')){ // 星術師：時空領域
+  if(ready('chrono')){ // 夜櫻詠唱：夜櫻結界
     const l=sk.chrono-1; P.cd.chrono=WT.chrono.cd[l]*cdm;
     S.zones.push({type:'slow',x:P.x,y:P.y,r:WT.chrono.r[l],life:3,max:3,tick:0,dmg:WT.chrono.dmg[l],follow:true});
     tone(300,0.4,'sine',0.04,600);
@@ -716,6 +716,13 @@ function updateWeapons(dt){
     S.mines.push({x:P.x+rand(-6,6),y:P.y+rand(-4,4),arm:0.35,life:12,r:WT.mine.r[l],dmg:WT.mine.dmg[l]});
   }
 }
+function SAKU_COL(){return P.br==='elem'?['#e8243a','#ffb0b8','#ffe8e8','255,80,90']:P.br==='star'?['#6a8aff','#d8e4ff','#f4f8ff','130,160,255']:['#ff5a9e','#ffd0e4','#fff4f8','255,120,170'];}
+function petals(x,y,n,cols){if(S.fx.length>420)return;for(let k=0;k<n;k++){const a=Math.random()*Math.PI*2,v=rand(40,150);S.fx.push({type:'p',x,y:y-14,vx:Math.cos(a)*v,vy:Math.sin(a)*v-40,life:.55,max:.55,col:cols[k%cols.length],size:3.4});}}
+// 櫻心音符命中：櫻花綻放爆炸，周圍魔物短暫變慢
+function sakuraBurst(x,y,r,dmg,big){
+  const c=SAKU_COL(); explode(x,y,r,dmg,c[3]); petals(x,y,big?14:9,[c[0],c[1],c[2]]);
+  for(const e of S.enemies)if(!e.boss&&!e.dead&&Math.hypot(e.x-x,e.y-y)<r+e.r)e.slowT=Math.max(e.slowT,0.6);
+}
 const PAINT_COLS=['#ff4a5a','#ff9a3a','#ffe04a','#4ad88a','#4aa8ff','#b06aff','#ff6ac8'];
 function muzzle(x,y,a){if(S.fx.length>440)return;for(let k=0;k<6;k++){const b=a+rand(-0.5,0.5),v=rand(60,200);S.fx.push({type:'p',x,y:y-14,vx:Math.cos(b)*v,vy:Math.sin(b)*v,life:.14,max:.14,col:k%2?'#fff2b0':'#ffb040',size:3});}}
 function explode(x,y,r,dmg,col){
@@ -729,7 +736,7 @@ function updateZones(dt){
     if(z.type==='fall'){
       z.t-=dt;
       if(z.t<=0){
-        z.done=true; explode(z.x,z.y,z.r,z.dmg,'255,120,40'); S.shake=Math.max(S.shake,0.15);
+        z.done=true; explode(z.x,z.y,z.r,z.dmg,'255,80,120'); petals(z.x,z.y,14,['#ff5a7a','#ffc0d8','#ffe0ea']); S.shake=Math.max(S.shake,0.15);
         add.push({type:'burn',x:z.x,y:z.y,r:z.r*0.8,life:2,max:2,tick:0.5,dmg:z.dmg*0.15});
       }
       continue;
@@ -969,7 +976,7 @@ function update(dt){
         const na=cur+clamp(df,-7*dt,7*dt), sp=Math.min(420,Math.hypot(p.vx,p.vy)+300*dt);
         p.vx=Math.cos(na)*sp; p.vy=Math.sin(na)*sp;
       }
-      if(Math.random()<0.5&&S.fx.length<450)S.fx.push({type:'p',x:p.x,y:p.y-14,vx:0,vy:0,life:.25,max:.25,col:P.br==='elem'?'#ffb070':'#d0b0ff',size:3});
+      if(Math.random()<0.5&&S.fx.length<450)S.fx.push({type:'p',x:p.x,y:p.y-14,vx:0,vy:0,life:.25,max:.25,col:P.br==='elem'?'#ff8a7a':P.br==='star'?'#b8ccff':'#ffc0d8',size:3});
     }
     p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt;
     if(p.kind==='blade'||p.kind==='moon')p.rot+=dt*(p.kind==='moon'?18:25);
@@ -983,7 +990,7 @@ function update(dt){
       if(p.pierce<=0)break;
       if(p.hit.has(e)||e.dead)continue;
       if(Math.hypot(e.x-p.x,e.y-p.y)<e.r+hr){
-        if(p.kind==='bolt'){explode(p.x,p.y,p.boom,p.dmg,'190,140,255');p.pierce=0;break;}
+        if(p.kind==='bolt'){sakuraBurst(p.x,p.y,p.boom,p.dmg,p.big);p.pierce=0;break;}
         if(p.kind==='pfire'){explode(p.x,p.y,p.boom,p.dmg,'255,140,50');p.pierce=0;break;}
         hurt(e,p.dmg,p.x-p.vx,p.y-p.vy,p.kind==='wave'?160:p.kind==='shot'?110:80);p.hit.add(e);p.pierce--;
         if(p.kind==='arrow'&&S.fx.length<420)for(let k=0;k<5;k++)S.fx.push({type:'p',x:p.x,y:p.y-14,vx:rand(-90,90),vy:rand(-110,30),life:.4,max:.4,col:p.col,size:p.big?4:3});
@@ -1399,7 +1406,7 @@ const ROSE_VAR={ // 覺醒後換裝
   guard:{a:'#3a5ab0',X:'#3a5ab0',B:'#d6d2e2',b:'#f4f2fa',C:'#eceaf4',c:'#c8c4d8',K:'#2a2238',O:'#3a5ab0',T:'#3a5ab0',t:'#1a2a60',P:'#a8a4bc',e:'#3a5ab0',Q:'#c8ccd8',F:'#3a5ab0',f:'#8ab0ff',I:'#3a5ab0'},
 };
 const ROSE_LEG=["KNnNK.","KNnNK.","KNnNK.","KNnNK.","KNnNK.","KNnNK.","KNNNK.","KNNNK.","KLMLK.","KMmMMK","KMMMMK","KDDDDK"];
-// ====== 2.5D 點陣角色：緋紅聖歌 ======
+// ====== 2.5D 點陣角色：櫻心歌姬 ======
 const MR=h=>h+[...h].reverse().join(''); // 左半邊鏡射成完整一列
 const SAKU_BODY=[
   "......KKKKKKKK........", "....KKBBBBBBBBKK......", "...KBBBbbbbBBBBBKKK...", "...KBBBBBBBBBBBBKFFK..",
@@ -1913,19 +1920,24 @@ function drawGroundFx(){
   for(const z of S.zones){
     if(z.type==='fall'){
       const k=1-z.t/z.max;
-      ctx.fillStyle=`rgba(255,90,30,${0.15+k*0.3})`;ctx.beginPath();ctx.ellipse(z.x,z.y,z.r*(0.5+k*0.5),z.r*0.55*(0.5+k*0.5),0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=`rgba(255,70,120,${0.15+k*0.3})`;ctx.beginPath();ctx.ellipse(z.x,z.y,z.r*(0.5+k*0.5),z.r*0.55*(0.5+k*0.5),0,0,Math.PI*2);ctx.fill();
     }else if(z.type==='burn'){
       const a=Math.min(1,z.life/0.5);
-      ctx.fillStyle=`rgba(255,110,30,${0.28*a})`;ctx.beginPath();ctx.ellipse(z.x,z.y,z.r,z.r*0.55,0,0,Math.PI*2);ctx.fill();
-      if(Math.random()<0.4&&S.fx.length<450)S.fx.push({type:'p',x:z.x+rand(-z.r,z.r)*0.8,y:z.y+rand(-z.r,z.r)*0.4,vx:0,vy:-40,life:.4,max:.4,col:Math.random()<.5?'#ffb347':'#ff6a2a',size:3});
+      ctx.fillStyle=`rgba(255,60,110,${0.26*a})`;ctx.beginPath();ctx.ellipse(z.x,z.y,z.r,z.r*0.55,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=`rgba(255,140,180,${0.35*a})`;for(let k=0;k<4;k++){const an=k*1.57+z.x;heart(z.x+Math.cos(an)*z.r*0.45,z.y+Math.sin(an)*z.r*0.25,3+Math.sin(S.t*6+k)*0.8);}
+      if(Math.random()<0.4&&S.fx.length<450)S.fx.push({type:'p',x:z.x+rand(-z.r,z.r)*0.8,y:z.y+rand(-z.r,z.r)*0.4,vx:0,vy:-40,life:.4,max:.4,col:Math.random()<.5?'#ff8ab0':'#ff4a6a',size:3});
     }else if(z.type==='slow'){
       const a=Math.max(0,Math.min(1,z.life/0.5,(z.max-z.life)/0.2));
       ctx.save();ctx.translate(z.x,z.y);ctx.scale(1,0.55);
-      ctx.fillStyle=`rgba(80,110,220,${0.16*a})`;circ(0,0,z.r);
-      ctx.strokeStyle=`rgba(160,190,255,${0.7*a})`;ctx.lineWidth=2;ctx.setLineDash([8,8]);ctx.lineDashOffset=-S.t*30;
+      ctx.fillStyle=`rgba(50,60,160,${0.18*a})`;circ(0,0,z.r); // 夜櫻結界
+      ctx.strokeStyle=`rgba(255,190,220,${0.6*a})`;ctx.lineWidth=2;ctx.setLineDash([3,9]);ctx.lineDashOffset=-S.t*30;
       ctx.beginPath();ctx.arc(0,0,z.r,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-      ctx.rotate(S.t);ctx.strokeStyle=`rgba(255,230,140,${0.5*a})`;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-z.r*0.6);ctx.stroke();
       ctx.restore();
+      ctx.globalAlpha=a;
+      for(let k=0;k<10;k++){const an=S.t*0.9+k*Math.PI/5, rr2=z.r*(0.55+0.4*((k%3)/2)), px2=z.x+Math.cos(an)*rr2, py2=z.y+Math.sin(an)*rr2*0.55;
+        if(k%3===2){ctx.fillStyle='#fff0a0';star(px2,py2-10,2.6+Math.sin(S.t*8+k));}
+        else{ctx.save();ctx.translate(px2,py2-10);ctx.rotate(an*2+k);ctx.fillStyle=k%2?'#ffc0d8':'#ff9ac0';ctx.beginPath();ctx.ellipse(0,0,3.2,1.7,0,0,Math.PI*2);ctx.fill();ctx.restore();}}
+      ctx.globalAlpha=1;
     }else if(z.type==='poison'){
       const a=Math.max(0,Math.min(1,z.life/0.6,(z.max-z.life)/0.3));
       for(let k=0;k<5;k++){const an=z.seed+k*1.26+S.t*0.6, rx=z.x+Math.cos(an)*z.r*0.45, ry=z.y+Math.sin(an)*z.r*0.25;
@@ -1966,7 +1978,7 @@ function drawGroundFx(){
 function drawProj(p){
   if(p.big&&p.kind!=='bolt'&&p.kind!=='shot')addGlow(p.x,p.y-14,16,'255,220,120',.6);
   if(p.kind==='ice')addGlow(p.x,p.y-14,10,'150,210,255',.5);
-  if(p.kind==='bolt')addGlow(p.x,p.y-14,p.big?28:20,P.br==='elem'?'255,140,60':P.br==='star'?'110,170,255':'255,90,140',.8);
+  if(p.kind==='bolt')addGlow(p.x,p.y-14,p.big?28:20,SAKU_COL()[3],.8);
   else if(p.kind==='wave')addGlow(p.x,p.y-14,30,'255,170,120',.55*Math.min(1,p.life/0.3));
   else if(p.kind==='blade')addGlow(p.x,p.y-14,11,P.br==='shadow'?'190,140,255':'180,220,255',.45);
   ctx.save();ctx.translate(p.x,p.y-14);
@@ -1982,11 +1994,12 @@ function drawProj(p){
     ctx.fillStyle='#16121c';ctx.beginPath();ctx.ellipse(0,0,6*k,4.3*k,0,0,Math.PI*2);ctx.fill();
     ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(0,0,5*k,3.4*k,0,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='rgba(255,255,255,.75)';circ(1.5*k,-1.2*k,1.2*k);}
-  else if(p.kind==='bolt'){
-    const col=P.br==='elem'?['#ff8a3a','#ffe0b0']:P.br==='star'?['#7ab0ff','#e8f4ff']:['#ff4a7a','#ffe0ea'];
-    ctx.fillStyle=col[0];ctx.beginPath();ctx.ellipse(-2,3,4,3,-0.4,0,Math.PI*2);ctx.fill();ctx.fillRect(1.2,-8,1.8,11);
-    ctx.beginPath();ctx.moveTo(3,-8);ctx.quadraticCurveTo(8,-6,6,-1);ctx.quadraticCurveTo(6,-4,3,-4.5);ctx.closePath();ctx.fill();
-    ctx.fillStyle=col[1];circ(-3,2,1.2);}
+  else if(p.kind==='bolt'){ // 櫻心音符：愛心＋音符旗
+    const col=SAKU_COL(), k=p.big?1.35:1, bb=Math.sin(S.t*14+p.x*0.05)*0.08;ctx.scale(k*(1+bb),k*(1-bb));
+    ctx.strokeStyle='#1c1422';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(4,-1);ctx.lineTo(4,-11);ctx.quadraticCurveTo(9,-9,8,-4);ctx.stroke();
+    ctx.strokeStyle=col[1];ctx.lineWidth=0.8;ctx.stroke();
+    ctx.fillStyle='#1c1422';heart(0,0,6.6);ctx.fillStyle=col[0];heart(0,0,5.2);
+    ctx.fillStyle=col[2];circ(-2.2,-1.8,1.3);}
   else if(p.kind==='moon'){ctx.restore();addGlow(p.x,p.y-14,13*p.sz,'255,230,150',.28);ctx.save();ctx.translate(p.x,p.y-14);ctx.rotate(p.rot);ctx.scale(p.sz,p.sz);
     ctx.fillStyle='#fff6c8';ctx.strokeStyle='#c89a30';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,0,10,0.3,Math.PI*2-0.3);ctx.arc(3,0,8,Math.PI*2-0.5,0.5,true);ctx.closePath();ctx.fill();ctx.stroke();}
   else if(p.kind==='pfire'){ctx.restore();addGlow(p.x,p.y-14,14,'255,140,50',.7);ctx.save();ctx.translate(p.x,p.y-14);
@@ -2056,9 +2069,11 @@ function drawFx(){
   for(const z of S.zones){
     if(z.type==='fall'){
       const k=z.t/z.max, mx=z.x-90*k, my=z.y-260*k-10;
-      addGlow(mx,my,26,'255,140,50',.9);
-      ctx.fillStyle='rgba(255,150,60,.35)';circ(mx-12*k,my-20*k,14);
-      ctx.fillStyle='#7a3a1a';circ(mx,my,10);ctx.fillStyle='#ff8a3a';circ(mx-2,my-2,6);ctx.fillStyle='#ffe0a0';circ(mx-3,my-3,2.5);
+      addGlow(mx,my,28,'255,90,130',.9);
+      ctx.fillStyle='rgba(255,120,160,.3)';circ(mx-12*k,my-20*k,13);circ(mx-22*k,my-36*k,8);
+      ctx.save();ctx.translate(mx,my);ctx.rotate(-0.3);
+      ctx.fillStyle='#2a0a14';heart(0,0,15);ctx.fillStyle='#e8244a';heart(0,0,12.5);ctx.fillStyle='#ff7a96';heart(-2,-2,7);ctx.fillStyle='#fff0f4';circ(-5,-5,2.4);
+      ctx.restore();
     }else if(z.type==='rain'){ // 顏料雨
       for(let i=0;i<7;i++){const ax=z.x+rand(-z.r,z.r)*0.85, ay=z.y+rand(-z.r,z.r)*0.45, h=rand(0,34);
         ctx.fillStyle=PAINT_COLS[i%PAINT_COLS.length];circ(ax+h*0.15,ay-h,2.2);ctx.fillRect(ax+h*0.15-0.8,ay-h-6,1.6,6);}
