@@ -200,7 +200,7 @@ const CLS={
   warrior:{nm:'夜薔薇',ic:'🌹',start:'slash',hp:140,col:'#2a2238',hair:'#1c1726',
     ds:'HP 最高，受到傷害 -10%。身穿哥德禮服的黑髮紅瞳劍士，以禮儀劍斬向身邊的魔物。'},
   mage:{nm:'緋紅聖歌',ic:'🎶',start:'bolt',hp:90,col:'#8a1e3a',hair:'#ff9ab8',
-    ds:'HP 最低，魔法冷卻 -10%。用歌聲化成的音符追蹤魔物並爆炸。'},
+    ds:'HP 最低，魔法冷卻 -10%。戴黑色貝雷帽、銀白漸層櫻粉短髮的溫柔少女，用歌聲化成的音符追蹤魔物並爆炸。'},
   archer:{nm:'人偶師',ic:'🎭',start:'arrow',hp:100,col:'#3a4a7a',hair:'#f2d38a',
     ds:'移速 +10%。快速射出銀針，射程最遠。'},
   thief:{nm:'時之證人',ic:'⏱️',start:'blade',hp:105,col:'#1e3a3a',hair:'#7ad8c8',
@@ -1391,58 +1391,97 @@ const ROSE_VAR={ // 覺醒後換裝
   sage:{C:'#4a1424',c:'#2a0812',P:'#ff3a52',W:'#f4e8ec',V:'#6a1a2e',Q:'#b01830',L:'#c88a96'},
   guard:{C:'#d6d2e2',c:'#a6a0b8',P:'#3a5ab0',K:'#2a2238',G:'#c8ccd8',g:'#8a8ea0',V:'#8a96c8',Q:'#4a5aa0',L:'#f4f2fa'},
 };
-const ROSE_CACHE={};
+// ====== 2.5D 點陣角色：櫻音（緋紅聖歌）======
+const MR=h=>h+[...h].reverse().join(''); // 左半邊鏡射成完整一列
+const SAKU_BODY=[
+  "......KKKKKKKK........", "....KKBBBBBBBBKK......", "...KBBBbbbbBBBBBKKK...", "...KBBBBBBBBBBBBKFFK..",
+  "..KKKKKKKKKKKKKKFfrFK.", "..KHHHHHHHHHHHHHKFFKXX", ".KhHXHXHHHHHHHHHHHKKX.", ".KhHHXHHHHHHHHHHHHhKX.",
+  ".KhHXHXHHSHHHHSHHHHhK.", ".KhHHHKKKSSSSKKKHHhhK.", ".KjhHHSeWSSSSeWSHHhjK.", ".KjhHHSEESSSSEESHHhjK.",
+  ".KjjhHpSSSSSSSpHhjjK.", ".KjjjhKsSSmmSSsKhjjjK.", "..KjK...KsSSsK...KjK..",
+  ...["...KKWWKCLR","..KWWWWKRRG","..KWfWwKCrW","..KwWWwKCLW","..KSSKCCCLW","..KSSKCcCLW","..KSSKCcCLW",
+      "...KKKCcCKW","....KCcCKWW","....KCcCKWw","....KCcCKwW","....KCcCKlW","....KCcCKSS","...KCCcCKSS","...KKKKKKSS"].map(MR)];
+const SAKU_LEG=["KSSSK.","KXXXK.","KSSSK.","KXXXK.","KSSsK.","KlWlK.","KXXXXK","KBBbBK","KggggK","KKKKKK"];
+const SAKU_WAND=[".KK.KK.","KRGKRrK","KRRRRrK","KRRRRrK",".KRRrK.","..KrK..","..YYy..",
+  ...Array(6).fill("..KYK.."),"..YYy..","..KYK..","...K..."];
+const PXG={
+  warrior:{body:ROSE_BODY,wpn:ROSE_SWORD,pal:ROSE_PAL,vars:ROSE_VAR,legX:[6,12],swingT:0.18,
+    cape:{sage:['#7a0e22','#4a0614',13],guard:['#e8e6f2','#b8b4c8',13]},
+    back(ch,x,y){ // 背面：頭髮蓋住臉與背
+      if(y>=4&&y<=11&&'SsRrpK'.includes(ch)&&x>4&&x<17)return 'H';
+      if(y>=12&&y<=27&&x>=6&&x<=15&&ch!=='.'&&ch!=='K')return y>25?'h':'H';
+      if(y>=28&&'LK'.includes(ch))return ch;
+      if(y>=12&&y<=27&&x>=6&&x<=15&&ch==='K')return 'H';
+      return ch;},
+    leg(X,Y,lift,pal,px){
+      ctx.fillStyle=pal.K;ctx.fillRect(X,Y-lift,5*px,10*px);
+      ctx.fillStyle=pal.B;ctx.fillRect(X+px,Y-lift,3*px,8*px);ctx.fillRect(X+px,Y+7*px-lift,4*px,2*px);
+      ctx.fillStyle=pal.b;ctx.fillRect(X+2*px,Y+2*px-lift,px,3*px);},
+    weapon(o,spr,pal,px,L,top,back,sw){ // 禮儀劍
+      if(back&&sw<0)return;
+      ctx.save();ctx.translate(L+17*px,top+21*px);
+      ctx.rotate(sw>=0?-2.4+sw*3.6:2.75);
+      ctx.drawImage(spr.wpn,-3.5*px,-17*px,7*px,22*px);
+      ctx.fillStyle=pal.W;ctx.fillRect(-1.5*px,-1.5*px,3*px,3*px);
+      ctx.restore();}},
+  mage:{body:SAKU_BODY,wpn:SAKU_WAND,leg:SAKU_LEG,legX:[6,11],swingT:0.15,
+    pal:{K:'#1c1422',H:'#f4f0f8',h:'#f6d2e2',j:'#ee98bc',X:'#120e16',B:'#1e1a26',b:'#463e56',F:'#fff8fb',f:'#ffb0cc',
+      r:'#d83a7a',R:'#ff6aa8',G:'#ffe0f0',S:'#fbe6dc',s:'#e9c3bb',p:'#ffb4c6',E:'#ff4a92',e:'#5a1238',W:'#fbf8fc',
+      w:'#d8d0e0',m:'#e0788e',C:'#241c2e',c:'#141019',L:'#efeaf4',l:'#c8c0d0',g:'#3a3346',Y:'#f0d27a',y:'#a8843a'},
+    vars:{ // 覺醒後換裝
+      elem:{C:'#3e1216',c:'#22080a',R:'#ff7a3a',r:'#c0381a',G:'#ffe0b0',B:'#3a1418',b:'#6a2a2a',f:'#ff9a5a',L:'#ffc0a0'},
+      star:{C:'#1c2150',c:'#0e1130',R:'#8ab0ff',r:'#4a5ad0',G:'#eef4ff',B:'#161a3a',b:'#3a4278',F:'#fff0a0',f:'#ffd84a',L:'#c8d4ff'}},
+    cape:{elem:['#8a1a10','#4a0a06',15],star:['#2a3070','#141840',15]},
+    back(ch,x,y){
+      if(y>=6&&y<=8&&ch==='X')return 'H'; // 背面看不到交叉髮夾
+      if(y>=8&&y<=13&&x>=6&&x<=15&&'SspmEeWK'.includes(ch))return y<11?'H':y<13?'h':'j';
+      if(y>=15&&y<=18&&x>=8&&x<=13)return y===17?'L':'C'; // 水手領
+      if(y>=19&&y<=28&&x>=7&&x<=14&&'WwRrGLlSK'.includes(ch))return 'C';
+      return ch;},
+    weapon(o,spr,pal,px,L,top,back,sw){ // 愛心權杖
+      if(back&&sw<0)return;
+      ctx.save();ctx.translate(L+18.5*px,top+21.5*px);
+      ctx.rotate(sw>=0?0.3+Math.sin(sw*Math.PI)*1.0:0.3);
+      ctx.drawImage(spr.wpn,-3.5*px,-12*px,7*px,16*px);
+      if(sw>=0){ctx.globalAlpha=0.35*Math.sin(sw*Math.PI)+0.15;ctx.fillStyle=pal.R;circ(0,-12*px,7*px);ctx.globalAlpha=1;}
+      ctx.fillStyle=pal.S;ctx.fillRect(-1.5*px,-1.5*px,3*px,3*px);
+      ctx.restore();}},
+};
+const PXC={};
 function pxCanvas(rows,pal){
   const h=rows.length,w=rows[0].length,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const col=pal[rows[y][x]];if(col){g.fillStyle=col;g.fillRect(x,y,1,1);}}
   return c;
 }
-function roseSprite(back,br){
-  const key=(back?'b':'f')+(br||'');
-  if(ROSE_CACHE[key])return ROSE_CACHE[key];
-  const pal=Object.assign({},ROSE_PAL,br&&ROSE_VAR[br]||{});
-  let rows=ROSE_BODY;
-  if(back){ // 背面：頭髮蓋住臉與背
-    rows=rows.map((r,y)=>r.split('').map((ch,x)=>{
-      if(y>=4&&y<=11&&'SsRrpK'.includes(ch)&&x>4&&x<17)return 'H';
-      if(y>=12&&y<=27&&x>=6&&x<=15&&ch!=='.'&&ch!=='K')return y>25?'h':'H';
-      if(y>=28&&'LK'.includes(ch))return ch;
-      if(y>=12&&y<=27&&x>=6&&x<=15&&ch==='K')return 'H';
-      return ch;}).join(''));
-  }
-  return ROSE_CACHE[key]={body:pxCanvas(rows,pal),sword:pxCanvas(ROSE_SWORD,pal),pal};
+function girlSprite(cls,back,br){
+  const d=PXG[cls], key=cls+(back?'b':'f')+(br||'');
+  if(PXC[key])return PXC[key];
+  const pal=Object.assign({},d.pal,br&&d.vars[br]||{});
+  const rows=back?d.body.map((r,y)=>r.split('').map((ch,x)=>d.back(ch,x,y)).join('')):d.body;
+  return PXC[key]={body:pxCanvas(rows,pal),wpn:pxCanvas(d.wpn,pal),leg:Array.isArray(d.leg)?pxCanvas(d.leg,pal):null,pal};
 }
-function drawRose(o){
-  const back=o.fy<-0.6, spr=roseSprite(back,o.br), pal=spr.pal;
+function drawPixelGirl(o){
+  const d=PXG[o.cls], back=o.fy<-0.6, spr=girlSprite(o.cls,back,o.br), pal=spr.pal;
   const ds=Math.abs(ctx.getTransform().a)||1, px=Math.max(1,Math.round(1.15*ds))/ds;
   const step=o.moving?Math.floor(o.t*9)%4:0, bob=(step===1||step===3)?px:0, lo=[1,0,-1,0][step];
+  const sw=o.swing>0?Math.max(0,1-o.swing/d.swingT):-1;
   shadow(o.x,o.y,12);
   ctx.save();ctx.imageSmoothingEnabled=false;
   ctx.translate(o.x,o.y);ctx.scale(o.face,1);
   const top=-40*px-bob, L=-11*px;
   // 披風（覺醒後）
-  if(o.br){ctx.fillStyle=o.br==='guard'?'#e8e6f2':'#7a0e22';ctx.fillRect(L+3*px,top+13*px,6*px,15*px+bob);ctx.fillStyle=o.br==='guard'?'#b8b4c8':'#4a0614';ctx.fillRect(L+3*px,top+26*px,6*px,2*px);}
+  const cp=o.br&&d.cape[o.br];
+  if(cp){ctx.fillStyle=cp[0];ctx.fillRect(L+3*px,top+cp[2]*px,6*px,(28-cp[2])*px+bob);ctx.fillStyle=cp[1];ctx.fillRect(L+3*px,top+26*px,6*px,2*px);}
   // 腿（走路時前後交替）
-  const leg=(x0,d)=>{const X=L+(x0+d)*px, Y=top+30*px+bob, lift=d>0?px:0;
-    ctx.fillStyle=pal.K;ctx.fillRect(X,Y-lift,5*px,10*px);
-    ctx.fillStyle=pal.B;ctx.fillRect(X+px,Y-lift,3*px,8*px);ctx.fillRect(X+px,Y+7*px-lift,4*px,2*px);
-    ctx.fillStyle=pal.b;ctx.fillRect(X+2*px,Y+2*px-lift,px,3*px);};
-  if(back){leg(12,-lo);leg(6,lo);}else{leg(6,lo);leg(12,-lo);}
-  // 身體
+  const leg=(x0,dd)=>{const X=L+(x0+dd)*px, Y=top+30*px+bob, lift=dd>0?px:0;
+    if(spr.leg)ctx.drawImage(spr.leg,X,Y-lift,spr.leg.width*px,spr.leg.height*px);else d.leg(X,Y,lift,pal,px);};
+  const [la,lb]=d.legX;
+  if(back){leg(lb,-lo);leg(la,lo);}else{leg(la,lo);leg(lb,-lo);}
   ctx.drawImage(spr.body,L,top,22*px,30*px);
-  // 禮儀劍
-  const sw=o.swing>0?1-o.swing/0.18:-1;
-  if(!back||sw>=0){
-    ctx.save();ctx.translate(L+17*px,top+21*px);
-    ctx.rotate(sw>=0?-2.4+sw*3.6:2.75);
-    ctx.drawImage(spr.sword,-3.5*px,-17*px,7*px,22*px);
-    ctx.fillStyle=pal.W;ctx.fillRect(-1.5*px,-1.5*px,3*px,3*px);
-    ctx.restore();
-  }
+  d.weapon(o,spr,pal,px,L,top,back,sw);
   ctx.restore();
 }
 function drawChar(o,alpha,tint){
-  if(o.cls==='warrior'&&!tint){drawRose(o);return;}
+  if(PXG[o.cls]&&!tint){drawPixelGirl(o);return;}
   const c=CLS[o.cls], gd=GIRL[o.cls], br=o.br?BRI[o.br]:null, x=o.x, y=o.y, f=o.face;
   const leg=o.moving?Math.sin(o.t*18)*2.2:0, bob=o.moving?Math.abs(Math.sin(o.t*18))*1.5:0;
   const sw=o.swing>0?1-o.swing/0.18:-1;
