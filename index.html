@@ -198,7 +198,7 @@ const sfx={
 // ====== 職業與轉職 ======
 const CLS={
   warrior:{nm:'夜薔薇',ic:'🌹',start:'slash',hp:140,col:'#2a2238',hair:'#1c1726',
-    ds:'HP 最高，受到傷害 -10%。身穿哥德禮服的黑髮紅瞳劍士，以禮儀劍斬向身邊的魔物。'},
+    ds:'HP 最高，受到傷害 -10%。身穿哥德學院制服的黑髮紅瞳劍士，以禮儀劍斬向身邊的魔物。'},
   mage:{nm:'緋紅聖歌',ic:'🎶',start:'bolt',hp:90,col:'#8a1e3a',hair:'#ff9ab8',
     ds:'HP 最低，魔法冷卻 -10%。戴黑色貝雷帽、銀白漸層櫻粉短髮的溫柔少女，用歌聲化成的音符追蹤魔物並爆炸。'},
   archer:{nm:'虹彩畫師',ic:'🎨',start:'arrow',hp:100,col:'#3a4a7a',hair:'#f2d38a',
@@ -1388,14 +1388,17 @@ const GIRL={
   thief:{iris:'#2ab8a0',frill:'#d8c8a0',rib:'#d8b04a'},
 };
 // ====== 2.5D 點陣角色：夜薔薇 ======
-const ROSE_BODY=["........KKKKKK........", "......KLKLKLKLKK......", ".....KLHLHLhLHPPK.....", "....KHHHHHHhHHPpPK....", "....KHHHHHHHHHHPPK....", "....KHHHHHhHHHHHHK....", "....KHHSHKKHSHKKHK....", "....KHHSSRrSSSRrHK....", "....KHHSSrRSSSrRsK....", "....KHHSSSSSpSSSsK....", "....KHHHsSSSSSSsHK....", "...KHHHHHKsSSSKHHHK...", "...KHHHHKKKKRKKKHHK...", "..KHHHKLWLWLWLWLKHHK..", "..KHKCCCKWWRRWWKCCKHK.", ".KHKCCCCCKWrrWKCCCCKHK", ".KHKCCcCCVKWWKVCCcCKHK", ".KHKCCcCKVWVVWVKCcCKHK", "..KHKCCKVVVWWVVVKCCKHK", "..KHKCCKVVWVVWVVKCCKHK", "..KHKWWKVVVWWVVVKWWKHK", "..KHKWWKPPPPRPPPPKWWKK", "..KHHHKCCCCQQQCCCCCK..", "..KHHKCCCCQQQQQCCCCK..", "...KKCCcCCQQQQQCcCCCK.", "...KCCcCCCQQQQQCCcCCK.", "..KCCcCCCCQQQQQQCCcCCK", "..KCcCCCCCQQQQQQCCCcCK", "..KLKLKLKLKLKLKLKLKLKK", "...KLKLKLKLKLKLKLKLK.."];
-const ROSE_SWORD=["...W...", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", ".GGGGg.", "GgGPGgG", "..KPK..", "..KPK..", "..KPK..", "..GGG..", "..P.P..", ".P...P."];
-const ROSE_PAL={K:'#120c16',H:'#1c1726',h:'#3a3150',j:'#5e5478',S:'#f4ded2',s:'#d9b9b0',R:'#e8243e',r:'#8a0e22',p:'#c0485a',
-  W:'#f4f0f8',w:'#c8c0d6',C:'#2a2333',c:'#17121e',G:'#e0b84e',g:'#9a7428',P:'#c01e36',B:'#1a1520',b:'#3c3448',V:'#3e2152',L:'#9a90aa',Q:'#7a1022'};
+const ROSE_BODY=["...KbKbKbKKKKKK.......", "...KQbFbQHHHHHHKK.....", "...KccccchHHHHHHHK....", "KKKPKPKPKPHHHHHHHHK...", "WFfFFWHHHHHHHHHHHHKKK.", "wfFFFHHHhHHHHhHHHHHHHK", "KFFrFHHHHHHHHHHHHHHHhK", "WFFFFHHHHHHHHHHHHHHHhK", "KhHHWHHhHHhhHHhHHHHHhK", "KLHHHSKKKSSSSKKKSHHHhK", "KhLHHSSrWSSSSWrSSHHHhK", "KLHHHSSRRSSSSRRSSHHHhK", "KhLHHSSSSSppSSSSSHHHhK", "KLHHHsSSSSSSSSSSsHHHhK", "KhHHHHHsSSSSSSsHHHHHhK", "KhCCCCCCCCTTWOOOBbIHhK", "KhCcCCCCCCTTWOOeBBIHhK", "KhCCCcCCCCtTBeeeTtIHhK", "KheeeeeeeeTtLBYBKTIHhK", "KhCCCCCCCCtTBYYYBBIHhK", "KheeeeeeeBTTBBYBTTIHhK", "KhHIeeBBBBBBBBBBeeIHhK", "KhHIGBBBBBBBBBBBBGIHhK", "KhHIHBBBBBTTBBBBBHIHhK", "KhIIHBBBBBttBBBBBHIIhK", "KhIIBBBBBtTTtBBBBBIIhK", "KhIIBBBBBtTTtBBBBBIIhK", ".KKBBBBBtKttKtBBBBBKK.", ".KBPBPBPBPBPBPBPBPBPK.", "..KtTTtTTtTTtTTtTTtK..", "...KttKttKttKttKttK...", "...KPKPKPKPKPKPKPKPK.."];
+const ROSE_SWORD=["...W...", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", ".YYYYy.", "YyYTYyY", "..KTK..", "..KTK..", "..KTK..", "..YYY..", "..T.T..", ".T...T."];
+const ROSE_PAL={K:'#120c16',H:'#1c1726',h:'#3a3150',I:'#a0182e',S:'#f6e8e4',s:'#dcc4c0',R:'#e8243e',r:'#7a0c1c',p:'#d88a96',
+  W:'#f6f4f8',w:'#c8c2d2',G:'#ffffff',B:'#1e1a26',b:'#3a3446',C:'#141018',c:'#2a2434',e:'#f2f0f6',O:'#b0182e',T:'#c01e36',t:'#4a0a16',
+  L:'#c8ccd8',Y:'#e0b84e',y:'#9a7428',Q:'#0c0a10',F:'#c8102e',f:'#ff4a5a',P:'#3a3044',
+  N:'#16121c',n:'#34303e',M:'#0a080c',m:'#6a6478',D:'#1e2e66'};
 const ROSE_VAR={ // 覺醒後換裝
-  sage:{C:'#4a1424',c:'#2a0812',P:'#ff3a52',W:'#f4e8ec',V:'#6a1a2e',Q:'#b01830',L:'#c88a96'},
-  guard:{C:'#d6d2e2',c:'#a6a0b8',P:'#3a5ab0',K:'#2a2238',G:'#c8ccd8',g:'#8a8ea0',V:'#8a96c8',Q:'#4a5aa0',L:'#f4f2fa'},
+  sage:{B:'#4a1424',b:'#6e2436',C:'#3a0c18',c:'#5a1a28',O:'#ff3a52',T:'#e8243e',t:'#5a0814',P:'#5a1a2a',e:'#ffd0d8'},
+  guard:{B:'#d6d2e2',b:'#f4f2fa',C:'#eceaf4',c:'#c8c4d8',K:'#2a2238',O:'#3a5ab0',T:'#3a5ab0',t:'#1a2a60',P:'#a8a4bc',e:'#3a5ab0',Q:'#c8ccd8',F:'#3a5ab0',f:'#8ab0ff',I:'#3a5ab0'},
 };
+const ROSE_LEG=["KNnNK.","KNnNK.","KNnNK.","KNnNK.","KNnNK.","KNnNK.","KNNNK.","KNNNK.","KLMLK.","KMmMMK","KMMMMK","KDDDDK"];
 // ====== 2.5D 點陣角色：緋紅聖歌 ======
 const MR=h=>h+[...h].reverse().join(''); // 左半邊鏡射成完整一列
 const SAKU_BODY=[
@@ -1439,24 +1442,19 @@ const TAC_LEG=[["KSSSK.","KSSSK.","KSSsK.","KSSSK.","KSSSK.","KSSsK.","KSSSK.","
 const TAC_GUN=[".KK.","KyyK","KYyK","KYyK","KYyK","KYyK","KYyK","KyyK","KnnK","KnnK","KnnK","KyyK","KYyK","KyyK","KUUK","KUUK","KUuK","KUUK","KUUK","KUUK","KuuK",".KK."];
 const TAC_HAND=["...KK","..KYK",".KYK.","KYK..","KK..."];
 const PXG={
-  warrior:{body:ROSE_BODY,wpn:ROSE_SWORD,pal:ROSE_PAL,vars:ROSE_VAR,legX:[6,12],swingT:0.18,
-    cape:{sage:['#7a0e22','#4a0614',13],guard:['#e8e6f2','#b8b4c8',13]},
-    back(ch,x,y){ // 背面：頭髮蓋住臉與背
-      if(y>=4&&y<=11&&'SsRrpK'.includes(ch)&&x>4&&x<17)return 'H';
-      if(y>=12&&y<=27&&x>=6&&x<=15&&ch!=='.'&&ch!=='K')return y>25?'h':'H';
-      if(y>=28&&'LK'.includes(ch))return ch;
-      if(y>=12&&y<=27&&x>=6&&x<=15&&ch==='K')return 'H';
+  warrior:{body:ROSE_BODY,wpn:ROSE_SWORD,pal:ROSE_PAL,vars:ROSE_VAR,leg:ROSE_LEG,legX:[6,11],legY:28,swingT:0.18,
+    cape:{sage:['#7a0e22','#4a0614',14],guard:['#e8e6f2','#b8b4c8',14]},
+    back(ch,x,y){ // 背面：及腰長髮蓋住臉與背，髮尾露出紅色內層
+      if(y>=8&&y<=14&&x>=5&&x<=16)return 'H';
+      if(y>=15&&y<=26&&x>=4&&x<=17)return y>=25?'I':x%4===0?'h':'H';
+      if(y>=27&&y<=28&&'TtK'.includes(ch)&&x>=8&&x<=13)return 'B';
       return ch;},
-    leg(X,Y,lift,pal,px){
-      ctx.fillStyle=pal.K;ctx.fillRect(X,Y-lift,5*px,10*px);
-      ctx.fillStyle=pal.B;ctx.fillRect(X+px,Y-lift,3*px,8*px);ctx.fillRect(X+px,Y+7*px-lift,4*px,2*px);
-      ctx.fillStyle=pal.b;ctx.fillRect(X+2*px,Y+2*px-lift,px,3*px);},
     weapon(o,spr,pal,px,L,top,back,sw){ // 禮儀劍
       if(back&&sw<0)return;
-      ctx.save();ctx.translate(L+17*px,top+21*px);
+      ctx.save();ctx.translate(L+17*px,top+22.5*px);
       ctx.rotate(sw>=0?-2.4+sw*3.6:2.75);
       ctx.drawImage(spr.wpn,-3.5*px,-17*px,7*px,22*px);
-      ctx.fillStyle=pal.W;ctx.fillRect(-1.5*px,-1.5*px,3*px,3*px);
+      ctx.fillStyle=pal.G;ctx.fillRect(-1.5*px,-1.5*px,3*px,3*px);
       ctx.restore();}},
   mage:{body:SAKU_BODY,wpn:SAKU_WAND,leg:SAKU_LEG,legX:[6,11],swingT:0.15,
     pal:{K:'#1c1422',H:'#f4f0f8',h:'#f6d2e2',j:'#ee98bc',X:'#120e16',B:'#1e1a26',b:'#463e56',F:'#fff8fb',f:'#ffb0cc',
@@ -1562,7 +1560,7 @@ function drawPixelGirl(o,alpha,tint){
   const [la,lb]=d.legX;
   if(d.under)d.under(o,spr,pal,px,L,top,back,sw);
   if(back){leg(lb,-lo,1);leg(la,lo,0);}else{leg(la,lo,0);leg(lb,-lo,1);}
-  ctx.drawImage(spr.body,L,top,22*px,30*px);
+  ctx.drawImage(spr.body,L,top,spr.body.width*px,spr.body.height*px);
   d.weapon(o,spr,pal,px,L,top,back,sw);
   ctx.restore();
 }
