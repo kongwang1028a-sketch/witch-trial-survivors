@@ -197,8 +197,8 @@ const sfx={
 
 // ====== 職業與轉職 ======
 const CLS={
-  warrior:{nm:'月蝕',ic:'🌘',start:'slash',hp:140,col:'#2a2238',hair:'#e8e4f0',
-    ds:'HP 最高，受到傷害 -10%。揮舞巨大月鐮，收割身邊的魔物。'},
+  warrior:{nm:'夜薔薇',ic:'🌹',start:'slash',hp:140,col:'#2a2238',hair:'#1c1726',
+    ds:'HP 最高，受到傷害 -10%。黑髮紅瞳的劍士，以禮儀劍斬向身邊的魔物。'},
   mage:{nm:'緋紅聖歌',ic:'🎶',start:'bolt',hp:90,col:'#8a1e3a',hair:'#ff9ab8',
     ds:'HP 最低，魔法冷卻 -10%。用歌聲化成的音符追蹤魔物並爆炸。'},
   archer:{nm:'人偶師',ic:'🎭',start:'arrow',hp:100,col:'#3a4a7a',hair:'#f2d38a',
@@ -208,8 +208,8 @@ const CLS={
 };
 const BR={
   warrior:[
-    {id:'sage',nm:'紅月收割者',ic:'🌹',sk:'wave',cape:'#a01830',ds:'追加魔法「血月斬」：朝魔物放出貫穿的紅色月刃。',pv:'爆擊率 +10%'},
-    {id:'guard',nm:'銀十字修女',ic:'✝️',sk:'shield',cape:'#d8dce8',ds:'追加魔法「聖十字」：定時擋下一次傷害並震開周圍魔物。',pv:'最大 HP +40，受到傷害再 -15%'}],
+    {id:'sage',nm:'血薔薇',ic:'🥀',sk:'wave',cape:'#a01830',ds:'換上深紅禮服。追加魔法「薔薇劍氣」：朝魔物放出貫穿的紅色劍氣。',pv:'爆擊率 +10%'},
+    {id:'guard',nm:'白銀近衛',ic:'✝️',sk:'shield',cape:'#d8dce8',ds:'換上白銀禮服。追加魔法「聖十字」：定時擋下一次傷害並震開周圍魔物。',pv:'最大 HP +40，受到傷害再 -15%'}],
   mage:[
     {id:'elem',nm:'業火詠唱',ic:'☄️',sk:'meteor',cape:'#d8402a',ds:'追加魔法「業火流星」：砸向魔物群，留下燃燒的地面。',pv:'全傷害 +10%'},
     {id:'star',nm:'星夜詠唱',ic:'✨',sk:'chrono',cape:'#2a2a6a',ds:'追加魔法「星夜結界」：身邊的魔物變慢並持續受傷。',pv:'技能冷卻再 -10%'}],
@@ -226,7 +226,7 @@ const ADV_LV=10;
 // ====== 技能資料 ======
 // t: w=一般武器 b=轉職技能 p=被動 x=道具；cls=職業專屬起始技能
 const SK={
-  slash:{t:'w',cls:'warrior',ic:'🌘',nm:'月鐮斬',ds:'揮舞月鐮砍向最近的魔物。Lv2 起前後同時斬擊。'},
+  slash:{t:'w',cls:'warrior',ic:'⚔️',nm:'禮劍斬',ds:'揮舞禮儀劍斬向最近的魔物。Lv2 起前後同時斬擊。'},
   bolt:{t:'w',cls:'mage',ic:'🎶',nm:'聖歌音符',ds:'唱出會追蹤的音符，命中時小範圍爆炸。'},
   arrow:{t:'w',cls:'archer',ic:'📍',nm:'銀針',ds:'快速朝最近的魔物射出銀針，射程很遠。'},
   blade:{t:'w',cls:'thief',ic:'⏱️',nm:'時針飛刃',ds:'自動瞄準最近的魔物，擲出能貫穿的時針。'},
@@ -239,7 +239,7 @@ const SK={
   poison:{t:'w',ic:'🌫️',nm:'詛咒霧',ds:'在魔物群中放出詛咒霧氣，持續造成傷害。'},
   chain:{t:'w',ic:'⛓️',nm:'鎖鏈雷',ds:'帶電的鎖鏈在魔物之間跳躍，等級越高跳越多次。'},
   beam:{t:'w',ic:'🔆',nm:'月光射線',ds:'朝魔物射出一道貫穿直線的月光。'},
-  slashX:{t:'e',from:'slash',ic:'💫',nm:'血月輪舞',ds:'360 度連續旋斬，範圍與傷害大幅提升。'},
+  slashX:{t:'e',from:'slash',ic:'💫',nm:'千薔薇劍舞',ds:'360 度連續旋斬，範圍與傷害大幅提升。'},
   boltX:{t:'e',from:'bolt',ic:'🎼',nm:'讚美詩終章',ds:'一次唱出 5 顆追蹤音符，爆炸範圍更大。'},
   arrowX:{t:'e',from:'arrow',ic:'🎯',nm:'千針驟雨',ds:'高速射出 5 支貫穿銀針。'},
   bladeX:{t:'e',from:'blade',ic:'✴️',nm:'零時刃嵐',ds:'向八方同時擲出時針，貫穿大量魔物。'},
@@ -252,7 +252,7 @@ const SK={
   poisonX:{t:'e',from:'poison',ic:'☠️',nm:'瘴氣庭園',ds:'同時放出 3 團巨大詛咒霧，傷害更高、持續更久。'},
   chainX:{t:'e',from:'chain',ic:'🔗',nm:'千鎖雷獄',ds:'兩道雷鎖各跳躍 14 次。'},
   beamX:{t:'e',from:'beam',ic:'☀️',nm:'最終審判',ds:'四道巨大光柱十字旋轉掃射。'},
-  wave:{t:'b',ic:'🌹',nm:'血月斬',ds:'朝魔物放出貫穿一切的紅色月刃。'},
+  wave:{t:'b',ic:'🥀',nm:'薔薇劍氣',ds:'朝魔物放出貫穿一切的紅色劍氣。'},
   shield:{t:'b',ic:'✝️',nm:'聖十字',ds:'定時擋下一次傷害，並震開周圍魔物。'},
   meteor:{t:'b',ic:'☄️',nm:'業火流星',ds:'流星砸向魔物群，留下燃燒的地面。'},
   chrono:{t:'b',ic:'✨',nm:'星夜結界',ds:'身邊的魔物變慢並持續受傷。'},
@@ -1382,7 +1382,66 @@ const GIRL={
   archer:{iris:'#3a8ad8',frill:'#f4ead2',rib:'#c84a6a'},
   thief:{iris:'#2ab8a0',frill:'#d8c8a0',rib:'#d8b04a'},
 };
+// ====== 2.5D 點陣角色：夜薔薇 ======
+const ROSE_BODY=["........KKKKKK........", "......KKHHHhHHKK......", ".....KHHHHhjhHHPPK....", "....KHHHHHHhHHPpPK....", "....KHHHSHHHHHSPPK....", "....KHHSSSHSSSSSHK....", "....KHHSSKKSSSKKHK....", "....KHHSSRrSSSRrHK....", "....KHHSSrRSSSrRsK....", "....KHHSSSSSpSSSsK....", "....KHHHsSSSSSSsHK....", "...KHHHHHKsSSSKHHHK...", "...KHHHHKWWKSKWWKHK...", "..KHHHHKCWWWPWWWCKHK..", "..KHHHKCCCWPPPWCCCKHK.", "..KHHHKCCCCWPWCCCCKHK.", "..KHHKCCCGCWWWCGCCCKHK", "..KHHKCKCCCWWWCCCKCKHK", "..KHHKCKCCGCWCGCCKCKHK", "..KHHKCKCCCCWCCCCKCKHK", "..KHHKWKCCGCWCGCCKWKHK", "..KHHKWWKPPPPPPPPKWWKK", "..KHHHKKCCCCGCCCCCKK..", "..KHHHKCCCCCCCCCCCK...", "...KHKCCCcCCCCCcCCCK..", "...KHKCCcCCCCCCCcCCK..", "...KKCCcCCCCCCCCCcCCK.", "...KCCcCCCCCCCCCCCcCK.", "...KWWWWWWWWWWWWWWWWK.", "....KwWwWwWwWwWwWwWK.."];
+const ROSE_SWORD=["...W...", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", "..WWw..", ".GGGGg.", "GgGPGgG", "..KPK..", "..KPK..", "..KPK..", "..GGG..", "..P.P..", ".P...P."];
+const ROSE_PAL={K:'#120c16',H:'#1c1726',h:'#3a3150',j:'#5e5478',S:'#f4ded2',s:'#d9b9b0',R:'#e8243e',r:'#8a0e22',p:'#c0485a',
+  W:'#f4f0f8',w:'#c8c0d6',C:'#2a2333',c:'#17121e',G:'#e0b84e',g:'#9a7428',P:'#c01e36',B:'#1a1520',b:'#3c3448'};
+const ROSE_VAR={ // 覺醒後換裝
+  sage:{C:'#4a1424',c:'#2a0812',P:'#ff3a52',W:'#f4e8ec'},
+  guard:{C:'#d6d2e2',c:'#a6a0b8',P:'#3a5ab0',K:'#2a2238',G:'#c8ccd8',g:'#8a8ea0'},
+};
+const ROSE_CACHE={};
+function pxCanvas(rows,pal){
+  const h=rows.length,w=rows[0].length,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const col=pal[rows[y][x]];if(col){g.fillStyle=col;g.fillRect(x,y,1,1);}}
+  return c;
+}
+function roseSprite(back,br){
+  const key=(back?'b':'f')+(br||'');
+  if(ROSE_CACHE[key])return ROSE_CACHE[key];
+  const pal=Object.assign({},ROSE_PAL,br&&ROSE_VAR[br]||{});
+  let rows=ROSE_BODY;
+  if(back){ // 背面：頭髮蓋住臉與背
+    rows=rows.map((r,y)=>r.split('').map((ch,x)=>{
+      if(y>=4&&y<=11&&'SsRrpK'.includes(ch)&&x>4&&x<17)return 'H';
+      if(y>=12&&y<=27&&x>=6&&x<=15&&ch!=='.'&&ch!=='K')return y>25?'h':'H';
+      if(y>=12&&y<=27&&x>=6&&x<=15&&ch==='K')return 'H';
+      return ch;}).join(''));
+  }
+  return ROSE_CACHE[key]={body:pxCanvas(rows,pal),sword:pxCanvas(ROSE_SWORD,pal),pal};
+}
+function drawRose(o){
+  const back=o.fy<-0.6, spr=roseSprite(back,o.br), pal=spr.pal;
+  const ds=Math.abs(ctx.getTransform().a)||1, px=Math.max(1,Math.round(1.15*ds))/ds;
+  const step=o.moving?Math.floor(o.t*9)%4:0, bob=(step===1||step===3)?px:0, lo=[1,0,-1,0][step];
+  shadow(o.x,o.y,12);
+  ctx.save();ctx.imageSmoothingEnabled=false;
+  ctx.translate(o.x,o.y);ctx.scale(o.face,1);
+  const top=-40*px-bob, L=-11*px;
+  // 披風（覺醒後）
+  if(o.br){ctx.fillStyle=o.br==='guard'?'#e8e6f2':'#7a0e22';ctx.fillRect(L+3*px,top+13*px,6*px,15*px+bob);ctx.fillStyle=o.br==='guard'?'#b8b4c8':'#4a0614';ctx.fillRect(L+3*px,top+26*px,6*px,2*px);}
+  // 腿（走路時前後交替）
+  const leg=(x0,d)=>{const X=L+(x0+d)*px, Y=top+30*px+bob, lift=d>0?px:0;
+    ctx.fillStyle=pal.K;ctx.fillRect(X,Y-lift,5*px,10*px);
+    ctx.fillStyle=pal.B;ctx.fillRect(X+px,Y-lift,3*px,8*px);ctx.fillRect(X+px,Y+7*px-lift,4*px,2*px);
+    ctx.fillStyle=pal.b;ctx.fillRect(X+2*px,Y+2*px-lift,px,3*px);};
+  if(back){leg(12,-lo);leg(6,lo);}else{leg(6,lo);leg(12,-lo);}
+  // 身體
+  ctx.drawImage(spr.body,L,top,22*px,30*px);
+  // 禮儀劍
+  const sw=o.swing>0?1-o.swing/0.18:-1;
+  if(!back||sw>=0){
+    ctx.save();ctx.translate(L+17*px,top+21*px);
+    ctx.rotate(sw>=0?-2.4+sw*3.6:2.75);
+    ctx.drawImage(spr.sword,-3.5*px,-17*px,7*px,22*px);
+    ctx.fillStyle=pal.W;ctx.fillRect(-1.5*px,-1.5*px,3*px,3*px);
+    ctx.restore();
+  }
+  ctx.restore();
+}
 function drawChar(o,alpha,tint){
+  if(o.cls==='warrior'&&!tint){drawRose(o);return;}
   const c=CLS[o.cls], gd=GIRL[o.cls], br=o.br?BRI[o.br]:null, x=o.x, y=o.y, f=o.face;
   const leg=o.moving?Math.sin(o.t*18)*2.2:0, bob=o.moving?Math.abs(Math.sin(o.t*18))*1.5:0;
   const sw=o.swing>0?1-o.swing/0.18:-1;
