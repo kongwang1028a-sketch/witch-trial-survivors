@@ -202,9 +202,9 @@ const CLS={
   mage:{nm:'緋紅聖歌',ic:'🎶',start:'bolt',hp:90,col:'#8a1e3a',hair:'#ff9ab8',
     ds:'HP 最低，魔法冷卻 -10%。戴黑色貝雷帽、銀白漸層櫻粉短髮的溫柔少女，用歌聲化成的音符追蹤魔物並爆炸。'},
   archer:{nm:'人偶師',ic:'🎭',start:'arrow',hp:100,col:'#3a4a7a',hair:'#f2d38a',
-    ds:'移速 +10%。快速射出銀針，射程最遠。'},
+    ds:'移速 +10%。戴畫家帽、銀白雙馬尾配彩虹挑染的開朗少女，手持噴漆罐快速射出銀針，射程最遠。'},
   thief:{nm:'時之證人',ic:'⏱️',start:'blade',hp:105,col:'#1e3a3a',hair:'#7ad8c8',
-    ds:'爆擊率 +7%，衝刺冷卻 -40%。擲出鋒利的時針，身手最靈活。'},
+    ds:'爆擊率 +7%，衝刺冷卻 -40%。黑髮雙馬尾、身穿戰術機甲制服的呆萌少女，擲出鋒利的時針，身手最靈活。'},
 };
 const BR={
   warrior:[
@@ -1397,12 +1397,42 @@ const SAKU_BODY=[
   "......KKKKKKKK........", "....KKBBBBBBBBKK......", "...KBBBbbbbBBBBBKKK...", "...KBBBBBBBBBBBBKFFK..",
   "..KKKKKKKKKKKKKKFfrFK.", "..KHHHHHHHHHHHHHKFFKXX", ".KhHXHXHHHHHHHHHHHKKX.", ".KhHHXHHHHHHHHHHHHhKX.",
   ".KhHXHXHHSHHHHSHHHHhK.", ".KhHHHKKKSSSSKKKHHhhK.", ".KjhHHSeWSSSSeWSHHhjK.", ".KjhHHSEESSSSEESHHhjK.",
-  ".KjjhHpSSSSSSSpHhjjK.", ".KjjjhKsSSmmSSsKhjjjK.", "..KjK...KsSSsK...KjK..",
+  ".KjjhHpSSSSSSSSpHhjjK.", ".KjjjhKsSSmmSSsKhjjjK.", "..KjK...KsSSsK...KjK..",
   ...["...KKWWKCLR","..KWWWWKRRG","..KWfWwKCrW","..KwWWwKCLW","..KSSKCCCLW","..KSSKCcCLW","..KSSKCcCLW",
       "...KKKCcCKW","....KCcCKWW","....KCcCKWw","....KCcCKwW","....KCcCKlW","....KCcCKSS","...KCCcCKSS","...KKKKKKSS"].map(MR)];
 const SAKU_LEG=["KSSSK.","KXXXK.","KSSSK.","KXXXK.","KSSsK.","KlWlK.","KXXXXK","KBBbBK","KggggK","KKKKKK"];
 const SAKU_WAND=[".KK.KK.","KRGKRrK","KRRRRrK","KRRRRrK",".KRRrK.","..KrK..","..YYy..",
   ...Array(6).fill("..KYK.."),"..YYy..","..KYK..","...K..."];
+// ====== 2.5D 點陣角色：彩繪少女（人偶師）======
+const PAINT_BODY=[
+  "........KKKKKK........", "......KKBBBBBBKK......", ".....KBB1BBBB5BBK.....", "....KBBBBBB3BBBBBK....",
+  "KXK.KKKKKKKKKKKKKK.KXK", "X2XKHHHHHHHHHHHHHHKX4X", "KXKKH1H2H3HHHHHHHHKKXK", "KHhKH1H2H3H4H5HHHHKhHK",
+  "KHhKH1S2S3SS4S5SHHKhHK", "KHhKHHKKKSSSSKKKHHKhHK", "KHhKHSSeWSSSSeWSSHKhHK", "KHhKHSSEESSSSAASSHKhHK",
+  "KHhKHpSSSmWWmSSSpHKhHK", "KyhKKsSSSStSSSSSsKKhyK", "KyhKK.KsSSSSSSsK.KKhyK",
+  ...["KHh.KKKSSSS","KHhKJJKSSSS","KhhKJJKJKKK","KhyKJjKJKWW","KyyKJjKJKW1","KYyKJjKJKWW",".KYK1J2KKKK",
+      "..KKSSKQQQQ","...KK4KQ3QQ","...K6KKQQQ5","...KQQQ1QQQ","...KQ4QQQQ2","..KQQQQQ3QQ","..K1KQ5KQ2K",
+      "..........."].map(MR)].map((r,y)=>y>=21&&y<=27?r.split('').map((c,x)=>x>10&&c==='Q'?'W':c).join(''):r);
+const PAINT_LEG=[["KSSSK.","KSSSK.","KSSsK.","KSSSK.","K5U5K.","KUU5K.","KUUUK.","KUuUK.","KUUUUK","KUUUUK","KuuuuK","KKKKKK"],
+  ["KSSSK.","KSSSK.","KSSsK.","KSSSK.","K1N1K.","KNN1K.","KNNNK.","KNnNK.","KNNNNK","KNNNNK","KnnnnK","KKKKKK"]];
+const PAINT_CAN=["..KK.",".KWWK","KKKKK","K66hK","K6W6K","K333K","K66hK","K66hK","KKKKK"];
+// ====== 2.5D 點陣角色：戰術少女（時之證人）======
+const TAC_BODY=[
+  "........KKKKKK........", "......KKBBBBBBKK......", ".....KBBBBBBBBbBK.....", "....KBBBBBBBBBBbBK....",
+  ".KK.KyYYYyyyyyyyyK.KK.", "KHHKHHHHHHHHHHHHHHKHHK", "KHhKHHHHHHHHHHHHHHKhHK", "KHhKHHHhHHHHHHhHHHKhHK",
+  "KHhKHHhHHhHHhHHhHHKhHK", "KHhKHSKKSSSSSSKKSHKhHK", "KHhKHSWESSSSSSWESHKhHK", "KHhKHSEeSSSSSSEeSHKhHK",
+  "KHhKHsSSSSmmSSSSsHKhHK", "KHhKKsSSSSSSSSSSsKKhHK", "KHh..KKsSSSSSSsKK..hHK",
+  ...["KHh.KKUUUKS","KhhKAAUUUAK","KhgKAaUUCUU","KggKAAKUUUU","KGgKUUKUUuU",".GGKUUKUUuU",".KGKUUKNNYN",
+      "..KKSSKNnKN","...KKKQqQqQ","...KQqQPQqQ","...KqQqPqQq","..KQqQqPQqQ","..KqQqQPqQq","..KKKKKKKKK",
+      "..........."].map(MR)].map((r,y)=>{let a=r.split('');
+    const st={15:[6],16:[7,8],17:[9,10],18:[11],19:[12,13],20:[14],21:[15]}[y]; // 霰彈槍背帶
+    if(st)for(const x of st)if(a[x]!=='.')a[x]='z';
+    if(y===21||y===22)for(let x=15;x<=18;x++)if(a[x]==='S')a[x]=y===21?'w':'W'; // 左手繃帶
+    if(y>=24&&y<=26&&a[7]!=='.')a[7]=y===26?'Y':'y'; // 三角金屬扣垂墜織帶
+    return a.join('');});
+const TAC_LEG=[["KSSSK.","KSSSK.","KSSsK.","KSSSK.","KSSSK.","KSSsK.","KSSSK.","KBBBK.","KBbBK.","KByBBK","KBBBBK","KKKKKK"],
+  ["KSSSK.","KSSSK.","KSSsK.","KzYzK.","KSSSK.","KzYzK.","KSSSK.","KBBBK.","KBbBK.","KByBBK","KBBBBK","KKKKKK"]];
+const TAC_GUN=[".KK.","KyyK","KYyK","KYyK","KYyK","KYyK","KYyK","KyyK","KnnK","KnnK","KnnK","KyyK","KYyK","KyyK","KUUK","KUUK","KUuK","KUUK","KUUK","KUUK","KuuK",".KK."];
+const TAC_HAND=["...KK","..KYK",".KYK.","KYK..","KK..."];
 const PXG={
   warrior:{body:ROSE_BODY,wpn:ROSE_SWORD,pal:ROSE_PAL,vars:ROSE_VAR,legX:[6,12],swingT:0.18,
     cape:{sage:['#7a0e22','#4a0614',13],guard:['#e8e6f2','#b8b4c8',13]},
@@ -1445,43 +1475,92 @@ const PXG={
       if(sw>=0){ctx.globalAlpha=0.35*Math.sin(sw*Math.PI)+0.15;ctx.fillStyle=pal.R;circ(0,-12*px,7*px);ctx.globalAlpha=1;}
       ctx.fillStyle=pal.S;ctx.fillRect(-1.5*px,-1.5*px,3*px,3*px);
       ctx.restore();}},
-};
-const PXC={};
+  archer:{body:PAINT_BODY,wpn:PAINT_CAN,leg:PAINT_LEG,legX:[6,11],legY:28,swingT:0.12,
+    pal:{K:'#16121c',H:'#eef0f6',h:'#c4c8da',y:'#ffd84a',Y:'#ffae20',B:'#1a1620',b:'#3c3648',X:'#141018',
+      1:'#ff4a5a',2:'#ff9a3a',3:'#ffe04a',4:'#4ad88a',5:'#4aa8ff',6:'#b06aff',S:'#fbe4d6',s:'#e8c2b2',p:'#ffa8b8',
+      E:'#ff3048',A:'#ffc820',e:'#3a1020',W:'#fbfbff',m:'#c83a50',t:'#ff7a8a',J:'#211b29',j:'#0f0c14',
+      Q:'#221c2a',U:'#2a5ad0',u:'#18348a',N:'#1e1a26',n:'#3a3448'},
+    vars:{gale:{J:'#1c2c60',j:'#0e1638',B:'#1c2c60',b:'#3a4c90',Q:'#1c2a50'},
+      beast:{J:'#4a2e1e',j:'#2a180e',B:'#4a2e1e',b:'#7a5236',Q:'#3a2418'}},
+    cape:{gale:['#3a4a90','#202a60',15],beast:['#7a5a3a','#4a3420',15]},
+    back(ch,x,y){
+      if(y>=6&&y<=14&&x>=4&&x<=17){if(y===14&&(x<6||x>15))return ch;return y>=12?(x%3?'y':'Y'):(x%4===1?'h':'H');}
+      if(y>=16&&y<=21&&x>=7&&x<=14&&ch!=='.')return 'J';
+      return ch;},
+    weapon(o,spr,pal,px,L,top,back,sw){ // 噴漆罐
+      if(back&&sw<0)return;
+      ctx.save();ctx.translate(L+18*px,top+22*px);
+      const k=sw>=0?Math.sin(sw*Math.PI):0;
+      ctx.rotate(0.1+k*1.3);
+      ctx.drawImage(spr.wpn,-2.5*px,-8*px,5*px,9*px);
+      if(sw>=0){const cs=[pal[1],pal[3],pal[5],pal[6],pal[4]];
+        for(let i=0;i<9;i++){ctx.globalAlpha=0.85*k;ctx.fillStyle=cs[i%5];
+          ctx.fillRect(((i*7)%5-2)*px*1.2,(-10-i*1.3)*px,px*1.4,px*1.4);}ctx.globalAlpha=1;}
+      ctx.fillStyle=pal.S;ctx.fillRect(-1.5*px,-1.5*px,3*px,3*px);
+      ctx.restore();}},
+  thief:{body:TAC_BODY,wpn:TAC_HAND,gun:TAC_GUN,leg:TAC_LEG,legX:[6,11],legY:28,swingT:0.15,
+    pal:{K:'#120e16',H:'#1e1a24',h:'#34303e',g:'#5a6a84',G:'#8a9ab8',S:'#f6eeec',s:'#d8cacc',E:'#c0b0ec',e:'#5a4a86',
+      W:'#f2f0f0',w:'#c8c4c6',m:'#c89aa4',B:'#1a1820',b:'#3a3644',Y:'#c8ccd8',y:'#6e7280',z:'#3e3a48',
+      U:'#2a2e3a',u:'#181a22',A:'#4a5264',a:'#7a849a',C:'#5ad8e8',N:'#3a3c32',n:'#24261e',Q:'#2a2a30',q:'#45454e',P:'#686874'},
+    vars:{shadow:{C:'#b080ff',U:'#2e2840',A:'#4e4470',a:'#8a7ab8',Q:'#2c2638'},
+      trap:{C:'#ffc84a',A:'#7a5e30',a:'#b89050',N:'#4a3a22'}},
+    cape:{shadow:['#4a2a7a','#2a1450',15],trap:['#8a6a2a','#5a4416',15]},
+    back(ch,x,y){
+      if(y>=8&&y<=13&&x>=4&&x<=17)return y<12?'H':'h';
+      if(y>=15&&y<=21&&x>=6&&x<=15&&ch!=='.'&&ch!=='K')return 'U';
+      return ch;},
+    under(o,spr,pal,px,L,top,back){ // 正面：霰彈槍從肩後露出
+      if(back)return;
+      ctx.save();ctx.translate(L+5*px,top+22*px);ctx.rotate(-0.45);
+      ctx.drawImage(spr.gun,-2*px,-22*px,4*px,22*px);ctx.restore();},
+    weapon(o,spr,pal,px,L,top,back,sw){
+      if(back){ctx.save();ctx.translate(L+11*px,top+19*px);ctx.rotate(0.75); // 背面斜背霰彈槍
+        ctx.drawImage(spr.gun,-2*px,-11*px,4*px,22*px);ctx.restore();return;}
+      if(sw<0)return;
+      ctx.save();ctx.translate(L+18*px,top+22*px);ctx.rotate(-0.9+sw*1.8); // 擲出時針
+      ctx.drawImage(spr.wpn,0,-5*px,5*px,5*px);ctx.restore();}},
+};const PXC={};
 function pxCanvas(rows,pal){
   const h=rows.length,w=rows[0].length,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const col=pal[rows[y][x]];if(col){g.fillStyle=col;g.fillRect(x,y,1,1);}}
   return c;
 }
-function girlSprite(cls,back,br){
-  const d=PXG[cls], key=cls+(back?'b':'f')+(br||'');
+function tintCanvas(c,tint){
+  const g=c.getContext('2d');g.globalCompositeOperation='source-atop';g.globalAlpha=0.82;g.fillStyle=tint;g.fillRect(0,0,c.width,c.height);return c;
+}
+function girlSprite(cls,back,br,tint){
+  const d=PXG[cls], key=cls+(back?'b':'f')+(br||'')+(tint||'');
   if(PXC[key])return PXC[key];
   const pal=Object.assign({},d.pal,br&&d.vars[br]||{});
   const rows=back?d.body.map((r,y)=>r.split('').map((ch,x)=>d.back(ch,x,y)).join('')):d.body;
-  return PXC[key]={body:pxCanvas(rows,pal),wpn:pxCanvas(d.wpn,pal),leg:Array.isArray(d.leg)?pxCanvas(d.leg,pal):null,pal};
+  const mk=r=>{const c=pxCanvas(r,pal);return tint?tintCanvas(c,tint):c;};
+  const legs=Array.isArray(d.leg)?(Array.isArray(d.leg[0])?d.leg.map(mk):[mk(d.leg),mk(d.leg)]):null;
+  return PXC[key]={body:mk(rows),wpn:mk(d.wpn),gun:d.gun?mk(d.gun):null,legs,pal};
 }
-function drawPixelGirl(o){
-  const d=PXG[o.cls], back=o.fy<-0.6, spr=girlSprite(o.cls,back,o.br), pal=spr.pal;
+function drawPixelGirl(o,alpha,tint){
+  const d=PXG[o.cls], back=o.fy<-0.6, spr=girlSprite(o.cls,back,o.br,tint), pal=spr.pal;
   const ds=Math.abs(ctx.getTransform().a)||1, px=Math.max(1,Math.round(1.15*ds))/ds;
   const step=o.moving?Math.floor(o.t*9)%4:0, bob=(step===1||step===3)?px:0, lo=[1,0,-1,0][step];
   const sw=o.swing>0?Math.max(0,1-o.swing/d.swingT):-1;
   shadow(o.x,o.y,12);
-  ctx.save();ctx.imageSmoothingEnabled=false;
+  ctx.save();ctx.imageSmoothingEnabled=false;if(alpha!==undefined)ctx.globalAlpha=alpha;
   ctx.translate(o.x,o.y);ctx.scale(o.face,1);
   const top=-40*px-bob, L=-11*px;
   // 披風（覺醒後）
   const cp=o.br&&d.cape[o.br];
-  if(cp){ctx.fillStyle=cp[0];ctx.fillRect(L+3*px,top+cp[2]*px,6*px,(28-cp[2])*px+bob);ctx.fillStyle=cp[1];ctx.fillRect(L+3*px,top+26*px,6*px,2*px);}
+  if(cp){ctx.fillStyle=tint||cp[0];ctx.fillRect(L+3*px,top+cp[2]*px,6*px,(28-cp[2])*px+bob);ctx.fillStyle=tint||cp[1];ctx.fillRect(L+3*px,top+26*px,6*px,2*px);}
   // 腿（走路時前後交替）
-  const leg=(x0,dd)=>{const X=L+(x0+dd)*px, Y=top+30*px+bob, lift=dd>0?px:0;
-    if(spr.leg)ctx.drawImage(spr.leg,X,Y-lift,spr.leg.width*px,spr.leg.height*px);else d.leg(X,Y,lift,pal,px);};
+  const leg=(x0,dd,i)=>{const X=L+(x0+dd)*px, Y=top+(d.legY||30)*px+bob, lift=dd>0?px:0, lc=spr.legs&&spr.legs[i];
+    if(lc)ctx.drawImage(lc,X,Y-lift,lc.width*px,lc.height*px);else d.leg(X,Y,lift,pal,px);};
   const [la,lb]=d.legX;
-  if(back){leg(lb,-lo);leg(la,lo);}else{leg(la,lo);leg(lb,-lo);}
+  if(d.under)d.under(o,spr,pal,px,L,top,back);
+  if(back){leg(lb,-lo,1);leg(la,lo,0);}else{leg(la,lo,0);leg(lb,-lo,1);}
   ctx.drawImage(spr.body,L,top,22*px,30*px);
   d.weapon(o,spr,pal,px,L,top,back,sw);
   ctx.restore();
 }
 function drawChar(o,alpha,tint){
-  if(PXG[o.cls]&&!tint){drawPixelGirl(o);return;}
+  if(PXG[o.cls]){drawPixelGirl(o,alpha,tint);return;}
   const c=CLS[o.cls], gd=GIRL[o.cls], br=o.br?BRI[o.br]:null, x=o.x, y=o.y, f=o.face;
   const leg=o.moving?Math.sin(o.t*18)*2.2:0, bob=o.moving?Math.abs(Math.sin(o.t*18))*1.5:0;
   const sw=o.swing>0?1-o.swing/0.18:-1;
