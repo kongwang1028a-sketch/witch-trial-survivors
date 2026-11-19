@@ -1416,8 +1416,8 @@ const PAINT_BODY=[
   "........KKKKKK........", "......KKBBBBBBKK......", ".....KBB1BBBB5BBK.....", "....KBBBBBB3BBBBBK....",
   "KXK.KKKKKKKKKKKKKK.KXK", "X2XKHHHHHHHHHHHHHHKX4X", "KXKKH1H2H3HHHHHHHHKKXK", "KHhKH1H2H3H4H5HHHHKhHK",
   "KHhKH1S2S3SS4S5SHHKhHK", "KHhKHHKKKSSSSKKKHHKhHK", "KHhKHSSeWSSSSeWSSHKhHK", "KHhKHSSEESSSSAASSHKhHK",
-  "KHhKHpSSSmWWmSSSpHKhHK", "KyhKKsSSSStSSSSSsKKhyK", "KyhKK.KsSSSSSSsK.KKhyK",
-  ...["KHh.KKKSSSS","KHhKJJKSSSS","KhhKJJKJKKK","KhyKJjKJKWW","KyyKJjKJKW1","KYyKJjKJKWW",".KYK1J2KKKK",
+  "KHhKHpSSSmWWmSSSpHKhHK", "KyhKHKsSSSttSSSsKHKhyK", "KyhK....KsSSsK....KhyK",
+  ...["KHh.KKKSSKK","KHhKJJKSsKK","KhhKJJKJKKK","KhyKJjKJKWW","KyyKJjKJKW1","KYyKJjKJKWW",".KYK1J2KKKK",
       "..KKSSKQQQQ","...KK4KQ3QQ","...K6KKQQQ5","...KQQQ1QQQ","...KQ4QQQQ2","..KQQQQQ3QQ","..K1KQ5KQ2K",
       "..........."].map(MR)].map((r,y)=>y>=21&&y<=27?r.split('').map((c,x)=>x>10&&c==='Q'?'W':c).join(''):r);
 const PAINT_LEG=[["KSSSK.","KSSSK.","KSSsK.","KSSSK.","K5U5K.","KUU5K.","KUUUK.","KUuUK.","KUUUUK","KUUUUK","KuuuuK","KKKKKK"],
@@ -1487,7 +1487,7 @@ const PXG={
       beast:{J:'#4a2e1e',j:'#2a180e',B:'#4a2e1e',b:'#7a5236',Q:'#3a2418'}},
     cape:{gale:['#3a4a90','#202a60',15],beast:['#7a5a3a','#4a3420',15]},
     back(ch,x,y){
-      if(y>=6&&y<=14&&x>=4&&x<=17){if(y===14&&(x<6||x>15))return ch;return y>=12?(x%3?'y':'Y'):(x%4===1?'h':'H');}
+      if(y>=6&&y<=14&&x>=4&&x<=17){if(y===14&&(x<8||x>13))return ch;return y>=12?(x%3?'y':'Y'):(x%4===1?'h':'H');}
       if(y>=16&&y<=21&&x>=7&&x<=14&&ch!=='.')return 'J';
       return ch;},
     weapon(o,spr,pal,px,L,top,back,sw){ // 噴漆罐
