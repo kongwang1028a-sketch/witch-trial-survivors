@@ -43,6 +43,19 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
 .mnode.cur{opacity:1;border-color:#ff7ab8;box-shadow:0 0 14px rgba(255,120,180,.8)}
 @keyframes mpulse{to{transform:translate(-50%,-50%) scale(1.13)}}
 #evtCards .card{min-width:150px}
+.stypanel{max-width:640px}
+.stybox{position:relative;text-align:left;background:linear-gradient(#1a1226,#120c1c);border:2px solid #c9a24a;border-radius:12px;padding:12px 16px 22px;margin:8px 0;cursor:pointer;min-height:118px;user-select:none}
+.styhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.styic{font-size:30px;width:44px;height:44px;line-height:44px;text-align:center;background:#2e2246;border:2px solid #6a4a9a;border-radius:50%}
+.styname{font-weight:900;color:#ffd27a;font-size:15px}
+.stytext{font-size:16px;line-height:1.7;color:#f0e8ff;min-height:54px}
+.stymore{position:absolute;right:14px;bottom:4px;color:#ffd27a;font-size:12px;animation:mpulse .6s ease-in-out infinite alternate}
+.styopts{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.sopt{font:inherit;font-size:15px;font-weight:700;text-align:left;color:#fff;background:linear-gradient(90deg,#3a2a56,#241a38);border:2px solid #6a4a9a;border-radius:10px;padding:9px 14px;cursor:pointer;display:flex;justify-content:space-between}
+.sopt:hover{border-color:#ffd27a}
+.sopt:disabled{opacity:.45;cursor:not-allowed}
+.sopt .sc{color:#ffd27a;font-size:13px}
+.styfx{text-align:left;background:rgba(255,210,122,.1);border:1px solid rgba(255,210,122,.5);border-radius:10px;padding:8px 14px;margin-bottom:8px;font-size:14px;line-height:1.7;color:#ffe8b0}
 .tabs{display:flex;gap:6px;justify-content:center;margin:0 0 10px}
 .tab{font:inherit;font-weight:800;font-size:15px;color:#e2d6f6;background:#2a2040;border:2px solid #5a4a7a;border-radius:10px;padding:6px 16px;cursor:pointer}
 .tab.on{background:linear-gradient(#d8405a,#8a1a3a);border-color:#c9a24a;color:#fff}
@@ -172,6 +185,20 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
     <div class="sub" id="evtText"></div>
     <div id="evtCards" class="cards" style="flex-wrap:wrap"></div>
     <div id="evtFoot"></div>
+  </div>
+</div>
+
+<div id="story" class="ov hide">
+  <div class="panel stypanel">
+    <h2 id="styTitle"></h2>
+    <div class="sub" id="styWallet" style="color:#ffd27a"></div>
+    <div class="stybox" id="styBox">
+      <div class="styhead"><span id="styIc" class="styic"></span><span id="styName" class="styname"></span></div>
+      <div id="styText" class="stytext"></div>
+      <div id="styMore" class="stymore hide">▼</div>
+    </div>
+    <div id="styFx" class="styfx hide"></div>
+    <div id="styOpts" class="styopts"></div>
   </div>
 </div>
 
@@ -702,28 +729,104 @@ function openMerchant(){
 }
 function upgradable(){return Object.keys(P.sk).filter(k=>(SK[k].t==='w'||SK[k].t==='p')&&P.sk[k]<5&&!P.sk[k+'X']);}
 function evtMsg(t,x){showChoice(t,x,[{ic:'➡️',nm:'繼續',ds:'回到路線圖',go:showMap}]);}
-const EVENTS=[
-  {ic:'🩸',nm:'鮮血祭壇',tx:'石造祭壇上刻著古老的契約：「以血換力」。',opts:()=>[
-    {ic:'🩸',nm:'獻上鮮血',ds:'失去 25% 目前生命，從三件遺物中選一件',ok:P.hp>8,go:()=>{P.hp=Math.max(1,Math.round(P.hp*0.75));relicPick(showMap,'🩸 契約成立');}},
-    {ic:'🚶',nm:'離開',ds:'什麼也不做',go:showMap}]},
-  {ic:'🧙',nm:'流浪魔女',tx:'戴著兜帽的魔女向妳招手：「要不要買點好東西？」',opts:()=>{const a=rPrice(60),b=rPrice(110);return[
-    {ic:'❤️',nm:'治療藥水',ds:'生命全滿',tag:`💰 ${a}`,ok:RUN.coins>=a,go:()=>{spend(a);P.hp=P.maxHp;evtMsg('🧙 流浪魔女','「喝下去就沒事了。」生命全滿！');}},
-    {ic:'🎁',nm:'神秘包裹',ds:'隨機獲得一件遺物',tag:`💰 ${b}`,ok:RUN.coins>=b,go:()=>{spend(b);const r=randRelics(1)[0];if(r){addRelic(r);evtMsg('🎁 包裹裡是……',`${RELIC[r].ic} <b>${RELIC[r].nm}</b>：${RELIC[r].ds}`);}else{gainC(b);evtMsg('🎁 空的？','魔女把錢退給妳了。');}}},
-    {ic:'🚶',nm:'婉拒',ds:'離開',go:showMap}];}},
-  {ic:'📦',nm:'被詛咒的寶箱',tx:'寶箱上纏著發黑的鎖鏈，裡面似乎有東西在發光。',opts:()=>[
-    {ic:'🗝️',nm:'打開',ds:'60%：遺物三選一<br>40%：受到詛咒（本次冒險受到的傷害 +15%）',go:()=>{if(Math.random()<0.6)relicPick(showMap,'📦 寶箱打開了！');else{RUN.curse++;evtMsg('💀 詛咒！','黑色的霧氣纏上了妳……本次冒險受到的傷害 +15%。');}}},
-    {ic:'🚶',nm:'不碰它',ds:'離開',go:showMap}]},
-  {ic:'🥚',nm:'迷途的使魔蛋',tx:'角落裡有一顆微微發熱的蛋。',opts:()=>[
-    {ic:'🐾',nm:'收留',ds:'孵化成使魔（已有的話會升級）',go:()=>{givePet();evtMsg('🥚 蛋孵化了！','新的夥伴加入了冒險。');}},
-    {ic:'💰',nm:'賣給商人',ds:'獲得 💰80',go:()=>{gainC(80);showMap();}}]},
-  {ic:'⛲',nm:'月光泉',tx:'泉水映著不知從何而來的月光。',opts:()=>{const up=upgradable();return[
-    {ic:'💧',nm:'飲用',ds:'回復 35% 生命',go:()=>{P.hp=Math.min(P.maxHp,P.hp+Math.round(P.maxHp*0.35));showMap();}},
-    {ic:'✨',nm:'洗禮',ds:'隨機一個魔法升 1 級',ok:up.length>0,go:()=>{const k=up[Math.floor(Math.random()*up.length)];P.sk[k]++;recalc();evtMsg('✨ 洗禮',`${SK[k].ic} ${SK[k].nm} 升到 Lv.${P.sk[k]}！`);}}];}},
+// ====== 劇情事件：對話演出，選項不寫效果，選了才揭曉 ======
+const FX={ // 效果：每個回傳一行說明，結算畫面顯示
+  heal:p=>{const h=Math.round(P.maxHp*p);P.hp=Math.min(P.maxHp,P.hp+h);return `❤️ 回復 ${h} 生命`;},
+  full:()=>{P.hp=P.maxHp;return '❤️ 生命全滿';},
+  hurt:p=>{const d=Math.max(1,Math.round(P.maxHp*p));P.hp=Math.max(1,P.hp-d);return `💔 失去 ${d} 生命`;},
+  maxhp:n=>{P.maxHp+=n;P.hp+=n;return `💗 最大生命 +${n}`;},
+  coin:n=>{gainC(n);return n>=0?`💰 獲得 ${n} 金幣`:`💰 失去 ${-n} 金幣`;},
+  curse:()=>{RUN.curse++;return '💀 受到詛咒：本次冒險受到的傷害 +15%';},
+  relic:()=>{const r=randRelics(1)[0];if(!r){gainC(100);return '💰 獲得 100 金幣';}addRelic(r);return `🧳 獲得遺物 ${RELIC[r].ic}「${RELIC[r].nm}」：${RELIC[r].ds}`;},
+  skill:()=>{const up=upgradable();if(!up.length){gainC(60);return '💰 獲得 60 金幣';}const k=up[Math.floor(Math.random()*up.length)];P.sk[k]++;recalc();return `✨ ${SK[k].ic} ${SK[k].nm} 升到 Lv.${P.sk[k]}`;},
+  pet:()=>{givePet();const b=S.buddies[S.buddies.length-1];return '🐾 新的使魔加入了冒險';},
+  lvup:()=>{RUN.after=()=>{S.pendingLv=1;MENU_CB=showMap;openLevelUp();};return '📖 立即升級一次（三選一）';},
+};
+const chance=p=>Math.random()<p;
+// 每個事件：ch 出現的章節、who 登場角色、lines 開場對話、opts 選項（只有行動描述）、go 回傳 [結果對話, ...效果]
+const STORIES=[
+  {ch:[1],t:'被告席上的少女',who:['👧','被告席上的少女'],lines:['空無一人的法庭裡，只有被告席還坐著一個人。','是一位和妳差不多年紀的魔女，手腕被銀色鐐銬鎖著。','「……妳也是被審判的人嗎？拜託，帶我一起走。」'],
+   opts:[{t:'用魔法打開她的鐐銬',go:()=>chance(0.65)?['鐐銬應聲碎裂。少女握住妳的手，把一樣東西塞進妳掌心。','「這是我唯一的寶物。謝謝妳，願月光保佑妳。」',FX.relic()]:['鐐銬碎裂的瞬間，刺耳的警鐘響徹法庭。','少女趁亂逃走了，警鐘的回音卻像詛咒一樣纏著妳。',FX.curse(),FX.relic()]},
+         {t:'問她為什麼被抓',go:()=>['「我只是……治好了一個生病的孩子。」','她低下頭，輕聲為妳唱了一段祝福的歌。歌聲讓妳全身暖了起來。',FX.heal(0.35),FX.maxhp(10)]},
+         {t:'裝作沒看見，離開',go:()=>['妳轉身離開，身後傳來細細的啜泣聲。','走出法庭時，妳在門邊撿到一個小錢袋。',FX.coin(45)]}]},
+  {ch:[1],t:'月光下的告解室',who:['🕯️','告解室裡的聲音'],lines:['走廊盡頭有一座古老的告解室，簾幕後透出微弱的燭光。','「迷途的孩子……妳有什麼想坦白的嗎？」'],
+   opts:[{t:'說出真心話',go:()=>['妳說出了心底的恐懼與願望。簾幕後沉默了很久。','「誠實的靈魂，值得被月光擁抱。」',FX.full(),FX.maxhp(15)]},
+         {t:'說一個漂亮的謊',go:()=>chance(0.5)?['「……很好。這是給說謊者的獎賞。」','一袋沉甸甸的金幣從簾幕下滑了出來。',FX.coin(120)]:['「謊言的味道，我聞得出來。」','燭火突然轉為暗紅，一陣刺痛竄過妳的胸口。',FX.hurt(0.2),FX.curse()]},
+         {t:'拉開簾幕',go:()=>['簾幕後空無一人，只有一本攤開的古老魔導書。','書頁上的文字自己發著光，鑽進了妳的腦海。',FX.lvup()]}]},
+  {ch:[1],t:'被遺落的判決書',who:['📜','石像審判長的書桌'],lines:['巨大的書桌上，堆著還沒蓋章的判決書。','最上面那一張，寫著妳的名字。墨跡還沒乾。'],
+   opts:[{t:'把它燒掉',go:()=>['判決書在火焰中扭曲，化成一隻黑色的蝴蝶飛走了。','燒傷的手指隱隱作痛，但妳覺得某種束縛消失了。',FX.hurt(0.1),FX.relic()]},
+         {t:'改寫上面的判決',go:()=>chance(0.6)?['妳把「有罪」改成了「無罪」。羽毛筆發出滿意的嗡鳴。',FX.skill(),FX.heal(0.2)]:['筆尖一碰到紙，整張判決書就燃燒了起來，火舌舔上妳的手臂。',FX.hurt(0.25),FX.coin(60)]},
+         {t:'翻翻抽屜',go:()=>['抽屜裡塞滿了被沒收的魔女財物。','妳挑了些輕巧值錢的東西帶走。',FX.coin(90)]}]},
+  {ch:[2],t:'隔壁牢房的老人',who:['👴','隔壁牢房的老人'],lines:['「喂……小姑娘。」','鐵欄另一邊，一位鬍子花白的老人朝妳招手。','「我在這裡關了四十年，地牢裡的事，沒有我不知道的。」'],
+   opts:[{t:'分他一點食物',cost:30,go:()=>['老人狼吞虎嚥地吃完，滿足地嘆了口氣。','「好孩子。這個妳拿去，比留在我這把老骨頭身上有用。」',FX.relic()]},
+         {t:'問他出口在哪裡',go:()=>['「出口？哈哈……」老人笑著，在牆上畫了一張歪歪扭扭的地圖。','妳記下了一條能避開巡邏的暗道，趁機好好休息了一下。',FX.heal(0.4)]},
+         {t:'幫他打開牢門',go:()=>chance(0.5)?['牢門打開了。老人深深一鞠躬，消失在黑暗中。','不久後，一隻小小的使魔跑了回來，嘴裡叼著老人的口信。',FX.pet()]:['牢門打開的瞬間，老人的臉扭曲成骷髏——他早就是幽魂了。','冰冷的手穿過妳的身體，帶走了一部分溫度。',FX.hurt(0.25),FX.curse()]}]},
+  {ch:[2],t:'生鏽的拷問台',who:['⚙️','生鏽的拷問台'],lines:['拷問台的轉輪上，綁著一個鑲著寶石的小箱子。','轉輪上佈滿了暗紅色的鏽跡……希望那只是鏽。'],
+   opts:[{t:'轉動把手',go:()=>chance(0.55)?['齒輪咯咯作響，箱子緩緩降了下來。','裡面躺著一件閃著微光的寶物。',FX.relic()]:['轉輪突然反轉，鐵鏈狠狠地抽中了妳。','箱子掉在地上摔開了，裡面只剩一些零錢。',FX.hurt(0.3),FX.coin(50)]},
+         {t:'用魔法切斷繩子',go:()=>['魔法劃過繩索，箱子穩穩落進妳懷裡。','可惜魔法也劈開了箱子，裡面的東西只剩一半能用。',FX.coin(70),FX.skill()]},
+         {t:'不碰它',go:()=>['妳決定不冒險。轉身時，腳邊踢到了一瓶被遺忘的藥水。',FX.heal(0.25)]}]},
+  {ch:[2],t:'沉在水裡的戒指',who:['💍','牢房角落的水窪'],lines:['水窪深處有什麼東西在發光。','妳彎下腰，看見一枚戒指——以及水面倒影裡，一張不屬於妳的臉。'],
+   opts:[{t:'伸手去撈',go:()=>chance(0.6)?['冰冷的水沒過手腕。倒影對妳微笑，把戒指輕輕放進妳手心。',FX.relic(),FX.maxhp(10)]:['倒影猛地抓住妳的手，把妳往水裡拖！妳好不容易掙脫。',FX.hurt(0.3),FX.curse()]},
+         {t:'對著倒影說話',go:()=>['「……妳看得見我？」倒影驚訝地眨眨眼。','她說了很多以前被關在這裡的魔女的故事，還教了妳一個咒語。',FX.lvup()]},
+         {t:'把水窪踩散',go:()=>['倒影碎成千萬片光點消失了。水底只剩幾枚生鏽的硬幣。',FX.coin(40)]}]},
+  {ch:[1,2],t:'流浪魔女的藥瓶',who:['🧙','戴兜帽的流浪魔女'],lines:['「嘻嘻，客人，來試試運氣嗎？」','兜帽下的魔女拿出三個顏色不同的小瓶子，瓶身沒有任何標籤。','「一瓶 60 金幣。喝了才知道是什麼喔。」'],
+   opts:()=>{const pool=[['full','「是治癒之水！真幸運～」',()=>FX.full()],['skill','「是魔力結晶！妳的魔法變強了吧？」',()=>FX.skill()],['curse','「啊……那瓶是詛咒藥水。不過送妳這個當補償吧。」',()=>[FX.curse(),FX.relic()]],['coin','「是點金藥水！妳的錢袋變重囉。」',()=>FX.coin(150)]];
+     const sh=pool.sort(()=>Math.random()-0.5).slice(0,3),cols=['紅色','藍色','綠色'];
+     return sh.map((x,i)=>({t:`喝下${cols[i]}的瓶子`,cost:60,go:()=>['妳拔開瓶塞，一口氣喝了下去。',x[1],...[].concat(x[2]())]})).concat([{t:'婉拒她',go:()=>['「真可惜～下次再來玩吧。」','魔女的身影和笑聲一起消散在空氣中。']}]);}},
+  {ch:[1,2],t:'受傷的小使魔',who:['🥚','角落裡的小東西'],lines:['角落傳來細小的嗚咽聲。','一隻剛破殼的小使魔縮成一團，翅膀上有一道傷口。'],
+   opts:[{t:'抱起牠',go:()=>['小使魔害怕地抖了一下，接著把頭埋進妳的手心。','牠決定要跟著妳了。',FX.pet()]},
+         {t:'用魔法治療牠',go:()=>['溫暖的光包住了小使魔，傷口慢慢癒合。','牠開心地繞著妳飛了三圈，在妳身上灑下發光的鱗粉。',FX.heal(0.3),FX.maxhp(10)]},
+         {t:'交給路過的商人',go:()=>['商人小心翼翼地接過小使魔，答應會好好照顧牠。','「這是謝禮，請收下。」',FX.coin(80)]}]},
+  {ch:[1,2],t:'鮮血祭壇',who:['🩸','古老的石造祭壇'],lines:['祭壇上刻著褪色的文字：「以血為契，汝願可成。」','石面上的凹槽，似乎正等著什麼流進去。'],
+   opts:[{t:'獻上鮮血',go:()=>['妳割破指尖，血滴進凹槽，祭壇發出低沉的共鳴。','石面裂開，一件古老的寶物浮了上來。',FX.hurt(0.25),FX.relic()]},
+         {t:'獻上金幣',cost:80,go:()=>chance(0.5)?['金幣一枚枚沉入石中。祭壇似乎很滿意。',FX.skill(),FX.heal(0.2)]:['金幣沉了下去……然後什麼也沒發生。','祭壇好像不太喜歡金子。']},
+         {t:'把祭壇推倒',go:()=>['祭壇轟然倒下，碎石間滾出一袋古代的供品。','但妳隱約聽見了某種東西憤怒的低語。',FX.coin(100),FX.curse()]}]},
+  {ch:[1,2],t:'月光泉',who:['⛲','不知從何而來的月光'],lines:['明明身在室內，卻有一道月光灑在小小的泉水上。','泉水清澈見底，水面映著一輪滿月。'],
+   opts:[{t:'喝一口泉水',go:()=>['泉水冰涼甘甜，疲憊一掃而空。',FX.heal(0.45)]},
+         {t:'投一枚金幣許願',cost:50,go:()=>chance(0.7)?['金幣落入水中的瞬間，月光變得更亮了。','妳感覺到願望被聽見了。',FX.relic()]:['水面泛起漣漪，月亮的倒影對妳眨了眨眼。','好像只是被捉弄了。',FX.heal(0.15)]},
+         {t:'在泉水裡洗臉',go:()=>['冰冷的水讓妳的頭腦格外清醒。','腦海中浮現出一段被遺忘的咒文。',FX.skill()]}]},
 ];
 function openEvent(){
-  let pool=EVENTS.map((_,i)=>i).filter(i=>!RUN.seenEv.includes(i)); if(!pool.length){RUN.seenEv=[];pool=EVENTS.map((_,i)=>i);}
-  const i=pool[Math.floor(Math.random()*pool.length)]; RUN.seenEv.push(i); const ev=EVENTS[i];
-  showChoice(`${ev.ic} ${ev.nm}`,ev.tx,ev.opts());
+  let pool=STORIES.map((e,i)=>i).filter(i=>STORIES[i].ch.includes(RUN.ch)&&!RUN.seenEv.includes(i));
+  if(!pool.length){RUN.seenEv=RUN.seenEv.filter(i=>!STORIES[i].ch.includes(RUN.ch));pool=STORIES.map((e,i)=>i).filter(i=>STORIES[i].ch.includes(RUN.ch));}
+  const i=pool[Math.floor(Math.random()*pool.length)]; RUN.seenEv.push(i); playStory(STORIES[i]);
+}
+// 對話演出：逐字顯示，點一下加速／下一句
+let STY=null;
+function playStory(ev){
+  S.mode='evt'; RUN.after=null; $('map').classList.add('hide');
+  $('styTitle').textContent=ev.t; $('styIc').textContent=ev.who[0]; $('styName').textContent=ev.who[1];
+  $('styOpts').innerHTML=''; $('styFx').innerHTML=''; $('styFx').classList.add('hide'); $('styWallet').textContent=wallet();
+  $('story').classList.remove('hide');
+  sayLines(ev.lines,()=>showOpts(ev));
+}
+function sayLines(lines,done){
+  const box=$('styText'); let li=0,ci=0,full=false;
+  clearInterval(STY&&STY.iv);
+  const next=()=>{if(li>=lines.length){clearInterval(STY.iv);STY.click=null;$('styMore').classList.add('hide');done();return;}ci=0;full=false;box.textContent='';$('styMore').classList.add('hide');};
+  STY={iv:setInterval(()=>{if(li>=lines.length)return;const L=lines[li];if(!full){ci++;box.textContent=L.slice(0,ci);if(ci%2===0)tone(700+Math.random()*200,0.02,'square',0.006,0);if(ci>=L.length){full=true;$('styMore').classList.remove('hide');}}},28),
+       click:()=>{const L=lines[li];if(!full){full=true;box.textContent=L;$('styMore').classList.remove('hide');}else{li++;next();}}};
+  next();
+}
+function showOpts(ev){
+  const opts=typeof ev.opts==='function'?ev.opts():ev.opts, box=$('styOpts'); box.innerHTML='';
+  for(const o of opts){
+    const b=document.createElement('button'); b.className='sopt';
+    const poor=o.cost&&RUN.coins<o.cost;
+    b.innerHTML=`▸ ${o.t}${o.cost?`<span class="sc">💰${o.cost}</span>`:''}`;
+    if(poor){b.disabled=true;b.title='金幣不夠';}
+    b.onclick=()=>{if(poor)return;box.innerHTML='';if(o.cost)spend(o.cost);
+      const r=o.go(), lines=r.filter(x=>!/^[❤️💔💗💰💀🧳✨🐾📖]/u.test(x)), fx=r.filter(x=>/^[❤️💔💗💰💀🧳✨🐾📖]/u.test(x));
+      $('styText').textContent='';sayLines(lines.length?lines:['……'],()=>showResult(fx));};
+    box.appendChild(b);
+  }
+}
+function showResult(fx){
+  const f=$('styFx'); f.innerHTML=(fx.length?fx.map(x=>`<div>${x}</div>`).join(''):'<div style="opacity:.7">什麼也沒有發生。</div>');
+  f.classList.remove('hide'); $('styWallet').textContent=wallet(); sfx.lvl();
+  const b=document.createElement('button');b.className='btn';b.textContent='繼續前進';
+  b.onclick=()=>{$('story').classList.add('hide');const a=RUN.after;RUN.after=null;if(a)a();else showMap();};
+  $('styOpts').appendChild(b);
 }
 function showMap(){
   S.mode='map'; $('evt').classList.add('hide');
@@ -1732,7 +1835,7 @@ function endGame(win){
   if(S.mode==='over')return;
   S.mode='over';
   ['lvl','adv','pause'].forEach(id=>$(id).classList.add('hide'));
-  ['map','evt'].forEach(id=>$(id).classList.add('hide')); MENU_CB=null;
+  ['map','evt','story'].forEach(id=>$(id).classList.add('hide')); MENU_CB=null; if(STY)clearInterval(STY.iv);
   let nb=false;
   if(RUN){
     const b=loadBest('adv');
@@ -1758,6 +1861,7 @@ $('overShopBtn').onclick=()=>openShop('over');
 $('shopBack').onclick=()=>{$('shop').classList.add('hide');if(shopFrom==='over')$('over').classList.remove('hide');else{showBest();$('title').classList.remove('hide');}};
 document.querySelectorAll('#shop .tab').forEach(t=>t.onclick=()=>{shopTab=t.dataset.t;renderShop();});
 $('mapQuit').onclick=()=>{$('map').classList.add('hide');endGame(false);};
+$('styBox').onclick=()=>{if(STY&&STY.click)STY.click();};
 $('stgBack').onclick=()=>{$('stg').classList.add('hide');$('cls').classList.remove('hide');};
 $('clsBack').onclick=()=>{$('cls').classList.add('hide');$('title').classList.remove('hide');};
 $('againBtn').onclick=()=>{$('over').classList.add('hide');openClassSelect();};
