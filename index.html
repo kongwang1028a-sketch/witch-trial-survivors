@@ -49,6 +49,9 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
 .styic{font-size:30px;width:44px;height:44px;line-height:44px;text-align:center;background:#2e2246;border:2px solid #6a4a9a;border-radius:50%}
 .styname{font-weight:900;color:#ffd27a;font-size:15px}
 .stytext{font-size:16px;line-height:1.7;color:#f0e8ff;min-height:54px}
+.stytext.narr{color:#c8b8e0;font-style:italic}
+.styic img{width:100%;height:100%;border-radius:50%;object-fit:cover;image-rendering:auto}
+.styic{overflow:hidden}
 .stymore{position:absolute;right:14px;bottom:4px;color:#ffd27a;font-size:12px;animation:mpulse .6s ease-in-out infinite alternate}
 .styopts{display:flex;flex-direction:column;gap:6px;align-items:stretch}
 .sopt{font:inherit;font-size:15px;font-weight:700;text-align:left;color:#fff;background:linear-gradient(90deg,#3a2a56,#241a38);border:2px solid #6a4a9a;border-radius:10px;padding:9px 14px;cursor:pointer;display:flex;justify-content:space-between}
@@ -616,6 +619,7 @@ const hasR=id=>!!(RUN&&RUN.relics.includes(id));
 const NODE={battle:{ic:'⚔️',nm:'戰鬥'},elite:{ic:'💀',nm:'精英'},camp:{ic:'🔥',nm:'營火'},shop:{ic:'🛒',nm:'地下商人'},event:{ic:'❓',nm:'事件'},boss:{ic:'👑',nm:'魔王'}};
 const ELITES={1:[{type:'treant',nm:'荊棘魔女',ic:'🥀'},{type:'crab',nm:'鐵棺騎士',ic:'⚰️'},{type:'eagle',nm:'夜鴉伯爵',ic:'🐦'}],
               2:[{type:'maiden',nm:'鐵處女',ic:'⚙️'},{type:'torturer',nm:'拷問官',ic:'⛓️'}]};
+const STG=ch=>ch===1?2:1; // 冒險第 1 章＝地下監牢（關卡 2），第 2 章＝審判庭（關卡 1）
 function genMap(ch){
   const cols=[[{t:'battle'}]];
   for(let c=1;c<=4;c++){const n=2+(Math.random()<0.5?1:0),col=[];
@@ -635,25 +639,25 @@ function genMap(ch){
   return cols;
 }
 function startAdventure(cls){
-  newGame(cls,1);
-  RUN={cls,ch:1,map:genMap(1),pos:null,col:0,depth:0,relics:[],coins:0,time:0,kills:0,bossKills:0,curse:0,hits:0,fang:0,seenEv:[]};
-  enterNode(RUN.map[0][0]);
-  if(upLv('start'))S.pendingLv=1;
+  newGame(cls,2);
+  RUN={cls,ch:1,map:genMap(1),pos:null,col:0,depth:0,relics:[],coins:0,time:0,kills:0,bossKills:0,curse:0,hits:0,fang:0,seenEv:[],trust:{},met:[]};
+  for(const k in CLS)if(k!==cls)RUN.trust[k]=0;
+  playScene(scenePrologue(cls),()=>{enterNode(RUN.map[0][0]);if(upLv('start'))S.pendingLv=1;});
 }
 function startFloor(node){
-  const ch=RUN.ch, keepB=(S&&S.buddies)||[];
-  DUN=ch===2?genDungeon():null; GCV=null;
+  const ch=RUN.ch, stg=STG(ch), keepB=(S&&S.buddies)||[];
+  DUN=stg===2?genDungeon():null; GCV=null;
   const st0=DUN?DUN.start:{x:MAPW/2,y:MAPH/2};
   Object.assign(P,{x:st0.x,y:st0.y,inv:1.2,blink:0,dashT:0,swing:0,moving:false});
   const t0=(ch-1)*200+node.c*32;
-  S={mode:'play',t:t0,enemies:[],projs:[],orbs:[],fx:[],nums:[],rings:[],zones:[],mines:[],pets:[],buddies:keepB,eprojs:[],hazards:[],stage:ch,flowT:0,fieldLeft:0,
+  S={mode:'play',t:t0,enemies:[],projs:[],orbs:[],fx:[],nums:[],rings:[],zones:[],mines:[],pets:[],buddies:keepB,eprojs:[],hazards:[],stage:stg,flowT:0,fieldLeft:0,helpers:[],
      kills:RUN.kills,coins:RUN.coins,camX:0,camY:0,spawnT:1.5,surgeT:55,bossPhase:99,boss:null,pendingLv:0,pendingAdv:false,orbA:0,auraT:0,shake:0,banner:null,winT:-1,lairs:[],
      adv:{type:node.t,t0,end:t0+70,done:false,after:false,clearT:2.2}};
   for(const b of keepB){b.x=P.x;b.y=P.y;b.tgt=null;}
   snapCam(); if(DUN)updFlow();
   if(node.t==='boss')spawnBoss(ch===2);
   else if(node.t==='elite'){
-    const E=ELITES[ch][Math.floor(Math.random()*ELITES[ch].length)], q=elitePos();
+    const E=ELITES[stg][Math.floor(Math.random()*ELITES[stg].length)], q=elitePos();
     const e=spawnEnemy(E.type,q.x,q.y,{field:true,sleep:false,elite:true,lair:{x:q.x,y:q.y},state:'walk',act:2,nm:'精英・'+E.nm,ic:E.ic});
     e.fly=false; e.hp=e.maxHp=Math.round(ET[E.type].hp*(1+S.t/200)*0.85);
     banner(`💀 精英出現：${E.nm}`); sfx.boom();
@@ -673,13 +677,14 @@ function floorClear(kind){
 }
 function afterFloor(){
   const t=S.adv.type; RUN.coins=S.coins; RUN.kills=S.kills; RUN.time+=S.t-S.adv.t0; S.adv.t0=S.t; RUN.depth++;
-  if(t==='elite')relicPick(showMap,'💀 擊敗精英！','選一件遺物帶走');
+  if(t==='elite')relicPick(()=>{const cs=nextCompanion();if(cs&&RUN.col>=3)playCompanion(cs,showMap);else showMap();},'💀 擊敗精英！','選一件遺物帶走');
   else if(t==='boss'){
     RUN.bossKills++;
-    if(RUN.ch>=2){endGame(true);return;}
+    if(RUN.ch>=2){playScene(sceneEnding(),()=>endGame(true));return;}
     P.hp=Math.min(P.maxHp,P.hp+Math.round(P.maxHp*0.3));
-    relicPick(()=>{RUN.ch++;RUN.map=genMap(RUN.ch);RUN.pos=null;showMap();},'👑 擊敗魔王！','回復 30% 生命，再選一件遺物。前方就是地下監牢……');
-  }else showMap();
+    playScene(sceneInterlude(),()=>relicPick(()=>{RUN.ch++;RUN.map=genMap(RUN.ch);RUN.pos=null;const cs=nextCompanion();if(cs)playCompanion(cs,showMap);else showMap();},'👑 擊敗典獄長！','回復 30% 生命，再選一件遺物。'));
+  }else{const cs=nextCompanion(), need=RUN.ch===1?2:3, late=RUN.col>=(RUN.ch===1?2:3);
+    if(cs&&(Math.random()<0.4||(late&&RUN.met.length<need)))playCompanion(cs,showMap);else showMap();}
 }
 const rPrice=n=>Math.round(n*(hasR('greed')?1.5:1));
 function spend(n){RUN.coins-=n;S.coins=RUN.coins;}
@@ -711,7 +716,10 @@ function enterNode(n){
   RUN.pos={c:n.c,j:n.j}; RUN.col=n.c; n.vis=true; $('map').classList.add('hide');
   if(n.t==='battle'||n.t==='elite'||n.t==='boss'){startFloor(n);return;}
   RUN.depth++;
-  if(n.t==='camp')openCamp(); else if(n.t==='shop'){RUN.stock={relics:randRelics(2),sold:{}};openMerchant();} else openEvent();
+  const cs=nextCompanion();
+  if(n.t==='camp'){if(cs)playCompanion(cs,openCamp);else openCamp();}
+  else if(n.t==='shop'){RUN.stock={relics:randRelics(2),sold:{}};openMerchant();}
+  else{if(cs&&Math.random()<0.7)playCompanion(cs,showMap);else openEvent();}
 }
 function openCamp(){
   const h=Math.round(P.maxHp*0.4);
@@ -787,26 +795,140 @@ const STORIES=[
          {t:'在泉水裡洗臉',go:()=>['冰冷的水讓妳的頭腦格外清醒。','腦海中浮現出一段被遺忘的咒文。',FX.skill()]}]},
 ];
 function openEvent(){
-  let pool=STORIES.map((e,i)=>i).filter(i=>STORIES[i].ch.includes(RUN.ch)&&!RUN.seenEv.includes(i));
-  if(!pool.length){RUN.seenEv=RUN.seenEv.filter(i=>!STORIES[i].ch.includes(RUN.ch));pool=STORIES.map((e,i)=>i).filter(i=>STORIES[i].ch.includes(RUN.ch));}
+  let pool=STORIES.map((e,i)=>i).filter(i=>STORIES[i].ch.includes(STG(RUN.ch))&&!RUN.seenEv.includes(i));
+  if(!pool.length){RUN.seenEv=RUN.seenEv.filter(i=>!STORIES[i].ch.includes(STG(RUN.ch)));pool=STORIES.map((e,i)=>i).filter(i=>STORIES[i].ch.includes(STG(RUN.ch)));}
   const i=pool[Math.floor(Math.random()*pool.length)]; RUN.seenEv.push(i); playStory(STORIES[i]);
+}
+// ====== 主線劇情：四位少女在監牢中醒來 ======
+// 關係：夜薔薇↔櫻心歌姬 青梅竹馬／虹彩畫師↔鋼鐵哨兵 吵鬧搭檔／夜薔薇↔鋼鐵哨兵 互相不信任／櫻心歌姬↔虹彩畫師 一見如故
+const N=null;
+function scenePrologue(me){
+  const L=[[N,'冰冷的石地板。遠處傳來規律的滴水聲。'],[N,'妳在一間陌生的牢房裡醒來。手腕上的鐐銬……不知道為什麼，已經被打開了。']];
+  const first={warrior:'……這是哪裡。',mage:'好、好暗……有人在嗎？',archer:'嗚哇，頭好痛——這裡是哪啊？好臭！',thief:'……監牢。三個人。武器還在。'};
+  L.push([me,first[me]]);
+  L.push([N,'牢房裡還有另外三個女孩。'].slice(0));
+  if(me!=='mage')L.push(['mage',me==='warrior'?'薔薇……！太好了，妳也在……':'嗚……大家都沒事吧？']);
+  if(me!=='warrior')L.push(['warrior',me==='mage'?'櫻音，別怕。我在這裡。':me==='thief'?'……妳。為什麼妳的武器沒被收走？':'安靜點。外面可能有看守。']);
+  if(me!=='archer')L.push(['archer',me==='mage'?'欸欸，妳的貝雷帽好可愛！等等，現在不是說這個的時候對吧！':me==='thief'?'哨兵！就知道妳一定也在！':'嗨～我是畫師！總之大家先別吵架嘛。']);
+  if(me!=='thief')L.push(['thief',me==='warrior'?'……彼此彼此。妳的劍也還在。':me==='archer'?'……吵死了。不過，妳沒事就好。':'……牢門開著。看守不見了。']);
+  L.push([N,'沒有人記得自己是怎麼被抓進來的。只記得那個詞——「魔女審判」。']);
+  L.push([me,{warrior:'不管是誰把我們關進來的，我都會讓他付出代價。走吧。',mage:'我、我們一起逃出去吧！一個都不能少……！',archer:'好！逃獄大作戰，開始～！',thief:'……出發。跟緊我。'}[me]]);
+  return {t:'序章・醒來的牢房',sub:'第 1 章・地下監牢',lines:L,btn:'出發'};
+}
+function sceneInterlude(){
+  const me=RUN.cls, L=[[N,'典獄長倒下了。牠腰間那串巨大的鑰匙，叮噹一聲落在妳腳邊。'],[N,'石階向上延伸，盡頭透出一點月光——那是地面。']];
+  for(const k in RUN.trust){const t=RUN.trust[k];
+    if(t>=2)L.push([k,{warrior:'走吧。這次換我走在妳後面，替妳看著背後。',mage:'我好像……沒那麼害怕了。因為有妳在。',archer:'上面一定很漂亮！出去之後我要畫一整面牆的月亮！',thief:'……做得好。我收回之前的話，妳很可靠。'}[k]]);
+    else L.push([k,{warrior:'……別鬆懈。上面才是真正的審判庭。',mage:'嗚……還要繼續走嗎……',archer:'哈啊、哈啊……好累，不過再加油一下！',thief:'……上去吧。'}[k]]);}
+  L.push([N,'四人踏上石階。前方，是等待著她們的——審判庭。']);
+  return {t:'間幕・通往地面的階梯',sub:'第 2 章・審判庭',lines:L,btn:'踏上階梯'};
+}
+function sceneEnding(){
+  const me=RUN.cls, L=[[N,'暴怒的審判長化為碎石。審判庭的大門，在月光下緩緩打開。'],[N,'夜風吹了進來。好久沒有聞到外面的空氣了。']];
+  const hi=Object.keys(RUN.trust).filter(k=>RUN.trust[k]>=2);
+  for(const k of hi)L.push([k,{warrior:me==='mage'?'櫻音。……以後也讓我保護妳，好嗎？':me==='thief'?'……我欠妳一次。下次換我掩護妳。':'謝謝。沒有妳，我們走不到這裡。',
+    mage:me==='warrior'?'薔薇，這次是我們一起保護了彼此喔。':me==='archer'?'畫師！出去之後，教我畫畫好不好？':'謝謝妳……我會一直記得今晚的。',
+    archer:me==='thief'?'搭檔～！擊掌！……喂，至少舉一下手嘛！':me==='mage'?'歌姬！我們以後也要一直一起玩喔！':'嘿嘿，我們四個，是最強的逃獄小隊！',
+    thief:me==='archer'?'……嗯。擊掌。（小聲）……謝謝妳一直都在。':me==='warrior'?'……妳果然沒有背叛。我也不會。':'……任務完成。……大家都活著，很好。'}[k]]);
+  if(!hi.length)L.push([N,'四個人沒有多說什麼，只是並肩站在月光下。']);
+  L.push([N,'但那個問題依然沒有答案——是誰，又是為了什麼，把她們送上了魔女審判？']);
+  L.push([me,{warrior:'答案，我會親手找出來。',mage:'不管接下來會遇到什麼，我都不會再一個人了。',archer:'先回家洗澡！謎題明天再說～！',thief:'……下一個任務，從今晚開始。'}[me]]);
+  return {t:'終章・月光下的自由',sub:'逃出生天',lines:L,btn:'結束冒險'};
+}
+// 同伴劇情：依（玩家, 同伴）配對；選項 tr 表示信任變化
+const COMP={
+  'warrior>mage':{t:'裂開的權杖',lines:[['mage','嗚……權杖、權杖裂開了……'],[N,'歌姬蹲在角落，捧著出現裂痕的愛心權杖，肩膀微微發抖。'],['mage','對不起，薔薇……我一直在拖累大家……']],
+    opts:[{t:'握住她的手',tr:2,go:()=>[['warrior','笨蛋。從小到大，妳什麼時候拖累過我了？'],['mage','……！嗯！'],[N,'歌姬破涕為笑，把髮夾上的小花別在妳的衣領上。'],FX.relic()]},
+          {t:'叫她跟緊，別再落後',tr:1,go:()=>[['warrior','哭也沒用。跟緊我。'],['mage','……嗯，我知道了。'],[N,'她用袖子擦乾眼淚，默默地替妳治好了手上的擦傷。'],FX.heal(0.3)]}]},
+  'warrior>archer':{t:'牆上的塗鴉',lines:[[N,'畫師在牢房牆上畫著巨大的箭頭，嘴裡一刻也沒停。'],['archer','這樣就不會迷路啦！順便畫個妳！看，夜薔薇大人的帥氣側臉～']],
+    opts:[{t:'陪她一起畫',tr:2,go:()=>[['warrior','……鼻子畫歪了。筆給我。'],['archer','欸！？妳會畫畫！？'],[N,'兩人的塗鴉越畫越大。畫師開心得把一瓶特製顏料塞給妳。'],FX.skill()]},
+          {t:'叫她安靜點',tr:0,go:()=>[['warrior','安靜。妳想把看守引過來嗎？'],['archer','……好嘛好嘛。'],[N,'畫師嘟著嘴收起顏料。地上掉了幾枚她口袋裡的硬幣。'],FX.coin(40)]}]},
+  'warrior>thief':{t:'鑰匙與屍體',lines:[[N,'轉角處，哨兵站在倒下的看守旁邊，手裡握著一把鑰匙。'],['thief','……不是我殺的。我來的時候，他就倒在這裡了。'],[N,'她的槍口還冒著淡淡的煙。']],
+    opts:[{t:'質問她',tr:1,go:()=>[['warrior','說清楚。妳到底是什麼人？'],['thief','……我是來救人的。信不信隨妳。'],[N,'她把鑰匙丟給妳，轉身走在前面。'],FX.coin(60),FX.heal(0.15)]},
+          {t:'選擇相信她',tr:2,go:()=>[['warrior','……我相信妳。這次。'],['thief','……！'],[N,'哨兵愣了一下，然後把一個沉甸甸的東西塞進妳手裡。'],['thief','……護身符。我用不到。'],FX.relic()]},
+          {t:'一把搶過鑰匙',tr:-1,go:()=>[[N,'妳搶過鑰匙，哨兵沒有反抗，只是冷冷地看著妳。'],['thief','……隨便妳。'],[N,'鑰匙圈上還掛著一袋看守的薪水。'],FX.coin(100)]}]},
+  'mage>warrior':{t:'藏起來的傷',lines:[[N,'休息的時候，妳注意到薔薇的袖子染紅了一片。'],['warrior','……沒事。剛才擋那一下而已。'],[N,'那是為了保護妳才受的傷。']],
+    opts:[{t:'幫她包紮',tr:2,go:()=>[['mage','別動！……又是這樣，什麼都自己扛。'],['warrior','……謝謝妳，櫻音。'],[N,'治癒的光芒溫暖了兩個人。'],FX.full(),FX.maxhp(10)]},
+          {t:'假裝沒發現',tr:1,go:()=>[[N,'妳別過頭，假裝沒看見。薔薇鬆了一口氣似地笑了。'],['warrior','……走吧。'],FX.heal(0.2)]}]},
+  'mage>archer':{t:'粉紅色的顏料',lines:[['archer','歌姬歌姬！我找到粉紅色的顏料了！'],['archer','借我妳的貝雷帽！我要在上面畫櫻花！絕對超可愛！']],
+    opts:[{t:'把帽子借給她',tr:2,go:()=>[[N,'畫師哼著歌，在帽子上畫滿了小小的櫻花。'],['mage','哇……好漂亮！'],['archer','嘿嘿，這是友情的證明！'],FX.maxhp(15),FX.heal(0.3)]},
+          {t:'等逃出去再說',tr:1,go:()=>[['archer','說好了喔！出去之後一定要讓我畫！'],[N,'她勾起妳的小指，用力地晃了晃，順手塞給妳一顆糖。'],FX.heal(0.2)]}]},
+  'mage>thief':{t:'分成兩半的乾糧',lines:[[N,'哨兵一言不發地把乾糧掰成兩半，遞給妳比較大的那一塊。'],['thief','……吃。妳臉色很差。']],
+    opts:[{t:'道謝，唱首歌給她聽',tr:2,go:()=>[[N,'妳輕聲唱起小時候的搖籃曲。哨兵閉上眼睛，聽到了最後。'],['thief','……很好聽。'],FX.skill(),FX.heal(0.25)]},
+          {t:'問她為什麼對我好',tr:1,go:()=>[['thief','……妳很像我妹妹。'],[N,'她沒有再多說。妳也沒有再問。'],FX.heal(0.3)]}]},
+  'archer>warrior':{t:'冷淡的劍士',lines:[[N,'夜薔薇一個人坐在角落擦劍，散發出「別靠近我」的氣場。'],[N,'……但畫師最不擅長的，就是讀空氣。']],
+    opts:[{t:'坐到她旁邊搭話',tr:2,go:()=>[['archer','欸欸，妳的劍好漂亮！上面的緞帶是自己綁的嗎？'],['warrior','……是櫻音綁的。'],[N,'她沉默了一下，嘴角好像揚起了一點點。'],FX.relic()]},
+          {t:'在她背後偷畫鬼臉',tr:0,go:()=>[[N,'妳在她披風上畫了一個大大的鬼臉。'],['warrior','……妳在做什麼。'],['archer','沒、沒有！什麼都沒有！'],FX.coin(30),FX.curse()]}]},
+  'archer>mage':{t:'深夜的啜泣聲',lines:[[N,'半夜，妳聽到小小的啜泣聲。是歌姬。'],['mage','……我好想回家。']],
+    opts:[{t:'做鬼臉逗她笑',tr:2,go:()=>[['archer','看～這是典獄長生氣的臉！'],['mage','噗……哈哈，好像！'],[N,'歌姬笑到眼淚都流出來了。這次是開心的眼淚。'],FX.maxhp(10),FX.skill()]},
+          {t:'靜靜陪在她身邊',tr:1,go:()=>[[N,'妳什麼都沒說，只是挨著她坐下。過了一會兒，她靠在妳肩上睡著了。'],FX.heal(0.35)]}]},
+  'archer>thief':{t:'搭檔的吐槽',lines:[['thief','……妳的顏料，把我的子彈染成彩虹色了。'],['archer','欸嘿？很可愛吧！'],['thief','……']],
+    opts:[{t:'跟她擊掌',tr:2,go:()=>[['archer','搭檔，擊掌！'],['thief','……（啪）'],[N,'她面無表情地擊了掌，但耳朵有點紅。'],['thief','……彩虹子彈，威力好像變強了。'],FX.relic()]},
+          {t:'再偷拿一顆來畫',tr:0,go:()=>[[N,'哨兵一把抓住妳的手腕。'],['thief','……沒收。'],[N,'她沒收了妳的顏料……然後偷偷塞了一袋硬幣當賠償。'],FX.coin(70)]}]},
+  'thief>warrior':{t:'對峙',lines:[[N,'冰冷的劍尖抵在妳的喉嚨前。'],['warrior','說。妳和典獄長是什麼關係？為什麼只有妳的武器沒被收走？']],
+    opts:[{t:'說出實話',tr:2,go:()=>[['thief','……我是潛入進來救人的。目標是……妳們四個。'],['warrior','……'],[N,'長長的沉默之後，劍緩緩放下了。'],['warrior','我記住了。別讓我後悔。'],FX.relic()]},
+          {t:'放下武器，保持沉默',tr:1,go:()=>[[N,'妳把霰彈槍放在地上，舉起雙手。'],['warrior','……哼。'],[N,'她收起劍走開了，但之後一直走在妳身後一步的位置。'],FX.heal(0.2)]},
+          {t:'舉槍對峙',tr:-1,go:()=>[[N,'兩人對峙了很久，直到歌姬哭著衝進來把妳們分開。'],['mage','不要吵架啦……！'],FX.hurt(0.15),FX.coin(50)]}]},
+  'thief>mage':{t:'繃帶下的傷',lines:[['mage','哨兵，妳的手……一直纏著繃帶，是受傷了嗎？'],['mage','讓我看看好不好？我可以治好它。']],
+    opts:[{t:'讓她治療',tr:2,go:()=>[[N,'繃帶下是一道很舊的傷疤。歌姬什麼都沒問，只是輕輕把手覆上去。'],['thief','……暖暖的。'],FX.full(),FX.maxhp(10)]},
+          {t:'拒絕',tr:0,go:()=>[['thief','……不用。'],['mage','這樣啊……對不起。'],[N,'歌姬失落地走開了，在原地留下一瓶藥水。'],FX.heal(0.25)]}]},
+  'thief>archer':{t:'粉紅色的霰彈槍',lines:[[N,'一覺醒來，妳的霰彈槍變成了亮粉紅色，上面還畫著愛心。'],['archer','早安搭檔！送妳的禮物～']],
+    opts:[{t:'「……謝謝。」',tr:2,go:()=>[['archer','欸！？妳不生氣！？'],['thief','……顏色，還不錯。'],[N,'畫師開心得抱住妳。槍好像也變得更趁手了。'],FX.skill(),FX.relic()]},
+          {t:'立刻擦掉',tr:0,go:()=>[['archer','嗚哇——我畫了一整晚耶！'],[N,'擦掉的顏料底下，意外發現了一枚被藏起來的金幣。'],FX.coin(60)]}]},
+};
+function nextCompanion(){
+  if(!RUN||!RUN.trust)return null;
+  const left=Object.keys(RUN.trust).filter(k=>!RUN.met.includes(k));
+  if(!left.length)return null;
+  // 第 1 章最多遇到 2 位，第 2 章遇到剩下的
+  if(RUN.ch===1&&RUN.met.length>=2)return null;
+  return left[Math.floor(Math.random()*left.length)];
+}
+function playCompanion(k,after){
+  RUN.met.push(k); const c=COMP[RUN.cls+'>'+k];
+  playStory({t:c.t,who:k,lines:c.lines,opts:c.opts.map(o=>({t:o.t,go:()=>{RUN.trust[k]=Math.max(-1,RUN.trust[k]+o.tr);
+    const r=o.go(), tag=RUN.trust[k]>=2?`🤝 ${GNAME[k]}的信任：深厚（魔王與精英戰會出手相助）`:RUN.trust[k]>=1?`🤝 ${GNAME[k]}的信任：普通（魔王戰會出手相助）`:`🤝 ${GNAME[k]}的信任：冷淡`;
+    return r.concat([tag]);}}))});
+  RUN.done=after;
 }
 // 對話演出：逐字顯示，點一下加速／下一句
 let STY=null;
 function playStory(ev){
   S.mode='evt'; RUN.after=null; $('map').classList.add('hide');
-  $('styTitle').textContent=ev.t; $('styIc').textContent=ev.who[0]; $('styName').textContent=ev.who[1];
+  $('styTitle').textContent=ev.t; setSpeaker(ev.who);
   $('styOpts').innerHTML=''; $('styFx').innerHTML=''; $('styFx').classList.add('hide'); $('styWallet').textContent=wallet();
   $('story').classList.remove('hide');
   sayLines(ev.lines,()=>showOpts(ev));
 }
+const GNAME={warrior:'夜薔薇',mage:'櫻心歌姬',archer:'虹彩畫師',thief:'鋼鐵哨兵'}, PORT={};
+function portrait(c){ // 從新版角色正面圖裁出頭像
+  if(PORT[c])return PORT[c]; const im=CIMG[c]&&CIMG[c].f; if(!im)return null;
+  const cv=document.createElement('canvas');cv.width=cv.height=96;const g=cv.getContext('2d');const w=im.width*0.62,x0=im.width*((CANCH[c]&&CANCH[c].f)||0.5)-w/2;
+  g.drawImage(im,x0,im.height*0.02,w,w,0,0,96,96);return PORT[c]=cv.toDataURL();
+}
+function setSpeaker(w){
+  const ic=$('styIc'),nm=$('styName'),hd=ic.parentNode;
+  if(w===null){hd.style.visibility='hidden';$('styText').classList.add('narr');return;}
+  hd.style.visibility='visible';$('styText').classList.remove('narr');
+  if(typeof w==='string'){const u=portrait(w);ic.innerHTML=u?`<img src="${u}">`:CLS[w].ic;nm.textContent=GNAME[w]+(RUN&&w===RUN.cls?'（妳）':'');}
+  else{ic.textContent=w[0];nm.textContent=w[1];}
+}
 function sayLines(lines,done){
   const box=$('styText'); let li=0,ci=0,full=false;
   clearInterval(STY&&STY.iv);
-  const next=()=>{if(li>=lines.length){clearInterval(STY.iv);STY.click=null;$('styMore').classList.add('hide');done();return;}ci=0;full=false;box.textContent='';$('styMore').classList.add('hide');};
-  STY={iv:setInterval(()=>{if(li>=lines.length)return;const L=lines[li];if(!full){ci++;box.textContent=L.slice(0,ci);if(ci%2===0)tone(700+Math.random()*200,0.02,'square',0.006,0);if(ci>=L.length){full=true;$('styMore').classList.remove('hide');}}},28),
-       click:()=>{const L=lines[li];if(!full){full=true;box.textContent=L;$('styMore').classList.remove('hide');}else{li++;next();}}};
+  const txt=x=>typeof x==='string'?x:x[1];
+  const next=()=>{if(li>=lines.length){clearInterval(STY.iv);STY.click=null;$('styMore').classList.add('hide');done();return;}ci=0;full=false;box.textContent='';$('styMore').classList.add('hide');if(typeof lines[li]!=='string')setSpeaker(lines[li][0]);};
+  STY={iv:setInterval(()=>{if(li>=lines.length)return;const L=txt(lines[li]);if(!full){ci++;box.textContent=L.slice(0,ci);if(ci%2===0)tone(700+Math.random()*200,0.02,'square',0.006,0);if(ci>=L.length){full=true;$('styMore').classList.remove('hide');}}},28),
+       click:()=>{const L=txt(lines[li]);if(!full){full=true;box.textContent=L;$('styMore').classList.remove('hide');}else{li++;next();}}};
   next();
+}
+// 純劇情（沒有選項）：結束後呼叫 done
+function playScene(sc,done){
+  S.mode='evt'; RUN.after=null; RUN.done=null; $('map').classList.add('hide'); $('evt').classList.add('hide');
+  $('styTitle').textContent=sc.t; setSpeaker(null); $('styOpts').innerHTML=''; $('styFx').classList.add('hide'); $('styWallet').textContent=sc.sub||wallet();
+  $('story').classList.remove('hide');
+  sayLines(sc.lines,()=>{const b=document.createElement('button');b.className='btn';b.textContent=sc.btn||'繼續';
+    b.onclick=()=>{$('story').classList.add('hide');done();};$('styOpts').appendChild(b);});
 }
 function showOpts(ev){
   const opts=typeof ev.opts==='function'?ev.opts():ev.opts, box=$('styOpts'); box.innerHTML='';
@@ -816,7 +938,7 @@ function showOpts(ev){
     b.innerHTML=`▸ ${o.t}${o.cost?`<span class="sc">💰${o.cost}</span>`:''}`;
     if(poor){b.disabled=true;b.title='金幣不夠';}
     b.onclick=()=>{if(poor)return;box.innerHTML='';if(o.cost)spend(o.cost);
-      const r=o.go(), lines=r.filter(x=>!/^[❤️💔💗💰💀🧳✨🐾📖]/u.test(x)), fx=r.filter(x=>/^[❤️💔💗💰💀🧳✨🐾📖]/u.test(x));
+      const r=o.go(), lines=r.filter(x=>typeof x!=='string'||!/^[❤️💔💗💰💀🧳✨🐾📖🤝]/u.test(x)), fx=r.filter(x=>typeof x==='string'&&/^[❤️💔💗💰💀🧳✨🐾📖🤝]/u.test(x));
       $('styText').textContent='';sayLines(lines.length?lines:['……'],()=>showResult(fx));};
     box.appendChild(b);
   }
@@ -825,13 +947,13 @@ function showResult(fx){
   const f=$('styFx'); f.innerHTML=(fx.length?fx.map(x=>`<div>${x}</div>`).join(''):'<div style="opacity:.7">什麼也沒有發生。</div>');
   f.classList.remove('hide'); $('styWallet').textContent=wallet(); sfx.lvl();
   const b=document.createElement('button');b.className='btn';b.textContent='繼續前進';
-  b.onclick=()=>{$('story').classList.add('hide');const a=RUN.after;RUN.after=null;if(a)a();else showMap();};
+  b.onclick=()=>{$('story').classList.add('hide');const a=RUN.after;RUN.after=null;const d=RUN.done;RUN.done=null;if(a)a();else if(d)d();else showMap();};
   $('styOpts').appendChild(b);
 }
 function showMap(){
   S.mode='map'; $('evt').classList.add('hide');
   const M=RUN.map, cur=RUN.pos?M[RUN.pos.c][RUN.pos.j]:null, av=new Set(cur?cur.next.map(j=>`${cur.c+1}-${j}`):M[0].map(n=>`0-${n.j}`));
-  $('mapTitle').textContent=`第 ${RUN.ch} 章・${STAGES[RUN.ch].nm}`;
+  $('mapTitle').textContent=`第 ${RUN.ch} 章・${STAGES[STG(RUN.ch)].nm}`;
   $('mapSub').innerHTML=wallet()+(RUN.curse?`　💀 詛咒 ×${RUN.curse}`:'');
   const X=c=>6+c*(88/(M.length-1)), Y=(c,j)=>(j+1)/(M[c].length+1)*100;
   let svg='<svg viewBox="0 0 100 100" preserveAspectRatio="none">';
@@ -1593,6 +1715,19 @@ function update(dt){
     else h.life-=dt;
   }
   S.hazards=S.hazards.filter(h=>h.warn>0||h.life>0);
+  if(RUN&&S.adv&&!S.adv.done&&(S.adv.type==='boss'||S.adv.type==='elite')){ // 同伴協戰
+    for(const k in RUN.trust){const t=RUN.trust[k];if(t<1||(t<2&&S.adv.type!=='boss'))continue;
+      S.helpT=S.helpT||{};S.helpT[k]=(S.helpT[k]===undefined?1+Math.random()*1.5:S.helpT[k])-dt;
+      if(S.helpT[k]<=0){S.helpT[k]=t>=2?6:9;
+        const tg=S.boss||S.enemies.find(e=>e.elite&&!e.dead)||nearest(400);if(!tg)continue;
+        const a=Math.random()*Math.PI*2,hx=tg.x+Math.cos(a)*60,hy=tg.y+Math.sin(a)*30;
+        S.helpers.push({cls:k,x:hx,y:hy,t:0.9,face:tg.x>hx?1:-1});
+        const col={warrior:'255,80,110',mage:'255,140,200',archer:'200,160,255',thief:'120,220,255'}[k];
+        setTimeout(()=>{if(!tg.dead&&S.mode!=='over'){hurt(tg,(30+S.t*0.25)*(t>=2?1.3:1),hx,hy,0);aoe(tg.x,tg.y,70,15+S.t*0.1,120,true);S.fx.push({type:'ring',x:tg.x,y:tg.y,r:70,life:.35,max:.35,col});puff(tg.x,tg.y-30,'rgb('+col+')',14,200);}},250);
+        if(!S.helpSaid||!S.helpSaid[k]){(S.helpSaid=S.helpSaid||{})[k]=1;banner({warrior:'🌹 夜薔薇：「退下，交給我！」',mage:'🌸 櫻心歌姬：「我來幫妳！」',archer:'🎨 虹彩畫師：「看我的彩虹炸彈～！」',thief:'🔫 鋼鐵哨兵：「……掩護妳。」'}[k]);}
+      }}
+  }
+  if(S.helpers){for(const h of S.helpers)h.t-=dt;S.helpers=S.helpers.filter(h=>h.t>0);}
   if(S.decoys){for(const d of S.decoys){d.t-=dt;if(d.t<=0){aoe(d.x,d.y,95,45,260);S.fx.push({type:'ring',x:d.x,y:d.y,r:95,life:.35,max:.35,col:'180,130,255'});puff(d.x,d.y-20,'#c8a0ff',16,200);}}
     S.decoys=S.decoys.filter(d=>d.t>0);}
   updateBuddies(dt);
@@ -1679,7 +1814,7 @@ function openClassSelect(){
 }
 function openStageSelect(cls){
   const box=$('stgCards'); box.innerHTML='';
-  {const ba=loadBest('adv');const c=makeCard({ic:'🗺️',nm:'冒險模式',ds:'穿越審判庭與地下監牢的多層冒險。每層選擇路線：戰鬥、精英、營火、商人、事件，收集遺物打造自己的流派。',
+  {const ba=loadBest('adv');const c=makeCard({ic:'🗺️',nm:'冒險模式',ds:'四位少女在監牢中醒來。逃出地下監牢、闖過審判庭的多層冒險。每層選擇路線：戰鬥、精英、營火、商人、事件，收集遺物打造自己的流派。',
     tag:ba?(ba.win?'已完成 🏆':`最遠：第 ${ba.ch} 章 ${ba.col+1}/7`):'Roguelike・推薦',onclick:()=>{$('stg').classList.add('hide');startAdventure(cls);}});
     c.classList.add('evo');box.appendChild(c);}
   for(const n of [1,2]){const st=STAGES[n], b=loadBest(n);
@@ -1840,7 +1975,7 @@ function endGame(win){
   if(RUN){
     const b=loadBest('adv');
     if(!b||win&&!b.win||(!b.win&&RUN.depth>b.depth)){saveBest({depth:RUN.depth,ch:RUN.ch,col:RUN.col,lv:P.lv,win,job:jobName()},'adv');nb=true;}
-    $('overTitle').textContent=win?'🏆 冒險完成：逃出地牢！':'冒險在此結束';
+    $('overTitle').textContent=win?'🏆 冒險完成：逃出生天！':'冒險在此結束';
     $('overStats').innerHTML=`<div>抵達<br><b>第 ${RUN.ch} 章 ${RUN.col+1}/7</b></div><div>等級<br><b>Lv.${P.lv}</b></div><div>擊殺數<br><b>${S.kills}</b></div><div>遺物<br><b>${RUN.relics.length}</b></div>`;
   }else{
   const b=loadBest(S.stage);
@@ -3326,11 +3461,13 @@ function render(){
     for(const p of S.pets)list.push({y:p.y,k:3,o:p});
     for(const b of S.buddies)list.push({y:b.y,k:5,o:b});
     if(S.decoys)for(const d of S.decoys)list.push({y:d.y,k:8,o:d});
+    if(S.helpers)for(const h of S.helpers)list.push({y:h.y,k:10,o:h});
     if(P.sk.clone){const n=WT.clone.n[P.sk.clone-1];for(let i=0;i<n;i++)list.push({y:clonePos(i,n).y,k:4,i,n});}
   }
   list.sort((a,b)=>a.y-b.y);
   for(const d of list){
-    if(d.k===8)drawChar({x:d.o.x,y:d.o.y,face:d.o.face,fy:0,cls:P.cls,br:P.br,swing:0,moving:false,t:S.t},0.45+Math.sin(S.t*30)*0.15,'#8a5aff');
+    if(d.k===10){const h=d.o,a=Math.min(1,h.t*4,(0.9-h.t)*6);drawChar({x:h.x,y:h.y,face:h.face,fy:0,cls:h.cls,br:null,swing:h.t<0.65&&h.t>0.4?0.1:0,moving:false,t:S.t},Math.max(0,a));addGlow(h.x,h.y-20,30,'255,240,200',.3*a);}
+    else if(d.k===8)drawChar({x:d.o.x,y:d.o.y,face:d.o.face,fy:0,cls:P.cls,br:P.br,swing:0,moving:false,t:S.t},0.45+Math.sin(S.t*30)*0.15,'#8a5aff');
     else if(d.k===6)drawWallRow(d.ty,cx);else if(d.k===7)drawProp(d.o);
     else if(d.k===0)drawTree(d.o);else if(d.k===1)drawEnemy(d.o);else if(d.k===2)drawPlayer();
     else if(d.k===3)drawWolf(d.o);else if(d.k===5)drawBuddy(d.o);else drawClone(d.i,d.n);
