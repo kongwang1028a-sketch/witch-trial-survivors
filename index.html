@@ -33,6 +33,26 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
   box-shadow:inset 0 0 0 3px #1e1630,inset 0 0 0 4px rgba(201,162,74,.5),0 4px 0 #120c1c;text-align:center;color:#f0e6ff}
 .card:active{transform:translateY(3px)}
 .card .ic{font-size:30px;line-height:1.1}
+.card.locked{filter:grayscale(.8) brightness(.7);cursor:not-allowed}
+.tabs{display:flex;gap:6px;justify-content:center;margin:0 0 10px}
+.tab{font:inherit;font-weight:800;font-size:15px;color:#e2d6f6;background:#2a2040;border:2px solid #5a4a7a;border-radius:10px;padding:6px 16px;cursor:pointer}
+.tab.on{background:linear-gradient(#d8405a,#8a1a3a);border-color:#c9a24a;color:#fff}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;text-align:left}
+.sitem{background:linear-gradient(#2e2246,#1e1630);border:2px solid #5a4a7a;border-radius:12px;padding:8px 10px;font-size:12px;color:#cbbde0;display:flex;flex-direction:column;gap:4px}
+.sitem .h{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:900;color:#fff}
+.sitem .h .i{font-size:22px}
+.sitem .pips{letter-spacing:2px;color:#ffd27a}
+.sitem button{font:inherit;font-weight:800;font-size:13px;border:none;border-radius:8px;padding:5px 8px;color:#fff;background:linear-gradient(#d8405a,#8a1a3a);cursor:pointer;margin-top:auto}
+.sitem button:disabled{background:#3a3050;color:#8a7aa8;cursor:not-allowed}
+.sitem.eq{border-color:#ffd27a;box-shadow:0 0 12px rgba(255,210,122,.5)}
+.sitem.no{opacity:.6}
+.rar{font-size:11px;font-weight:800}
+.gbox{background:rgba(255,255,255,.05);border:1px solid rgba(201,162,74,.35);border-radius:12px;padding:12px;margin-bottom:10px}
+.gres{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;min-height:20px}
+.gres .g{width:72px;border-radius:10px;padding:6px 2px;background:#1e1630;border:2px solid;font-size:11px;animation:pop .35s ease-out both}
+.gres .g .i{font-size:24px}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.slot{font-weight:900;color:#ffd27a;text-align:left;margin:10px 0 6px}
 .card .nm{font-weight:900;font-size:16px;margin:4px 0 2px}
 .card .lv{font-size:12px;font-weight:800;color:#fff;background:#a0244a;border-radius:8px;display:inline-block;padding:1px 8px}
 .card .lv.new{background:#3a8a7a}
@@ -70,7 +90,9 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
       ⌨️ 電腦：WASD／方向鍵移動，空白鍵衝刺，P 暫停
     </div>
     <div id="bestTxt" class="sub"></div>
+    <div id="titleCoins" class="sub" style="color:#ffd27a"></div>
     <button class="btn" id="startBtn">開庭</button>
+    <button class="btn gray" id="shopBtn">🛒 商店</button>
     <button class="btn gray" id="fsBtn">全螢幕</button>
   </div>
 </div>
@@ -97,9 +119,11 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
   <div class="panel">
     <h2 id="overTitle">審判結束</h2>
     <div class="stats" id="overStats"></div>
+    <div id="overCoins" class="sub" style="color:#ffd27a"></div>
     <div id="overSk" class="sklist"></div>
     <div id="overBest" class="sub"></div>
     <button class="btn" id="againBtn">再玩一次</button>
+    <button class="btn gray" id="overShopBtn">🛒 商店</button>
   </div>
 </div>
 
@@ -117,6 +141,16 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
     <h2>選擇關卡</h2>
     <div id="stgCards" class="cards"></div>
     <button class="btn gray" id="stgBack">返回</button>
+  </div>
+</div>
+
+<div id="shop" class="ov hide">
+  <div class="panel" style="max-width:820px">
+    <h2>🛒 魔女商店</h2>
+    <div class="sub" id="shopWallet"></div>
+    <div class="tabs"><button class="tab" data-t="up">永久強化</button><button class="tab" data-t="gacha">扭蛋</button><button class="tab" data-t="ward">衣櫥</button></div>
+    <div id="shopBody"></div>
+    <button class="btn gray" id="shopBack">返回</button>
   </div>
 </div>
 
@@ -452,6 +486,54 @@ const PETS={
   sprout:{nm:'月光兔',ic:'🐰',ds:'定時幫妳補血'},
 };
 
+// ====== 商店：存檔、永久強化、扭蛋外觀 ======
+const SAVE_KEY='witchsurv_save';
+let SAVE=null;
+function loadSave(){
+  let d=null; try{d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');}catch(e){}
+  SAVE=Object.assign({coins:0,shard:0,pity:0,up:{},own:{},eq:{hat:null,trail:null,aura:null}},d||{});
+  SAVE.up=SAVE.up||{}; SAVE.own=SAVE.own||{}; SAVE.eq=Object.assign({hat:null,trail:null,aura:null},SAVE.eq||{});
+}
+function writeSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch(e){}}
+loadSave();
+const UPG=[
+  {id:'hp',ic:'❤️',nm:'生命祝福',max:5,per:8,unit:'% 最大生命',cost:[60,120,200,320,480]},
+  {id:'atk',ic:'🗡️',nm:'魔力增幅',max:5,per:5,unit:'% 魔法傷害',cost:[80,150,250,380,550]},
+  {id:'spd',ic:'👟',nm:'輕盈步伐',max:5,per:4,unit:'% 移動速度',cost:[60,110,180,280,420]},
+  {id:'armor',ic:'🛡️',nm:'守護結界',max:3,per:4,unit:'% 減少受到的傷害',cost:[120,240,420]},
+  {id:'pick',ic:'🧲',nm:'靈魂磁力',max:3,per:15,unit:'% 撿取範圍',cost:[50,100,180]},
+  {id:'exp',ic:'📖',nm:'魔導知識',max:5,per:8,unit:'% 經驗值',cost:[70,130,220,340,500]},
+  {id:'gold',ic:'💰',nm:'招財貓',max:3,per:15,unit:'% 撿到的金幣',cost:[100,200,350]},
+  {id:'start',ic:'🌟',nm:'開局祝福',max:1,per:1,unit:' 次：開局立刻升級三選一',cost:[400]},
+  {id:'revive',ic:'🕊️',nm:'不死鳥之羽',max:1,per:1,unit:' 次：每局倒下時復活（回復一半生命）',cost:[800]},
+];
+const upLv=id=>SAVE.up[id]||0;
+const RAR={c:{nm:'普通',col:'#b8c4d8',w:62,shard:1,buy:6},r:{nm:'稀有',col:'#6ab8ff',w:30,shard:3,buy:18},l:{nm:'傳說',col:'#ffc84a',w:8,shard:10,buy:50}};
+const COS=[
+  {id:'h_flower',slot:'hat',r:'c',ic:'🌸',nm:'小花冠'},{id:'h_cat',slot:'hat',r:'c',ic:'🐱',nm:'貓耳'},{id:'h_bunny',slot:'hat',r:'c',ic:'🐰',nm:'兔耳'},
+  {id:'h_horn',slot:'hat',r:'r',ic:'😈',nm:'惡魔角'},{id:'h_halo',slot:'hat',r:'r',ic:'😇',nm:'天使光環'},{id:'h_tophat',slot:'hat',r:'r',ic:'🎩',nm:'迷你禮帽'},
+  {id:'h_crown',slot:'hat',r:'l',ic:'👑',nm:'月之冠冕'},{id:'h_witch',slot:'hat',r:'l',ic:'🧙',nm:'大魔女尖帽'},
+  {id:'t_petal',slot:'trail',r:'c',ic:'🌸',nm:'花瓣足跡'},{id:'t_bubble',slot:'trail',r:'c',ic:'🫧',nm:'泡泡足跡'},
+  {id:'t_star',slot:'trail',r:'r',ic:'✨',nm:'星塵足跡'},{id:'t_bat',slot:'trail',r:'r',ic:'🦇',nm:'蝙蝠足跡'},
+  {id:'t_rainbow',slot:'trail',r:'l',ic:'🌈',nm:'彩虹足跡'},{id:'t_wisp',slot:'trail',r:'l',ic:'🔥',nm:'鬼火足跡'},
+  {id:'a_heart',slot:'aura',r:'c',ic:'💗',nm:'粉紅光環'},{id:'a_frost',slot:'aura',r:'r',ic:'❄️',nm:'霜雪光環'},{id:'a_magic',slot:'aura',r:'r',ic:'🔯',nm:'魔法陣光環'},
+  {id:'a_rose',slot:'aura',r:'l',ic:'🥀',nm:'黑薔薇光環'},{id:'a_judge',slot:'aura',r:'l',ic:'⚖️',nm:'審判金陣'},
+];
+const COSI={}; for(const c of COS)COSI[c.id]=c;
+const GACHA1=120, GACHA10=1080, PITY=30;
+function rollOne(forceR){
+  let r=forceR;
+  if(!r){if(SAVE.pity>=PITY-1)r='l';else{let x=Math.random()*100;r=x<RAR.l.w?'l':x<RAR.l.w+RAR.r.w?'r':'c';}}
+  SAVE.pity=r==='l'?0:SAVE.pity+1;
+  const pool=COS.filter(c=>c.r===r), it=pool[Math.floor(Math.random()*pool.length)];
+  const dup=!!SAVE.own[it.id]; if(dup)SAVE.shard+=RAR[r].shard; else SAVE.own[it.id]=true;
+  return {it,dup};
+}
+function bankCoins(win,full){
+  const base=S.coins, bonus=full?Math.floor(S.t/3):0, clear=win?150*S.stage:0, tot=base+bonus+clear;
+  SAVE.coins+=tot; writeSave(); return {base,bonus,clear,tot};
+}
+
 // ====== 遊戲狀態 ======
 let S={mode:'title'}, P=null;
 function newGame(cls,stage){
@@ -461,11 +543,13 @@ function newGame(cls,stage){
   P={cls,br:null,x:st0.x,y:st0.y,fx:1,fy:0,face:1,hp:c.hp,maxHp:c.hp,inv:0,blink:0,lv:1,exp:0,need:needExp(1),swing:0,swingA:0,
      dashT:0,dashCd:0,dashX:0,dashY:0,moving:false,shieldT:0,sk:{},cd:{},st:{}};
   P.sk[c.start]=1; P.cd[c.start]=0;
+  P.maxHp=P.hp=Math.round(c.hp*(1+0.08*upLv('hp'))); P.revive=upLv('revive');
   recalc();
   S={mode:'play',t:0,enemies:[],projs:[],orbs:[],fx:[],nums:[],rings:[],zones:[],mines:[],pets:[],buddies:[],eprojs:[],hazards:[],stage,flowT:0,fieldLeft:DUN?2:3,kills:0,coins:0,
      camX:0,camY:0,spawnT:1,surgeT:75,bossPhase:0,boss:null,pendingLv:0,pendingAdv:false,orbA:0,auraT:0,shake:0,banner:null,winT:-1};
   snapCam();
   if(DUN)updFlow();
+  if(upLv('start'))S.pendingLv=1;
   S.lairs=DUN?DUN.lairs:LAIRS;
   for(const L of S.lairs){
     L.done=false;
@@ -486,6 +570,8 @@ function recalc(){
   P.st.spd=(1+0.07*(s.spd||0))*(c==='archer'?1.1:1)*(b==='gale'?1.1:1);
   P.st.dashCd=1.2*Math.pow(0.92,s.spd||0)*(c==='thief'?0.6:1)*(b==='trap'?0.75:1);
   P.st.armor=(c==='warrior'?0.9:1)*(b==='guard'?0.85:1);
+  // 商店永久強化
+  P.st.dmg*=1+0.05*upLv('atk'); P.st.spd*=1+0.04*upLv('spd'); P.st.pick*=1+0.15*upLv('pick'); P.st.armor*=1-0.04*upLv('armor');
 }
 
 // ====== 輸入 ======
@@ -602,10 +688,15 @@ function damageP(d){
   }
   d=Math.max(1,Math.round(d*P.st.armor)); P.hp-=d; P.inv=0.8; P.blink=0.8; S.shake=0.2; sfx.hurt();
   num(P.x,P.y-48,d,false,'#ff5a5a');
+  if(P.hp<=0&&P.revive>0){ // 不死鳥之羽：復活
+    P.revive--; P.hp=Math.round(P.maxHp*0.5); P.inv=2.5; P.blink=2.5; aoe(P.x,P.y,140,60,400);
+    S.fx.push({type:'ring',x:P.x,y:P.y,r:140,life:.6,max:.6,col:'255,200,120'}); puff(P.x,P.y-20,'#ffd27a',30,220);
+    banner('🕊️ 不死鳥之羽：復活！'); tone(660,0.5,'triangle',0.06,600); return;
+  }
   if(P.hp<=0){P.hp=0; puff(P.x,P.y-20,'#ffe0c2',30,200); endGame(false);}
 }
 function gainExp(v){
-  P.exp+=v;
+  P.exp+=v*(1+0.08*upLv('exp'));
   while(P.exp>=P.need){P.exp-=P.need;P.lv++;P.need=needExp(P.lv);S.pendingLv++;
     S.fx.push({type:'pillar',life:.9,max:.9});
     if(P.lv>=ADV_LV&&!P.br)S.pendingAdv=true;}
@@ -1172,6 +1263,7 @@ function update(dt){
   }
   S.hazards=S.hazards.filter(h=>h.warn>0||h.life>0);
   updateBuddies(dt);
+  trailFx();
   updateFx(dt);
   if(S.winT>0){S.winT-=dt;if(S.winT<=0)endGame(true);}
   if(S.mode==='play'){
@@ -1209,7 +1301,7 @@ function updateBuddies(dt){
 }
 function collect(o){
   if(o.kind==='exp'){gainExp(o.v);sfx.pick();}
-  else if(o.kind==='coin'){S.coins+=o.v;tone(1500,0.06,'sine',0.03,200);}
+  else if(o.kind==='coin'){S.coins+=Math.round(o.v*(1+0.15*upLv('gold')));tone(1500,0.06,'sine',0.03,200);}
   else if(o.kind==='meat'){P.hp=Math.min(P.maxHp,P.hp+30);num(P.x,P.y-48,'+30',false,'#5be36b');}
   else if(o.kind==='egg'){givePet();}
   else if(o.kind==='chest'){S.pendingLv+=2;P.hp=P.maxHp;banner('魔法寶箱：連續升級 ×2，HP 全滿！');sfx.lvl();}
@@ -1250,9 +1342,55 @@ function openClassSelect(){
 function openStageSelect(cls){
   const box=$('stgCards'); box.innerHTML='';
   for(const n of [1,2]){const st=STAGES[n], b=loadBest(n);
-    box.appendChild(makeCard({ic:st.ic,nm:`第 ${n} 關・${st.nm}`,ds:st.ds,tag:b?`最佳：存活 ${fmt(b.time)}${b.win?'・已通關 🏆':''}`:(n===2?'新關卡':'尚未挑戰'),
-      onclick:()=>{$('stg').classList.add('hide');newGame(cls,n);}}));}
+    const b1=loadBest(1), locked=n===2&&!(b1&&b1.win);
+    const card=makeCard({ic:locked?'🔒':st.ic,nm:`第 ${n} 關・${st.nm}`,ds:locked?'通關第 1 關「審判庭」後解鎖。':st.ds,tag:locked?'尚未解鎖':b?`最佳：存活 ${fmt(b.time)}${b.win?'・已通關 🏆':''}`:'尚未挑戰',
+      onclick:()=>{if(locked){tone(160,0.15,'square',0.03,-40);return;}$('stg').classList.add('hide');newGame(cls,n);}});
+    if(locked)card.classList.add('locked');
+    box.appendChild(card);}
   $('stg').classList.remove('hide');
+}
+let shopTab='up', shopFrom='title';
+function openShop(from){shopFrom=from||'title';$(from==='over'?'over':'title').classList.add('hide');$('shop').classList.remove('hide');renderShop();}
+function renderShop(){
+  $('shopWallet').textContent=`💰 金庫：${SAVE.coins}　💎 碎片：${SAVE.shard}`;
+  document.querySelectorAll('#shop .tab').forEach(t=>t.classList.toggle('on',t.dataset.t===shopTab));
+  const body=$('shopBody');
+  if(shopTab==='up'){
+    body.innerHTML='<div class="sgrid">'+UPG.map(u=>{const lv=upLv(u.id),mx=lv>=u.max,c=mx?0:u.cost[lv];
+      return `<div class="sitem"><div class="h"><span class="i">${u.ic}</span>${u.nm}</div>
+        <div>${u.max>1?`每級 +${u.per}${u.unit}`:u.unit.replace(/^ 次：/,'')}</div>
+        <div class="pips">${'★'.repeat(lv)}${'☆'.repeat(u.max-lv)}</div>
+        <button data-up="${u.id}" ${mx||SAVE.coins<c?'disabled':''}>${mx?'已滿級':`💰 ${c}`}</button></div>`;}).join('')+'</div>';
+    body.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const u=UPG.find(x=>x.id===b.dataset.up),lv=upLv(u.id),c=u.cost[lv];
+      if(lv>=u.max||SAVE.coins<c)return; SAVE.coins-=c; SAVE.up[u.id]=lv+1; writeSave(); tone(880,0.15,'triangle',0.05,400); renderShop();});
+  }else if(shopTab==='gacha'){
+    const own=COS.filter(c=>SAVE.own[c.id]).length;
+    body.innerHTML=`<div class="gbox"><div style="font-size:40px">🎰</div>
+      <div>抽到頭飾、足跡、光環等外觀（只改變樣子，不影響強度）</div>
+      <div class="sub" style="margin:6px 0">機率：<span style="color:${RAR.c.col}">普通 ${RAR.c.w}%</span>・<span style="color:${RAR.r.col}">稀有 ${RAR.r.w}%</span>・<span style="color:${RAR.l.col}">傳說 ${RAR.l.w}%</span>　｜　再 <b>${PITY-SAVE.pity}</b> 抽內必得傳說　｜　已收集 ${own}/${COS.length}</div>
+      <div class="sub">抽到重複的會轉成 💎 碎片（普通 1・稀有 3・傳說 10），可以到衣櫥兌換指定外觀</div>
+      <button class="btn" id="g1" ${SAVE.coins<GACHA1?'disabled style="opacity:.5"':''}>單抽 💰${GACHA1}</button>
+      <button class="btn" id="g10" ${SAVE.coins<GACHA10?'disabled style="opacity:.5"':''}>十連抽 💰${GACHA10}（必有稀有以上）</button>
+      <div class="gres" id="gres"></div></div>`;
+    const pull=n=>{const c=n===1?GACHA1:GACHA10;if(SAVE.coins<c)return;SAVE.coins-=c;
+      const res=[];for(let i=0;i<n;i++)res.push(rollOne());
+      if(n===10&&!res.some(r=>r.it.r!=='c')){const r=rollOne('r');res[9]=r;}   // 十連保底稀有
+      writeSave(); renderShop();
+      const box=$('gres'); box.innerHTML=res.map((r,i)=>`<div class="g" style="border-color:${RAR[r.it.r].col};animation-delay:${i*0.08}s"><div class="i">${r.it.ic}</div><div style="color:${RAR[r.it.r].col}">${RAR[r.it.r].nm}</div><div>${r.it.nm}</div><div style="color:#8ad8c8">${r.dup?`💎+${RAR[r.it.r].shard}`:'NEW!'}</div></div>`).join('');
+      const best=res.some(r=>r.it.r==='l')?'l':res.some(r=>r.it.r==='r')?'r':'c';
+      tone(best==='l'?1320:best==='r'?990:660,0.4,'triangle',0.06,best==='l'?800:300);};
+    $('g1').onclick=()=>pull(1); $('g10').onclick=()=>pull(10);
+  }else{
+    const slots=[['hat','👒 頭飾'],['trail','👣 足跡'],['aura','⭕ 光環']];
+    body.innerHTML=slots.map(([sl,nm])=>`<div class="slot">${nm}</div><div class="sgrid">`+COS.filter(c=>c.slot===sl).map(c=>{
+      const own=SAVE.own[c.id], eq=SAVE.eq[sl]===c.id, buy=RAR[c.r].buy;
+      return `<div class="sitem ${eq?'eq':''} ${own?'':'no'}"><div class="h"><span class="i">${own?c.ic:'❔'}</span>${own?c.nm:'？？？'}</div>
+        <div class="rar" style="color:${RAR[c.r].col}">${RAR[c.r].nm}</div>
+        ${own?`<button data-eq="${c.id}">${eq?'卸下':'裝備'}</button>`:`<button data-buy="${c.id}" ${SAVE.shard<buy?'disabled':''}>💎 ${buy} 兌換</button>`}</div>`;}).join('')+'</div>').join('');
+    body.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{const c=COSI[b.dataset.eq];SAVE.eq[c.slot]=SAVE.eq[c.slot]===c.id?null:c.id;writeSave();renderShop();});
+    body.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const c=COSI[b.dataset.buy],cost=RAR[c.r].buy;if(SAVE.shard<cost||SAVE.own[c.id])return;
+      SAVE.shard-=cost;SAVE.own[c.id]=true;writeSave();tone(990,0.2,'triangle',0.05,300);renderShop();});
+  }
 }
 function openAdv(){
   S.mode='adv';
@@ -1348,6 +1486,7 @@ function saveBest(b,st){try{localStorage.setItem(bestKey(st),JSON.stringify(b));
 function showBest(){
   const t=[1,2].map(n=>{const b=loadBest(n);return b?`${STAGES[n].nm}：${b.job||''} 存活 ${fmt(b.time)}・Lv.${b.lv}${b.win?'・已通關 🏆':''}`:'';}).filter(Boolean);
   $('bestTxt').innerHTML=t.join('<br>');
+  $('titleCoins').textContent=`💰 金庫：${SAVE.coins}　💎 碎片：${SAVE.shard}`;
 }
 function endGame(win){
   if(S.mode==='over')return;
@@ -1357,16 +1496,22 @@ function endGame(win){
   if(!b||win&&!b.win||(!!win===!!b.win&&S.t>b.time)){saveBest({time:S.t,lv:P.lv,kills:S.kills,win,job:jobName()},S.stage);nb=true;}
   $('overTitle').textContent=win?STAGES[S.stage].win:(S.stage===2?'倒在地牢深處':'審判結束');
   $('overStats').innerHTML=`<div>存活時間<br><b>${fmt(S.t)}</b></div><div>等級<br><b>Lv.${P.lv}</b></div><div>擊殺數<br><b>${S.kills}</b></div><div>金幣<br><b>${S.coins}</b></div>`;
+  const bk=bankCoins(win,true);
+  $('overCoins').innerHTML=`💰 存入金庫 <b>+${bk.tot}</b>（撿到 ${bk.base}・存活獎勵 ${bk.bonus}${bk.clear?`・通關獎勵 ${bk.clear}`:''}）　金庫：${SAVE.coins}`;
   $('overSk').innerHTML=skillTags();
   $('overBest').textContent=nb?'✨ 新紀錄！':'';
   setTimeout(()=>$('over').classList.remove('hide'),win?200:900);
 }
 $('startBtn').onclick=()=>{initAudio();openClassSelect();};
+$('shopBtn').onclick=()=>{initAudio();openShop('title');};
+$('overShopBtn').onclick=()=>openShop('over');
+$('shopBack').onclick=()=>{$('shop').classList.add('hide');if(shopFrom==='over')$('over').classList.remove('hide');else{showBest();$('title').classList.remove('hide');}};
+document.querySelectorAll('#shop .tab').forEach(t=>t.onclick=()=>{shopTab=t.dataset.t;renderShop();});
 $('stgBack').onclick=()=>{$('stg').classList.add('hide');$('cls').classList.remove('hide');};
 $('clsBack').onclick=()=>{$('cls').classList.add('hide');$('title').classList.remove('hide');};
 $('againBtn').onclick=()=>{$('over').classList.add('hide');openClassSelect();};
 $('resumeBtn').onclick=closePause;
-$('quitBtn').onclick=()=>{$('pause').classList.add('hide');S.mode='title';showBest();$('title').classList.remove('hide');};
+$('quitBtn').onclick=()=>{$('pause').classList.add('hide');if(S.mode!=='over'&&P)bankCoins(false,false);S.mode='title';showBest();$('title').classList.remove('hide');};
 $('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent='音效：'+(muted?'關':'開');};
 $('fsBtn').onclick=()=>{
   const el=document.documentElement;
@@ -2032,12 +2177,56 @@ function drawChar(o,alpha,tint){
 }
 function drawPlayer(){
   if(P.blink>0&&P.dashT<=0&&Math.floor(P.blink*20)%2===0)return;
+  if(SAVE.eq.aura)drawAura(SAVE.eq.aura,P.x,P.y);
   drawChar({x:P.x,y:P.y,face:P.face,fy:P.fy,cls:P.cls,br:P.br,swing:P.swing,moving:P.moving,t:S.t});
+  if(SAVE.eq.hat)drawHat(SAVE.eq.hat,P.x,P.y-(P.moving&&Math.floor(S.t*9)%2?47:46),P.face);
   if(P.sk.shield&&P.shieldT<=0){
     ctx.strokeStyle=`rgba(170,210,255,${0.55+Math.sin(S.t*6)*0.2})`;ctx.lineWidth=2.5;
     ctx.beginPath();ctx.ellipse(P.x,P.y-20,20,26,0,0,Math.PI*2);ctx.stroke();
     ctx.fillStyle='rgba(170,210,255,.12)';ctx.fill();
   }
+}
+// 商店外觀：光環（腳下）、頭飾、足跡
+function drawAura(id,x,y){
+  const t=S.t;
+  ctx.save();ctx.translate(x,y);ctx.scale(1,0.45);
+  if(id==='a_heart'){ctx.fillStyle='rgba(255,120,180,.22)';circ(0,0,26);ctx.strokeStyle='rgba(255,150,200,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,24,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#ff8ac0';for(let k=0;k<4;k++){const a=t*1.5+k*Math.PI/2;heart(Math.cos(a)*24,Math.sin(a)*24,4);}}
+  else if(id==='a_frost'){ctx.strokeStyle='rgba(170,220,255,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,25,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#dff4ff';for(let k=0;k<8;k++){const a=-t+k*Math.PI/4;star(Math.cos(a)*25,Math.sin(a)*25,3+Math.sin(t*5+k));}}
+  else if(id==='a_magic'){ctx.rotate(t*0.8);ctx.strokeStyle='rgba(190,140,255,.85)';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(0,0,27,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,0,21,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();for(let k=0;k<=6;k++){const a=k*Math.PI*2/6*2;ctx.lineTo(Math.cos(a)*21,Math.sin(a)*21);}ctx.stroke();}
+  else if(id==='a_rose'){ctx.fillStyle='rgba(60,0,20,.35)';circ(0,0,28);for(let k=0;k<10;k++){const a=t*0.9+k*Math.PI/5;ctx.save();ctx.translate(Math.cos(a)*26,Math.sin(a)*26);ctx.rotate(a*2);
+    ctx.fillStyle=k%2?'#8a0a2a':'#2a0612';ctx.beginPath();ctx.ellipse(0,0,6,3,0,0,Math.PI*2);ctx.fill();ctx.restore();}}
+  else if(id==='a_judge'){ctx.rotate(-t*0.5);ctx.strokeStyle='rgba(255,210,110,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,30,0,Math.PI*2);ctx.stroke();ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,24,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#ffd27a';for(let k=0;k<12;k++){const a=k*Math.PI/6;ctx.fillRect(Math.cos(a)*27-1.5,Math.sin(a)*27-1.5,3,3);}}
+  ctx.restore();
+  if(id==='a_judge'||id==='a_magic')addGlow(x,y,34,id==='a_judge'?'255,200,100':'180,120,255',.25);
+}
+function drawHat(id,x,y,f){
+  ctx.save();ctx.translate(x,y);ctx.scale(f,1);
+  if(id==='h_flower'){for(let k=0;k<7;k++){const a=Math.PI+k*Math.PI/6;ctx.fillStyle=k%2?'#ffffff':'#ff9ac0';circ(Math.cos(a)*9,Math.sin(a)*3+3,2.6);}ctx.fillStyle='#ffe066';circ(0,0,1.5);}
+  else if(id==='h_cat'||id==='h_bunny'){const bun=id==='h_bunny';
+    for(const s of[-1,1]){ctx.fillStyle=bun?'#f4f0f8':'#1a1420';
+      if(bun){ctx.beginPath();ctx.ellipse(s*5,-9,3,9,s*0.15,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffb0c8';ctx.beginPath();ctx.ellipse(s*5,-9,1.4,6,s*0.15,0,Math.PI*2);ctx.fill();}
+      else{ctx.beginPath();ctx.moveTo(s*2,2);ctx.lineTo(s*8,-8);ctx.lineTo(s*10,3);ctx.fill();ctx.fillStyle='#ff9ab8';ctx.beginPath();ctx.moveTo(s*4,1);ctx.lineTo(s*7.5,-4);ctx.lineTo(s*8.5,2);ctx.fill();}}}
+  else if(id==='h_horn'){for(const s of[-1,1]){ctx.fillStyle='#5a0a1a';ctx.beginPath();ctx.moveTo(s*4,3);ctx.quadraticCurveTo(s*12,-2,s*9,-10);ctx.quadraticCurveTo(s*8,-2,s*1,1);ctx.fill();}}
+  else if(id==='h_halo'){addGlow(0,-6,14,'255,230,140',.6);ctx.strokeStyle='#ffe08a';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,-6+Math.sin(S.t*3),9,3,0,0,Math.PI*2);ctx.stroke();}
+  else if(id==='h_tophat'){ctx.rotate(0.2);ctx.fillStyle='#16121c';ctx.fillRect(-7,1,14,2.5);ctx.fillRect(-4.5,-9,9,10);ctx.fillStyle='#c8203a';ctx.fillRect(-4.5,-2,9,2);}
+  else if(id==='h_crown'){addGlow(0,-4,16,'200,220,255',.5);ctx.fillStyle='#e8c050';ctx.beginPath();ctx.moveTo(-8,3);ctx.lineTo(-8,-4);ctx.lineTo(-4,0);ctx.lineTo(0,-7);ctx.lineTo(4,0);ctx.lineTo(8,-4);ctx.lineTo(8,3);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#bfe0ff';circ(0,-1,2.2);ctx.fillStyle='#ff6a8a';circ(-5,1,1.2);circ(5,1,1.2);}
+  else if(id==='h_witch'){ctx.fillStyle='#2a1640';ctx.beginPath();ctx.ellipse(0,2,14,3.5,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(-8,2);ctx.quadraticCurveTo(-3,-10,4,-20);ctx.quadraticCurveTo(10,-22,12,-16);ctx.quadraticCurveTo(6,-14,8,2);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#ffd27a';ctx.fillRect(-7.5,-2,15,2.4);ctx.fillStyle='#ffe066';star(3,-8,2.6);}
+  ctx.restore();
+}
+function trailFx(){
+  const id=SAVE.eq.trail; if(!id||!P.moving||S.fx.length>420)return;
+  if((S.trailT=(S.trailT||0)-1)>0)return; S.trailT=3;
+  const x=P.x+rand(-6,6), y=P.y+rand(-3,3)+14;
+  const col={t_petal:['#ffb0cc','#ff7aa8'],t_bubble:['#bfe8ff','#e8f8ff'],t_star:['#ffe066','#fff6c0'],t_bat:['#3a2a5a','#6a4aa0'],t_wisp:['#5ac8ff','#a8e8ff']}[id];
+  const c=id==='t_rainbow'?PAINT_COLS[Math.floor(S.t*12)%PAINT_COLS.length]:col[Math.random()<0.5?0:1];
+  S.fx.push({type:'p',x,y,vx:rand(-15,15),vy:rand(-40,-10),life:.6,max:.6,col:c,size:id==='t_bat'?4:3});
 }
 function drawClone(i,n){
   const c=clonePos(i,n);
