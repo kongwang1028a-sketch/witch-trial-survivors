@@ -1,7 +1,7 @@
 # 月下審判：魔法少女倖存者
 
 暗黑又帶點可愛的哥德風「倖存者」類網頁遊戲，以手機橫向操作為主。
-玩法沿用 [葉語冒險：倖存者](https://github.com/kongwang1028a-sketch/leaf-survivors)，角色、魔物、場景與美術全部原創，以 Canvas 程式繪製。
+玩法沿用 [葉語冒險：倖存者](https://github.com/kongwang1028a-sketch/leaf-survivors)，角色、魔物與美術全部原創：角色與魔物為 Canvas 程式繪製的點陣圖，地板、紅毯、魔法陣、路燈、斷柱、碎石、水窪與燭台使用 AI 產生的圖片（WebP／PNG 內嵌於 HTML）。
 
 ## 怎麼玩
 直接用瀏覽器開啟 `index.html`，不需要安裝或建置。
