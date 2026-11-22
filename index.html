@@ -1988,7 +1988,7 @@ function fitLoop(now){
     ctx.globalAlpha=1;
     const o={x:0,y:0,face:1,fy:pose==='b'?-1:0,cls:WARD.cls,br:null,swing:sw,moving:mv,t,st:WARD.st};
     drawChar(o);
-    const hat=eq('hat'); if(hat){const hp=hatPos({x:0,y:0,cls:WARD.cls,face:1,moving:mv,st:WARD.st});drawHat(hat,hp.x,hp.y,1,hp.sc);}
+    const hat=eq('hat'); if(hat){const hp=hatPos({x:0,y:0,cls:WARD.cls,face:1,moving:mv,st:WARD.st});drawHat(hat,hp.x,hp.y,hp.f||1,hp.sc,hp.rot||0);}
   }catch(e){console.error(e);}
   ctx.setTransform(1,0,0,1,0,0); ctx=sv; S=sS; P=sP;
   WARD.raf=requestAnimationFrame(fitLoop);
@@ -2773,20 +2773,42 @@ for(const c in CIMG_SRC){CIMG[c]={};for(const k in CIMG_SRC[c]){const im=new Ima
 const CANCH={warrior:{f:0.399,b:0.582,a:0.432},mage:{f:0.507,b:0.497,a:0.484},archer:{f:0.528,b:0.524,a:0.508},thief:{f:0.43,b:0.55,a:0.477}};
 function poseOf(o){
   const st=o.st; if(!st)return o.swing>0?'a':o.fy<-0.6?'b':'f';
-  const dt=Math.max(0,Math.min(0.05,o.t-(st.pt||o.t))); st.pt=o.t;
+  const dt=Math.max(0,Math.min(0.05,o.t-(st.pt||o.t))); st.pt=o.t; st.dt=dt;
+  if(o.swing>0&&!(st.swPrev>0)&&!(st.at<0.22))st.at=0; st.swPrev=o.swing; st.at=(st.at===undefined?9:st.at)+dt; // 攻擊起手計時
   if(o.swing>0)st.hold=0.5;                         // 攻擊姿勢至少維持 0.32 秒，連續攻擊時不會閃爍
   st.hold=Math.max(0,(st.hold||0)-dt);
   if(st.back===undefined)st.back=false;
   if(o.fy<-0.6)st.back=true; else if(o.fy>-0.25)st.back=false; // 正背面切換加緩衝
   const want=st.hold>0?'a':st.back?'b':'f';
   if(want!==st.pose){st.prev=st.pose||want;st.pose=want;st.fade=0;}
-  st.fade=Math.min(1,(st.fade||0)+dt/0.09);
+  st.fade=Math.min(1,(st.fade||0)+dt/0.12);
   return want;
 }
 function drawGirlImg(im,c,k,o,alpha,sq){
-  const H=im.height*0.165, W=H*im.width/im.height, ax=(CANCH[c]&&CANCH[c][k])||0.5;
+  const H=im.height*0.165, W=H*im.width/im.height, ax=(CANCH[c]&&CANCH[c][k])||0.5, m=o.mo;
   ctx.save();ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=true;
-  ctx.translate(o.x,o.y-(o.bob||0));ctx.rotate(o.sway||0);ctx.scale(o.face*(1+sq*0.5),1-sq);ctx.drawImage(im,-W*ax,-H+2,W,H);ctx.restore();
+  if(m){ctx.translate(o.x+m.dx,o.y-m.dy);ctx.rotate(m.rot);ctx.scale(m.fx*m.sx*(1+sq*0.5),m.sy*(1-sq));}
+  else{ctx.translate(o.x,o.y-(o.bob||0));ctx.rotate(o.sway||0);ctx.scale(o.face*(1+sq*0.5),1-sq);}
+  ctx.drawImage(im,-W*ax,-H+2,W,H);ctx.restore();
+}
+// 動作銜接：走路彈跳＋擠壓、起步／停步漸變、轉身翻面、攻擊預備→出手→收招
+const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
+function motionOf(o,k){
+  const st=o.st, dt=st.dt||0;
+  st.mv=(st.mv||0)+((o.moving?1:0)-(st.mv||0))*Math.min(1,dt*9);       // 起步／停步平滑
+  st.ph=(st.ph||0)+dt*11*(0.35+0.65*st.mv);
+  st.fx=st.fx===undefined?o.face:st.fx; st.fx+=Math.sign(o.face-st.fx)*Math.min(Math.abs(o.face-st.fx),dt*13); // 轉身：快速翻面
+  const fx=Math.abs(st.fx)<0.15?Math.sign(st.fx||o.face)*0.15:st.fx;
+  const mv=st.mv, step=Math.abs(Math.sin(st.ph)), land=Math.cos(st.ph*2);
+  let dx=0, dy=step*2.4*mv, rot=Math.sin(st.ph)*0.03*mv+0.05*mv*o.face, sx=1+0.035*mv*land, sy=1-0.035*mv*land;
+  const br=Math.sin(o.t*2.4)*(1-mv);  sy+=br*0.012; sx-=br*0.006;           // 待機呼吸
+  const a=st.at;
+  if(a<0.55){ // 攻擊：0~0.06 蓄力、0.06~0.16 出手、之後回位
+    const wind=a<0.06?ease(a/0.06):1-ease((a-0.06)/0.1), hit=a<0.06?0:a<0.16?ease((a-0.06)/0.1):1-ease((a-0.16)/0.39);
+    sx*=1+0.07*wind-0.05*hit; sy*=1-0.07*wind+0.06*hit;
+    rot+=(-0.07*wind+0.11*hit)*o.face; dx+=(-1.5*wind+4*hit)*o.face; dy+=hit*1.2;
+  }
+  return {dx,dy,rot,sx,sy,fx};
 }
 // 頭飾定位：從圖片算出頭頂與頭部中心（快取）
 const HEADC={};
@@ -2808,7 +2830,10 @@ function hatPos(o){ // 回傳 {x,y,sc}，新版角色依圖片計算
     const k=(o.st&&o.st.pose)||'f', im=(CIMG[o.cls][k]||CIMG[o.cls].f), kk=CIMG[o.cls][k]?k:'f', hp=headOf(o.cls,kk);
     if(hp){const H=im.height*0.165, W=H*im.width/im.height, ax=(CANCH[o.cls]&&CANCH[o.cls][kk])||0.5;
       const hwS=hp.hw*H, sc=Math.max(1,Math.min(1.7,hwS/20));
-      return {x:o.x+o.face*(hp.cx-ax)*W, y:o.y-(o.moving?Math.abs(Math.sin(S.t*12))*2:0)-H+2+hp.ty*H+hwS*0.28, sc};}
+      const lx=(hp.cx-ax)*W, ly=-H+2+hp.ty*H+hwS*0.28, m=o.st&&o.st.mo;
+      if(m){const px=lx*m.fx*m.sx, py=ly*m.sy, c=Math.cos(m.rot), s2=Math.sin(m.rot);
+        return {x:o.x+m.dx+px*c-py*s2, y:o.y-m.dy+px*s2+py*c, sc, rot:m.rot, f:Math.sign(m.fx)*Math.max(0.15,Math.abs(m.fx))};}
+      return {x:o.x+o.face*lx, y:o.y-(o.moving?Math.abs(Math.sin(S.t*12))*2:0)+ly, sc};}
   }
   return {x:o.x,y:o.y-(o.moving&&Math.floor(S.t*9)%2?47:46),sc:1};
 }
@@ -2816,7 +2841,8 @@ function drawImgGirl(o,alpha){
   const set=CIMG[o.cls]; if(!set||!set.f)return false;
   const k=poseOf(o), st=o.st, a0=alpha===undefined?1:alpha;
   o.bob=o.moving?Math.abs(Math.sin(o.t*12))*2:0; o.sway=o.moving?Math.sin(o.t*12)*0.035:0;
-  shadow(o.x,o.y,13);
+  o.mo=st?motionOf(o,k):null; if(st)st.mo=o.mo;
+  if(o.mo){const sh=1-o.mo.dy*0.04;shadow(o.x+o.mo.dx*0.5,o.y,13*sh);}else shadow(o.x,o.y,13);
   const imOf=p=>set[p]||set.f;
   if(st&&st.fade<1&&st.prev!==st.pose){ // 交叉淡入，加一點擠壓回彈
     const f=st.fade, sq=0.06*(1-f);
@@ -2948,7 +2974,7 @@ function drawPlayer(){
   if(P.blink>0&&P.dashT<=0&&Math.floor(P.blink*20)%2===0)return;
   if(SAVE.eq.aura)drawAura(SAVE.eq.aura,P.x,P.y);
   drawChar({x:P.x,y:P.y,face:P.face,fy:P.fy,cls:P.cls,br:P.br,swing:P.swing,moving:P.moving,t:S.t,st:(P.anim=P.anim||{})});
-  if(SAVE.eq.hat){const hp=hatPos({x:P.x,y:P.y,cls:P.cls,face:P.face,moving:P.moving,st:P.anim});drawHat(SAVE.eq.hat,hp.x,hp.y,P.face,hp.sc);}
+  if(SAVE.eq.hat){const hp=hatPos({x:P.x,y:P.y,cls:P.cls,face:P.face,moving:P.moving,st:P.anim});drawHat(SAVE.eq.hat,hp.x,hp.y,hp.f||P.face,hp.sc,hp.rot||0);}
   if(P.sk.shield&&P.shieldT<=0){
     ctx.strokeStyle=`rgba(170,210,255,${0.55+Math.sin(S.t*6)*0.2})`;ctx.lineWidth=2.5;
     ctx.beginPath();ctx.ellipse(P.x,P.y-20,20,26,0,0,Math.PI*2);ctx.stroke();
@@ -2972,8 +2998,8 @@ function drawAura(id,x,y){
   ctx.restore();
   if(id==='a_judge'||id==='a_magic')addGlow(x,y,34,id==='a_judge'?'255,200,100':'180,120,255',.25);
 }
-function drawHat(id,x,y,f,sc=1){
-  ctx.save();ctx.translate(x,y);ctx.scale(f*sc,sc);
+function drawHat(id,x,y,f,sc=1,rot=0){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(f*sc,sc);
   if(id==='h_flower'&&IMG.flowerhat){const im=IMG.flowerhat,w=27,h=w*0.42;ctx.imageSmoothingEnabled=true;ctx.drawImage(im,-w/2,-h/2-1,w,h);}
   else if(id==='h_flower'){for(let k=0;k<7;k++){const a=Math.PI+k*Math.PI/6;ctx.fillStyle=k%2?'#ffffff':'#ff9ac0';circ(Math.cos(a)*9,Math.sin(a)*3+3,2.6);}ctx.fillStyle='#ffe066';circ(0,0,1.5);}
   else if(id==='h_bunny'&&IMG.bunnyhat){const im=IMG.bunnyhat,w=24,h=w*im.height/im.width;ctx.imageSmoothingEnabled=true;ctx.drawImage(im,-w/2,-h*0.86,w,h);}
