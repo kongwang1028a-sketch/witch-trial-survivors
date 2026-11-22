@@ -591,7 +591,7 @@ function rollOne(forceR){
   return {it,dup};
 }
 function bankCoins(win,full){
-  if(RUN){const time=RUN.time+(S.adv?S.t-S.adv.t0:0), base=S.coins, bonus=full?Math.floor(time/3)+RUN.depth*15:0, clear=RUN.bossKills*200+(win?300:0), tot=base+bonus+clear;
+  if(RUN){const time=RUN.time+(S.adv?S.t-S.adv.t0:0), base=S.coins, bonus=full?Math.floor(time/3)+RUN.depth*15:0, clear=RUN.bossKills*200+(win?300+(RUN.ending?ENDS[RUN.ending].bonus:0):0), tot=base+bonus+clear;
     SAVE.coins+=tot; writeSave(); return {base,bonus,clear,tot};}
   const base=S.coins, bonus=full?Math.floor(S.t/3):0, clear=win?150*S.stage:0, tot=base+bonus+clear;
   SAVE.coins+=tot; writeSave(); return {base,bonus,clear,tot};
@@ -823,17 +823,64 @@ function sceneInterlude(){
   L.push([N,'四人踏上石階。前方，是等待著她們的——審判庭。']);
   return {t:'間幕・通往地面的階梯',sub:'第 2 章・審判庭',lines:L,btn:'踏上階梯'};
 }
+// 結局：依三位同伴的信任度分歧
+const ENDS={
+  true:{ic:'🌸',nm:'四人的約定',bonus:500},
+  bond:{ic:'🌙',nm:'月光下的自由',bonus:200},
+  rift:{ic:'🥀',nm:'各自的道路',bonus:100},
+  alone:{ic:'🕯️',nm:'一個人的月光',bonus:0},
+};
+function endingKey(){
+  const v=Object.values(RUN.trust);
+  if(v.every(t=>t>=2))return 'true';
+  if(!v.some(t=>t>=1))return 'alone';
+  if(v.some(t=>t<0))return 'rift';
+  return 'bond';
+}
 function sceneEnding(){
-  const me=RUN.cls, L=[[N,'暴怒的審判長化為碎石。審判庭的大門，在月光下緩緩打開。'],[N,'夜風吹了進來。好久沒有聞到外面的空氣了。']];
-  const hi=Object.keys(RUN.trust).filter(k=>RUN.trust[k]>=2);
-  for(const k of hi)L.push([k,{warrior:me==='mage'?'櫻音。……以後也讓我保護妳，好嗎？':me==='thief'?'……我欠妳一次。下次換我掩護妳。':'謝謝。沒有妳，我們走不到這裡。',
+  const me=RUN.cls, ek=endingKey(), E=ENDS[ek]; RUN.ending=ek;
+  const L=[[N,'暴怒的審判長化為碎石。審判庭的大門，在月光下緩緩打開。']];
+  const thanks=k=>({warrior:me==='mage'?'櫻音。……以後也讓我保護妳，好嗎？':me==='thief'?'……我欠妳一次。下次換我掩護妳。':'謝謝。沒有妳，我們走不到這裡。',
     mage:me==='warrior'?'薔薇，這次是我們一起保護了彼此喔。':me==='archer'?'畫師！出去之後，教我畫畫好不好？':'謝謝妳……我會一直記得今晚的。',
     archer:me==='thief'?'搭檔～！擊掌！……喂，至少舉一下手嘛！':me==='mage'?'歌姬！我們以後也要一直一起玩喔！':'嘿嘿，我們四個，是最強的逃獄小隊！',
-    thief:me==='archer'?'……嗯。擊掌。（小聲）……謝謝妳一直都在。':me==='warrior'?'……妳果然沒有背叛。我也不會。':'……任務完成。……大家都活著，很好。'}[k]]);
+    thief:me==='archer'?'……嗯。擊掌。（小聲）……謝謝妳一直都在。':me==='warrior'?'……妳果然沒有背叛。我也不會。':'……任務完成。……大家都活著，很好。'}[k]);
+  const others=Object.keys(RUN.trust);
+  if(ek==='true'){
+    L.push([N,'夜風吹了進來。四個人同時深深吸了一口氣，然後同時笑了出來。']);
+    for(const k of others)L.push([k,thanks(k)]);
+    L.push([N,'畫師在大門的石柱上，用顏料畫下四個手牽著手的小人。']);
+    L.push(['archer','這是紀念！四個人，一個都不能少！']);
+    L.push(['thief','……我在審判長的桌上找到這個。'],[N,'那是一份名單。上面寫著四個人的名字——還有一個被墨水塗掉的、第五個名字。']);
+    L.push(['warrior','……把我們送上審判台的人，還在外面。'],['mage','那我們就一起去找出來。'],[N,'四隻手疊在一起。月光下，她們立下了約定。']);
+    L.push([me,{warrior:'不管對手是誰，這次，我不會讓任何人被奪走。',mage:'約好了喔。我們四個，永遠在一起。',archer:'下一張畫，要畫我們四個打倒真兇的樣子！',thief:'……新的任務。這次，有搭檔了。'}[me]]);
+    return {t:`真結局・${E.nm}`,sub:'🌸 真結局',lines:L,btn:'結束冒險'};
+  }
+  if(ek==='alone'){
+    L.push([N,'妳一個人走出大門。身後，沒有任何腳步聲跟上來。']);
+    L.push([N,'她們都還活著吧。只是在某個岔路口，大家默默地走向了不同的方向。']);
+    L.push([N,'月光很亮，亮得有點冷。']);
+    L.push([me,{warrior:'……這樣就好。只要我一個人夠強，就不需要任何人。',mage:'……我又是一個人了呢。',archer:'……奇怪，明明逃出來了，怎麼一點都不想笑。',thief:'……單獨行動。跟以前一樣。'}[me]]);
+    L.push([N,'遠方的鐘塔敲響了。審判，似乎還沒有結束。'],[N,'——如果重新來過，也許能牽起誰的手。']);
+    return {t:`結局・${E.nm}`,sub:'🕯️ 孤獨結局',lines:L,btn:'結束冒險'};
+  }
+  L.push([N,'夜風吹了進來。好久沒有聞到外面的空氣了。']);
+  const hi=others.filter(k=>RUN.trust[k]>=2), lo=others.filter(k=>RUN.trust[k]<0);
+  for(const k of hi)L.push([k,thanks(k)]);
+  if(ek==='rift'){
+    for(const k of lo){
+      L.push([N,`回過神來，${GNAME[k]}已經不見了。地上只留下一句用石頭刻的話。`]);
+      L.push([k,{warrior:'「我不需要不信任我的同伴。保重。」',mage:'「對不起。我想，我還是一個人走比較好。」',archer:'「……拜拜。這次，我不畫了。」',thief:'「……任務結束。各自保重。」'}[k]]);
+    }
+    L.push([N,'逃出來的人，比走進審判庭時少了。']);
+    L.push([me,{warrior:'……是我的錯嗎。',mage:'等一下……我們、我們還沒好好道別啊……',archer:'……明明說好要一起出去的。',thief:'……信任，果然是最難的任務。'}[me]]);
+    L.push([N,'那個問題依然沒有答案——是誰，又是為了什麼，把她們送上了魔女審判？']);
+    return {t:`結局・${E.nm}`,sub:'🥀 裂痕結局',lines:L,btn:'結束冒險'};
+  }
   if(!hi.length)L.push([N,'四個人沒有多說什麼，只是並肩站在月光下。']);
   L.push([N,'但那個問題依然沒有答案——是誰，又是為了什麼，把她們送上了魔女審判？']);
   L.push([me,{warrior:'答案，我會親手找出來。',mage:'不管接下來會遇到什麼，我都不會再一個人了。',archer:'先回家洗澡！謎題明天再說～！',thief:'……下一個任務，從今晚開始。'}[me]]);
-  return {t:'終章・月光下的自由',sub:'逃出生天',lines:L,btn:'結束冒險'};
+  L.push([N,'——如果能和所有人建立更深的羈絆，也許能看見不一樣的結局。']);
+  return {t:`結局・${E.nm}`,sub:'🌙 普通結局',lines:L,btn:'結束冒險'};
 }
 // 同伴劇情：依（玩家, 同伴）配對；選項 tr 表示信任變化
 const COMP={
@@ -1814,7 +1861,7 @@ function openClassSelect(){
 }
 function openStageSelect(cls){
   const box=$('stgCards'); box.innerHTML='';
-  {const ba=loadBest('adv');const c=makeCard({ic:'🗺️',nm:'冒險模式',ds:'四位少女在監牢中醒來。逃出地下監牢、闖過審判庭的多層冒險。每層選擇路線：戰鬥、精英、營火、商人、事件，收集遺物打造自己的流派。',
+  {const ba=loadBest('adv');const c=makeCard({ic:'🗺️',nm:'冒險模式',ds:'四位少女在監牢中醒來。逃出地下監牢、闖過審判庭的多層冒險。每層選擇路線：戰鬥、精英、營火、商人、事件，收集遺物打造自己的流派。'+((SAVE.endings||[]).length?`　📜 結局 ${SAVE.endings.length}/4：${SAVE.endings.map(k=>ENDS[k].ic).join('')}`:''),
     tag:ba?(ba.win?'已完成 🏆':`最遠：第 ${ba.ch} 章 ${ba.col+1}/7`):'Roguelike・推薦',onclick:()=>{$('stg').classList.add('hide');startAdventure(cls);}});
     c.classList.add('evo');box.appendChild(c);}
   for(const n of [1,2]){const st=STAGES[n], b=loadBest(n);
@@ -1971,11 +2018,13 @@ function endGame(win){
   S.mode='over';
   ['lvl','adv','pause'].forEach(id=>$(id).classList.add('hide'));
   ['map','evt','story'].forEach(id=>$(id).classList.add('hide')); MENU_CB=null; if(STY)clearInterval(STY.iv);
-  let nb=false;
+  let nb=false, newEnd=false;
   if(RUN){
     const b=loadBest('adv');
     if(!b||win&&!b.win||(!b.win&&RUN.depth>b.depth)){saveBest({depth:RUN.depth,ch:RUN.ch,col:RUN.col,lv:P.lv,win,job:jobName()},'adv');nb=true;}
-    $('overTitle').textContent=win?'🏆 冒險完成：逃出生天！':'冒險在此結束';
+    if(win&&RUN.ending){SAVE.endings=SAVE.endings||[];if(!SAVE.endings.includes(RUN.ending)){SAVE.endings.push(RUN.ending);newEnd=true;writeSave();}}
+    const EE=win&&RUN.ending?ENDS[RUN.ending]:null;
+    $('overTitle').textContent=win?`🏆 逃出生天！${EE.ic}「${EE.nm}」`:'冒險在此結束';
     $('overStats').innerHTML=`<div>抵達<br><b>第 ${RUN.ch} 章 ${RUN.col+1}/7</b></div><div>等級<br><b>Lv.${P.lv}</b></div><div>擊殺數<br><b>${S.kills}</b></div><div>遺物<br><b>${RUN.relics.length}</b></div>`;
   }else{
   const b=loadBest(S.stage);
@@ -1986,7 +2035,7 @@ function endGame(win){
   const bk=bankCoins(win,true);
   $('overCoins').innerHTML=`💰 存入金庫 <b>+${bk.tot}</b>（${RUN?'剩下':'撿到'} ${bk.base}・${RUN?'冒險':'存活'}獎勵 ${bk.bonus}${bk.clear?`・${RUN?'魔王':'通關'}獎勵 ${bk.clear}`:''}）　金庫：${SAVE.coins}`;
   $('overSk').innerHTML=skillTags();
-  $('overBest').textContent=nb?'✨ 新紀錄！':'';
+  $('overBest').textContent=(nb?'✨ 新紀錄！':'')+(RUN&&win&&RUN.ending?`　📜 結局收集 ${(SAVE.endings||[]).length}/4${newEnd?'（新結局解鎖！）':''}`:'');
   setTimeout(()=>$('over').classList.remove('hide'),win?200:900);
 }
 $('styleBtn').onclick=()=>{CHAR_STYLE=CHAR_STYLE==='img'?'pixel':'img';try{localStorage.setItem('witchsurv_cstyle',CHAR_STYLE);}catch(e){}updStyleBtn();};
