@@ -2667,6 +2667,30 @@ function drawGirlImg(im,c,k,o,alpha,sq){
   ctx.save();ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=true;
   ctx.translate(o.x,o.y-(o.bob||0));ctx.rotate(o.sway||0);ctx.scale(o.face*(1+sq*0.5),1-sq);ctx.drawImage(im,-W*ax,-H+2,W,H);ctx.restore();
 }
+// 頭飾定位：從圖片算出頭頂與頭部中心（快取）
+const HEADC={};
+function headOf(c,k){
+  const im=CIMG[c]&&(CIMG[c][k]||CIMG[c].f); if(!im||!im.width)return null;
+  const key=c+k; if(HEADC[key])return HEADC[key];
+  const w=im.width,h=im.height,cv=document.createElement('canvas');cv.width=w;cv.height=h;
+  const g=cv.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,w,h).data;
+  const op=(x,y)=>d[(y*w+x)*4+3]>140;
+  let ty=0;for(let y=0;y<h;y++){let n=0;for(let x=0;x<w;x+=2)if(op(x,y))n++;if(n>=4){ty=y;break;}}
+  // 頭部：取頭頂往下約 14% 高度的範圍，找每列最寬的連續區段中心
+  const y0=ty+Math.round(h*0.05), y1=ty+Math.round(h*0.13); let sx=0,sw=0,cnt=0;
+  for(let y=y0;y<=y1;y+=2){let L=-1,R=-1;for(let x=0;x<w;x++)if(op(x,y)){if(L<0)L=x;R=x;}if(L>=0){sx+=(L+R)/2;sw+=R-L;cnt++;}}
+  const r={ty:ty/h, cx:cnt?sx/cnt/w:0.5, hw:cnt?sw/cnt/h:0.1};
+  return HEADC[key]=r;
+}
+function hatPos(o){ // 回傳 {x,y,sc}，新版角色依圖片計算
+  if(CHAR_STYLE==='img'&&CIMG[o.cls]&&CIMG[o.cls].f){
+    const k=(o.st&&o.st.pose)||'f', im=(CIMG[o.cls][k]||CIMG[o.cls].f), kk=CIMG[o.cls][k]?k:'f', hp=headOf(o.cls,kk);
+    if(hp){const H=im.height*0.165, W=H*im.width/im.height, ax=(CANCH[o.cls]&&CANCH[o.cls][kk])||0.5;
+      const hwS=hp.hw*H, sc=Math.max(1,Math.min(1.7,hwS/20));
+      return {x:o.x+o.face*(hp.cx-ax)*W, y:o.y-(o.moving?Math.abs(Math.sin(S.t*12))*2:0)-H+2+hp.ty*H+hwS*0.28, sc};}
+  }
+  return {x:o.x,y:o.y-(o.moving&&Math.floor(S.t*9)%2?47:46),sc:1};
+}
 function drawImgGirl(o,alpha){
   const set=CIMG[o.cls]; if(!set||!set.f)return false;
   const k=poseOf(o), st=o.st, a0=alpha===undefined?1:alpha;
@@ -2803,7 +2827,7 @@ function drawPlayer(){
   if(P.blink>0&&P.dashT<=0&&Math.floor(P.blink*20)%2===0)return;
   if(SAVE.eq.aura)drawAura(SAVE.eq.aura,P.x,P.y);
   drawChar({x:P.x,y:P.y,face:P.face,fy:P.fy,cls:P.cls,br:P.br,swing:P.swing,moving:P.moving,t:S.t,st:(P.anim=P.anim||{})});
-  if(SAVE.eq.hat)drawHat(SAVE.eq.hat,P.x,P.y-(P.moving&&Math.floor(S.t*9)%2?47:46),P.face);
+  if(SAVE.eq.hat){const hp=hatPos({x:P.x,y:P.y,cls:P.cls,face:P.face,moving:P.moving,st:P.anim});drawHat(SAVE.eq.hat,hp.x,hp.y,P.face,hp.sc);}
   if(P.sk.shield&&P.shieldT<=0){
     ctx.strokeStyle=`rgba(170,210,255,${0.55+Math.sin(S.t*6)*0.2})`;ctx.lineWidth=2.5;
     ctx.beginPath();ctx.ellipse(P.x,P.y-20,20,26,0,0,Math.PI*2);ctx.stroke();
@@ -2827,8 +2851,8 @@ function drawAura(id,x,y){
   ctx.restore();
   if(id==='a_judge'||id==='a_magic')addGlow(x,y,34,id==='a_judge'?'255,200,100':'180,120,255',.25);
 }
-function drawHat(id,x,y,f){
-  ctx.save();ctx.translate(x,y);ctx.scale(f,1);
+function drawHat(id,x,y,f,sc=1){
+  ctx.save();ctx.translate(x,y);ctx.scale(f*sc,sc);
   if(id==='h_flower'){for(let k=0;k<7;k++){const a=Math.PI+k*Math.PI/6;ctx.fillStyle=k%2?'#ffffff':'#ff9ac0';circ(Math.cos(a)*9,Math.sin(a)*3+3,2.6);}ctx.fillStyle='#ffe066';circ(0,0,1.5);}
   else if(id==='h_cat'||id==='h_bunny'){const bun=id==='h_bunny';
     for(const s of[-1,1]){ctx.fillStyle=bun?'#f4f0f8':'#1a1420';
