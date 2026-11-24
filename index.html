@@ -83,6 +83,12 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
 .gres .g{width:72px;border-radius:10px;padding:6px 2px;background:#1e1630;border:2px solid;font-size:11px;animation:pop .35s ease-out both}
 .gres .g .i{font-size:24px}
 @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.devp{max-width:640px}
+.devsec{color:#ffd27a;font-weight:900;text-align:left;margin:10px 0 4px;font-size:13px}
+.devrow{display:flex;flex-wrap:wrap;gap:6px}
+.devrow button{font:inherit;font-size:12px;padding:6px 9px;border-radius:8px;border:1px solid #6a4a9a;background:#2e2246;color:#e8dcff;cursor:pointer}
+.devrow button.on{background:#c9a24a;color:#1a1226;font-weight:900}
+.devmsg{min-height:18px;color:#9fe0a0;font-size:12px;margin:8px 0}
 .volrow{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px auto;color:#e8dcff;font-weight:700;font-size:14px;max-width:280px}
 .volsl{flex:1;accent-color:#c9a24a;cursor:pointer}
 .volv{min-width:40px;text-align:right;color:#ffd27a}
@@ -155,6 +161,17 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
   </div>
 </div>
 
+<div id="dev" class="ov hide">
+  <div class="panel devp">
+    <h2>🛠️ 開發者模式</h2>
+    <div class="devsec">劇情主角</div><div class="devrow" id="devCls"></div>
+    <div class="devsec">劇情播放</div><div class="devrow" id="devStory"></div>
+    <div class="devsec">同伴劇情（主角遇到）</div><div class="devrow" id="devComp"></div>
+    <div class="devsec">存檔與測試</div><div class="devrow" id="devCheat"></div>
+    <div class="devmsg" id="devMsg"></div>
+    <button class="btn gray" id="devClose">關閉</button>
+  </div>
+</div>
 <div id="pause" class="ov hide">
   <div class="panel">
     <h2>暫停</h2>
@@ -1313,7 +1330,9 @@ function dropOrb(x,y,kind,v){
   const a=Math.random()*Math.PI*2, s=rand(20,70);
   S.orbs.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,kind,v,mag:false});
 }
+let DEV_GOD=false;
 function damageP(d){
+  if(DEV_GOD)return;
   if(P.inv>0||S.mode!=='play')return;
   if(P.sk.shield&&P.shieldT<=0){
     const l=P.sk.shield-1;
@@ -2262,6 +2281,43 @@ $('clsBack').onclick=()=>{$('cls').classList.add('hide');$('title').classList.re
 $('againBtn').onclick=()=>{$('over').classList.add('hide');openClassSelect();};
 $('resumeBtn').onclick=closePause;
 $('quitBtn').onclick=()=>{$('pause').classList.add('hide');if(S.mode!=='over'&&P)bankCoins(false,false);RUN=null;MENU_CB=null;S.mode='title';showBest();$('title').classList.remove('hide');};
+// ====== 開發者模式：標題連點 5 下或網址加 ?dev ======
+const DEV={cls:'warrior'};
+function devRun(cls,ch){ // 建立一個測試用的冒險狀態
+  newGame(cls,ch===1?2:1);
+  RUN={cls,ch,map:genMap(ch),pos:null,col:0,depth:0,relics:[],coins:0,time:0,kills:0,bossKills:ch-1,curse:0,hits:0,fang:0,seenEv:[],trust:{},met:[],dev:true};
+  for(const k in CLS)if(k!==cls)RUN.trust[k]=0;
+}
+function devBack(){$('story').classList.add('hide');RUN=null;S.mode='title';$('title').classList.remove('hide');openDev();}
+function devMsg(t){$('devMsg').textContent=t;}
+function openDev(){
+  $('title').classList.add('hide');$('dev').classList.remove('hide');
+  const others=()=>Object.keys(CLS).filter(k=>k!==DEV.cls);
+  $('devCls').innerHTML=Object.keys(CLS).map(k=>`<button data-c="${k}" class="${DEV.cls===k?'on':''}">${CLS[k].ic} ${GNAME[k]}</button>`).join('');
+  $('devCls').querySelectorAll('button').forEach(b=>b.onclick=()=>{DEV.cls=b.dataset.c;openDev();});
+  const tv={true:2,bond:1,rift:-1,alone:0};
+  const story=[['🌅 序章',()=>{devRun(DEV.cls,1);playScene(scenePrologue(DEV.cls),devBack);}],
+    ['🪜 間幕',()=>{devRun(DEV.cls,1);playScene(sceneInterlude(),devBack);}],
+    ...Object.keys(ENDS).map(e=>[`${ENDS[e].ic} ${ENDS[e].nm}`,()=>{devRun(DEV.cls,2);for(const k of others())RUN.trust[k]=e==='bond'?(k===others()[0]?2:1):e==='rift'?(k==='thief'||(DEV.cls==='thief'&&k===others()[0])?-1:2):tv[e];
+      playScene(sceneEnding(),()=>{if(e==='true')playEpilogue(devBack);else devBack();});}]),
+    ['📖 後日談',()=>{$('dev').classList.add('hide');playEpilogue(devBack);}],
+    ['🏆 結算畫面（真結局）',()=>{devRun(DEV.cls,2);for(const k of others())RUN.trust[k]=2;RUN.ending='true';$('dev').classList.add('hide');endGame(true);}]];
+  $('devStory').innerHTML=story.map((x,i)=>`<button data-i="${i}">${x[0]}</button>`).join('');
+  $('devStory').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('dev').classList.add('hide');story[b.dataset.i][1]();});
+  $('devComp').innerHTML=others().map(k=>`<button data-k="${k}">${CLS[k].ic} ${COMP[DEV.cls+'>'+k].t}</button>`).join('');
+  $('devComp').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('dev').classList.add('hide');devRun(DEV.cls,1);playCompanion(b.dataset.k,devBack);RUN.done=devBack;});
+  const cheats=[['💰 金庫 +5000',()=>{SAVE.coins+=5000;writeSave();devMsg('金庫 +5000');}],
+    ['💎 碎片 +500',()=>{SAVE.shard+=500;writeSave();devMsg('碎片 +500');}],
+    ['🔓 解鎖第 2 關',()=>{const b=loadBest(1)||{time:360,lv:1,job:'',win:true};b.win=true;saveBest(b,1);devMsg('第 2 關已解鎖');}],
+    ['📜 解鎖全部結局',()=>{SAVE.endings=Object.keys(ENDS);writeSave();devMsg('全部結局與後日談已解鎖');}],
+    [`🛡️ 無敵：${DEV_GOD?'開':'關'}`,()=>{DEV_GOD=!DEV_GOD;openDev();devMsg('無敵模式'+(DEV_GOD?'開啟':'關閉'));}],
+    ['👑 冒險：直達第 2 章魔王',()=>{devRun(DEV.cls,2);for(const k of others()){RUN.trust[k]=2;RUN.met.push(k);}const n=RUN.map[RUN.map.length-1][0];$('dev').classList.add('hide');enterNode(n);}]];
+  $('devCheat').innerHTML=cheats.map((x,i)=>`<button data-i="${i}">${x[0]}</button>`).join('');
+  $('devCheat').querySelectorAll('button').forEach(b=>b.onclick=()=>cheats[b.dataset.i][1]());
+}
+{let n=0,t=0;document.querySelector('#title h1').addEventListener('click',()=>{const now=performance.now();n=now-t<600?n+1:1;t=now;if(n>=5){n=0;openDev();}});}
+$('devClose').onclick=()=>{$('dev').classList.add('hide');$('title').classList.remove('hide');showBest();};
+if(/[?&]dev\b/.test(location.search))setTimeout(openDev,300);
 $('epiBtn').onclick=()=>{initAudio();$('title').classList.add('hide');playEpilogue(()=>{S.mode='title';$('title').classList.remove('hide');showBest();});};
 $('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent='音效：'+(muted?'關':'開');};
 let volT=0;
