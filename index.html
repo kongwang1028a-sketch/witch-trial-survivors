@@ -2803,9 +2803,9 @@ const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
 function motionOf(o,k){
   const st=o.st, dt=st.dt||0;
   st.mv=(st.mv||0)+((o.moving?1:0)-(st.mv||0))*Math.min(1,dt*9);       // 起步／停步平滑
-  { // 步伐依實際移動距離推進（每 135px 走完一個循環），原地預覽時用固定節奏
+  { // 步伐依實際移動距離推進（每 180px 走完一個循環），原地預覽時用固定節奏
     const d=st.lx===undefined?0:Math.min(20,Math.hypot(o.x-st.lx,o.y-st.ly)); st.lx=o.x; st.ly=o.y;
-    const CYC=Math.PI*2/135;
+    const CYC=Math.PI*2/180;
     st.ph=(st.ph||0)+(o.moving?(d>0.01?d*CYC:dt*150*CYC):dt*3*(st.mv||0));
   }
   st.fx=st.fx===undefined?o.face:st.fx; st.fx+=Math.sign(o.face-st.fx)*Math.min(Math.abs(o.face-st.fx),dt*13); // 轉身：快速翻面
