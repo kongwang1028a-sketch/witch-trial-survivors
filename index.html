@@ -83,6 +83,9 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
 .gres .g{width:72px;border-radius:10px;padding:6px 2px;background:#1e1630;border:2px solid;font-size:11px;animation:pop .35s ease-out both}
 .gres .g .i{font-size:24px}
 @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.volrow{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px auto;color:#e8dcff;font-weight:700;font-size:14px;max-width:280px}
+.volsl{flex:1;accent-color:#c9a24a;cursor:pointer}
+.volv{min-width:40px;text-align:right;color:#ffd27a}
 .slot{font-weight:900;color:#ffd27a;text-align:left;margin:10px 0 6px}
 .wardwrap{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;flex-direction:row-reverse}
 .wardlist{flex:1 1 380px;min-width:0}
@@ -140,6 +143,7 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
     <button class="btn gray" id="shopBtn">🛒 商店</button>
     <button class="btn gray" id="fsBtn">全螢幕</button>
     <button class="btn gray" id="styleBtn">角色造型：新版</button>
+    <label class="volrow">🔊 音量 <input type="range" id="volT" class="volsl" min="0" max="100" step="5"><span class="volv"></span></label>
   </div>
 </div>
 
@@ -156,6 +160,7 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
     <div id="pauseSk" class="sklist"></div>
     <button class="btn" id="resumeBtn">繼續</button>
     <button class="btn gray" id="muteBtn">音效：開</button>
+    <label class="volrow">🔊 音量 <input type="range" id="volP" class="volsl" min="0" max="100" step="5"><span class="volv"></span></label>
     <button class="btn gray" id="qBtn">畫質：高畫質</button>
     <button class="btn gray" id="quitBtn">放棄重來</button>
   </div>
@@ -399,16 +404,20 @@ function checkOrient(){
 }
 
 // ====== 音效 ======
-let AC=null, muted=false, lastHit=0;
-function initAudio(){ if(AC)return; try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){AC=null;} }
+let AC=null, muted=false, lastHit=0, MASTER=null, VOL=0.7;
+try{const v=localStorage.getItem('witchsurv_vol');if(v!==null)VOL=Math.max(0,Math.min(1,+v));}catch(e){}
+function initAudio(){ if(AC)return; try{AC=new (window.AudioContext||window.webkitAudioContext)();MASTER=AC.createGain();MASTER.gain.value=VOL*1.4;MASTER.connect(AC.destination);}catch(e){AC=null;} }
+function setVol(v){VOL=Math.max(0,Math.min(1,v));try{localStorage.setItem('witchsurv_vol',VOL);}catch(e){}
+  if(MASTER)MASTER.gain.setTargetAtTime(VOL*1.4,AC.currentTime,0.02);
+  document.querySelectorAll('.volsl').forEach(e=>e.value=Math.round(VOL*100));document.querySelectorAll('.volv').forEach(e=>e.textContent=Math.round(VOL*100)+'%');}
 function tone(f,dur,type,vol,slide){
-  if(!AC||muted)return;
+  if(!AC||muted||VOL<=0)return;
   try{
     const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;
     o.type=type||'square'; o.frequency.setValueAtTime(f,t);
     if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+dur);
     g.gain.setValueAtTime(vol||0.04,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur+0.02);
+    o.connect(g); g.connect(MASTER||AC.destination); o.start(t); o.stop(t+dur+0.02);
   }catch(e){}
 }
 const sfx={
@@ -2173,6 +2182,11 @@ $('againBtn').onclick=()=>{$('over').classList.add('hide');openClassSelect();};
 $('resumeBtn').onclick=closePause;
 $('quitBtn').onclick=()=>{$('pause').classList.add('hide');if(S.mode!=='over'&&P)bankCoins(false,false);RUN=null;MENU_CB=null;S.mode='title';showBest();$('title').classList.remove('hide');};
 $('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent='音效：'+(muted?'關':'開');};
+let volT=0;
+document.querySelectorAll('.volsl').forEach(e=>{e.oninput=()=>{initAudio();setVol(e.value/100);
+  if(muted&&VOL>0){muted=false;$('muteBtn').textContent='音效：開';}
+  const n=performance.now();if(n-volT>120){volT=n;sfx.pick();}};});
+setVol(VOL);
 $('fsBtn').onclick=()=>{
   const el=document.documentElement;
   try{const r=(el.requestFullscreen||el.webkitRequestFullscreen).call(el); if(r&&r.catch)r.catch(()=>{});}catch(e){}
