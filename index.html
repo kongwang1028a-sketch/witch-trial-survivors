@@ -152,7 +152,8 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
     <button class="btn gray hide" id="epiBtn">📖 後日談</button>
     <button class="btn gray" id="fsBtn">全螢幕</button>
     <button class="btn gray" id="styleBtn">角色造型：新版</button>
-    <label class="volrow">🔊 音量 <input type="range" id="volT" class="volsl" min="0" max="100" step="5"><span class="volv"></span></label>
+    <label class="volrow">🔊 音效 <input type="range" id="volT" class="volsl" min="0" max="100" step="5"><span class="volv"></span></label>
+    <label class="volrow">🎵 音樂 <input type="range" id="musT" class="volsl mussl" min="0" max="100" step="5"><span class="musv"></span></label>
   </div>
 </div>
 
@@ -182,8 +183,9 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
     <h2>暫停</h2>
     <div id="pauseSk" class="sklist"></div>
     <button class="btn" id="resumeBtn">繼續</button>
-    <button class="btn gray" id="muteBtn">音效：開</button>
-    <label class="volrow">🔊 音量 <input type="range" id="volP" class="volsl" min="0" max="100" step="5"><span class="volv"></span></label>
+    <button class="btn gray" id="muteBtn">聲音：開</button>
+    <label class="volrow">🔊 音效 <input type="range" id="volP" class="volsl" min="0" max="100" step="5"><span class="volv"></span></label>
+    <label class="volrow">🎵 音樂 <input type="range" id="musP" class="volsl mussl" min="0" max="100" step="5"><span class="musv"></span></label>
     <button class="btn gray" id="qBtn">畫質：高畫質</button>
     <button class="btn gray" id="quitBtn">放棄重來</button>
   </div>
@@ -429,10 +431,10 @@ function checkOrient(){
 // ====== 音效 ======
 let AC=null, muted=false, lastHit=0, MASTER=null, VOL=0.7;
 try{const v=localStorage.getItem('witchsurv_vol');if(v!==null)VOL=Math.max(0,Math.min(1,+v));}catch(e){}
-function initAudio(){ if(AC)return; try{AC=new (window.AudioContext||window.webkitAudioContext)();MASTER=AC.createGain();MASTER.gain.value=VOL*1.4;MASTER.connect(AC.destination);}catch(e){AC=null;} }
+function initAudio(){ if(AC){if(AC.state==='suspended')AC.resume();return;} try{AC=new (window.AudioContext||window.webkitAudioContext)();MASTER=AC.createGain();MASTER.gain.value=VOL*1.4;MASTER.connect(AC.destination);}catch(e){AC=null;} }
 function setVol(v){VOL=Math.max(0,Math.min(1,v));try{localStorage.setItem('witchsurv_vol',VOL);}catch(e){}
   if(MASTER)MASTER.gain.setTargetAtTime(VOL*1.4,AC.currentTime,0.02);
-  document.querySelectorAll('.volsl').forEach(e=>e.value=Math.round(VOL*100));document.querySelectorAll('.volv').forEach(e=>e.textContent=Math.round(VOL*100)+'%');}
+  document.querySelectorAll('.volsl:not(.mussl)').forEach(e=>e.value=Math.round(VOL*100));document.querySelectorAll('.volv').forEach(e=>e.textContent=Math.round(VOL*100)+'%');}
 function tone(f,dur,type,vol,slide){
   if(!AC||muted||VOL<=0)return;
   try{
@@ -455,6 +457,107 @@ const sfx={
   pop(){tone(160,0.15,'square',0.04,-80);},
 };
 
+// ====== BGM：程式合成音樂（無外部檔案、無授權問題） ======
+let MUSVOL=0.6; try{const v=localStorage.getItem('witchsurv_mus');if(v!==null)MUSVOL=Math.max(0,Math.min(1,+v));}catch(e){}
+const BGM={cur:null,g:null,bus:null,rev:null,step:0,nextT:0,noise:null,timer:0};
+const NOTE={C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11};
+function n2f(n){const m=n.match(/^([A-G][#b]?)(-?\d)$/);if(!m)return 0;return 440*Math.pow(2,(NOTE[m[1]]+(+m[2]+1)*12-69)/12);}
+function bgmInit(){
+  if(!AC||BGM.bus)return;
+  BGM.bus=AC.createGain(); BGM.bus.gain.value=muted?0:MUSVOL*1.4; BGM.bus.connect(AC.destination);
+  // 殘響：用衰減雜訊做脈衝響應
+  const len=AC.sampleRate*2.4, ir=AC.createBuffer(2,len,AC.sampleRate);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);}
+  BGM.rev=AC.createConvolver(); BGM.rev.buffer=ir; const rg=AC.createGain(); rg.gain.value=0.32; BGM.rev.connect(rg); rg.connect(BGM.bus);
+  const nb=AC.createBuffer(1,AC.sampleRate*0.5,AC.sampleRate), nd=nb.getChannelData(0); for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1; BGM.noise=nb;
+  BGM.timer=setInterval(bgmTick,40);
+}
+function bgmSetVol(v){MUSVOL=Math.max(0,Math.min(1,v));try{localStorage.setItem('witchsurv_mus',MUSVOL);}catch(e){}
+  if(BGM.bus)BGM.bus.gain.setTargetAtTime(muted?0:MUSVOL*1.4,AC.currentTime,0.05);
+  document.querySelectorAll('.mussl').forEach(e=>e.value=Math.round(MUSVOL*100));document.querySelectorAll('.musv').forEach(e=>e.textContent=Math.round(MUSVOL*100)+'%');}
+// ---- 樂器 ----
+function env(g,t,a,peak,dec,hold){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);if(hold)g.gain.setValueAtTime(peak,t+a+hold);g.gain.exponentialRampToValueAtTime(0.0001,t+a+(hold||0)+dec);}
+function voice(type,f,t,dur,out,filt){const o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);let n=o;
+  if(filt){const b=AC.createBiquadFilter();b.type='lowpass';b.frequency.value=filt;o.connect(b);n=b;} n.connect(out);o.start(t);o.stop(t+dur+0.05);return o;}
+const INS={
+  box(f,t,d,v,o){const g=AC.createGain();env(g,t,0.004,v,1.4);g.connect(o);voice('sine',f,t,1.5,g);const g2=AC.createGain();env(g2,t,0.002,v*0.35,0.4);g2.connect(o);voice('sine',f*4.01,t,0.5,g2);},
+  harp(f,t,d,v,o){const g=AC.createGain();env(g,t,0.005,v,0.7);g.connect(o);voice('triangle',f,t,0.8,g);const g2=AC.createGain();env(g2,t,0.003,v*0.25,0.25);g2.connect(o);voice('sawtooth',f,t,0.3,g2,2200);},
+  organ(f,t,d,v,o){const g=AC.createGain();env(g,t,0.08,v,0.25,Math.max(0,d-0.1));g.connect(o);[[1,1],[2,0.5],[4,0.22],[0.5,0.35]].forEach(([m,a])=>{const gg=AC.createGain();gg.gain.value=a;gg.connect(g);voice('sine',f*m,t,d+0.4,gg);});},
+  pad(f,t,d,v,o){const g=AC.createGain();env(g,t,0.6,v,0.9,Math.max(0,d-0.6));g.connect(o);[-7,7].forEach(c=>{const x=voice('sawtooth',f,t,d+1,g,800);x.detune.value=c;});},
+  bass(f,t,d,v,o){const g=AC.createGain();env(g,t,0.005,v,Math.max(0.12,d));g.connect(o);voice('sawtooth',f,t,d+0.2,g,420);voice('sine',f/2,t,d+0.2,g);},
+  lead(f,t,d,v,o){const g=AC.createGain();env(g,t,0.01,v,0.12,Math.max(0,d-0.08));g.connect(o);voice('square',f,t,d+0.2,g,2400);},
+  bell(f,t,d,v,o){const g=AC.createGain();env(g,t,0.004,v,3);g.connect(o);voice('sine',f,t,3.1,g);const g2=AC.createGain();env(g2,t,0.004,v*0.4,1.2);g2.connect(o);voice('sine',f*2.76,t,1.3,g2);},
+  kick(f,t,d,v,o){const g=AC.createGain();env(g,t,0.002,v,0.2);g.connect(o);const x=voice('sine',120,t,0.25,g);x.frequency.exponentialRampToValueAtTime(38,t+0.15);},
+  snare(f,t,d,v,o){const s=AC.createBufferSource();s.buffer=BGM.noise;const b=AC.createBiquadFilter();b.type='highpass';b.frequency.value=1600;const g=AC.createGain();env(g,t,0.002,v,0.13);s.connect(b);b.connect(g);g.connect(o);s.start(t);s.stop(t+0.2);},
+  hat(f,t,d,v,o){const s=AC.createBufferSource();s.buffer=BGM.noise;const b=AC.createBiquadFilter();b.type='highpass';b.frequency.value=7500;const g=AC.createGain();env(g,t,0.001,v,0.035);s.connect(b);b.connect(g);g.connect(o);s.start(t);s.stop(t+0.06);},
+  drip(f,t,d,v,o){const g=AC.createGain();env(g,t,0.002,v,0.18);g.connect(o);const x=voice('sine',1700,t,0.2,g);x.frequency.exponentialRampToValueAtTime(2900,t+0.08);},
+};
+function play(ins,n,t,d,v,o){const f=typeof n==='number'?n:n2f(n);INS[ins](f,t,d,v,o);}
+const CH={Am:['A','C','E'],Dm:['D','F','A'],E:['E','G#','B'],F:['F','A','C'],C:['C','E','G'],G:['G','B','D'],Bb:['Bb','D','F'],A:['A','C#','E'],Gm:['G','Bb','D'],Em:['E','G','B'],B:['B','D#','F#'],Cm:['C','Eb','G'],Ab:['Ab','C','Eb'],Fm:['F','Ab','C']};
+const tok=s=>s.split(' ');
+// ---- 曲目 ----
+const TRACKS={
+  title:{bpm:92,spb:2,bars:8,per:6,chords:['Am','F','C','E','Am','Dm','E','Am'],
+    mel:['E5 - A5 - B5 C6','B5 - A5 - F5 -','G5 - E5 - C5 E5','G#5 - - - B4 -','A4 - C5 - E5 A5','F5 - E5 - D5 F5','E5 - D5 - B4 G#4','A4 - - - - -'].map(tok),
+    fn(b,i,t,o,sd){const c=CH[this.chords[b]],m=this.mel[b][i];
+      if(m!=='-')play('box',m,t,1,0.07,o);
+      if(i===0)play('box',c[0]+'3',t,1,0.05,o);
+      if(i===2||i===4)play('box',c[i===2?1:2]+'4',t,1,0.025,o);}},
+  court:{bpm:150,spb:2,bars:16,per:6,chords:['Dm','Bb','C','A','Dm','Gm','A','Dm','Bb','F','Gm','A','Dm','Bb','A','Dm'],
+    mel:['A4 - D5 - E5 F5','G5 - F5 - D5 -','E5 - C5 - G4 -','C#5 - - - A4 -','D5 - F5 - A5 -','Bb5 - A5 - G5 -','F5 E5 D5 - C#5 -','D5 - - - - -',
+         'F5 - D5 - Bb4 -','C5 - F5 - A5 -','G5 - Bb5 - D5 -','E5 - C#5 - A4 -','A5 - G5 - F5 -','F5 E5 D5 - Bb4 -','C#5 - E5 - A5 G5','F5 - D5 - - -'].map(tok),
+    fn(b,i,t,o,sd){const c=CH[this.chords[b]],m=this.mel[b][i];
+      if(i===0){play('bass',c[0]+'2',t,sd*2,0.07,o);c.forEach((n,k)=>play('organ',n+(k&&NOTE[n]<NOTE[c[0]]?'4':'3'),t,sd*5.6,0.016,o));}
+      if(i===2||i===4){play('harp',c[1]+'4',t,0.3,0.028,o);play('harp',c[2]+'4',t,0.3,0.022,o);}
+      if(i%2===1)play('harp',c[(i>>1)%3]+'5',t,0.2,0.012,o);
+      if(m!=='-')play('harp',m,t,0.6,0.06,o);}},
+  dungeon:{bpm:64,spb:2,bars:8,per:8,chords:['Em','Em','C','C','Am','Am','B','B'],
+    bells:{0:'E5',5:'B4',12:'G5',19:'F#5',26:'E5',36:'C5',41:'B4',50:'D5',57:'D#5',62:'B4'},drips:[7,30,45],
+    fn(b,i,t,o,sd){const c=CH[this.chords[b]],s=b*8+i;
+      if(i===0&&b%2===0){play('pad',c[0]+'2',t,sd*15,0.05,o);play('pad',c[2]+'2',t,sd*15,0.03,o);play('pad',c[1]+'3',t,sd*15,0.02,o);}
+      if(i===0)play('kick',0,t,0,0.05,o);
+      if(this.bells[s])play('bell',this.bells[s],t,2,0.045,o);
+      if(this.drips.includes(s))play('drip',0,t,0,0.018,o);}},
+  boss:{bpm:160,spb:4,bars:8,per:16,chords:['Cm','Ab','Bb','G','Cm','Ab','Fm','G'],
+    mel:['C5 - Eb5 - G5 - F5 Eb5','D5 - C5 - Eb5 - - -','D5 - F5 - Bb5 - Ab5 G5','F5 - D5 - B4 - - -','G5 - C6 - Bb5 - G5 -','Ab5 - G5 - Eb5 - C5 -','F5 - Ab5 - C6 - Bb5 Ab5','G5 - - - B4 - D5 -'].map(tok),
+    fn(b,i,t,o,sd){const c=CH[this.chords[b]];
+      if(i%2===0)play('bass',c[0]+(i%8===6?'3':'2'),t,sd*1.6,0.06,o);
+      if(i===0||i===8||i===10)play('kick',0,t,0,0.11,o);
+      if(i===4||i===12)play('snare',0,t,0,0.05,o);
+      if(i%2===1)play('hat',0,t,0,0.014,o);
+      if(i===0)c.forEach(n=>play('pad',n+'3',t,sd*15,0.012,o));
+      if(i%2===0){const m=this.mel[b][i/2];if(m!=='-')play('lead',m,t,sd*1.8,0.035,o);}}},
+  calm:{bpm:76,spb:2,bars:8,per:8,chords:['F','C','Dm','Bb','F','C','Bb','C'],
+    mel:['A5 - - - G5 - F5 -','E5 - - - G5 - - -','F5 - - - E5 - D5 -','D5 - - - - - - -','C5 - F5 - A5 - C6 -','Bb5 - A5 - G5 - - -','F5 - G5 - A5 - D5 -','E5 - - - - - - -'].map(tok),
+    fn(b,i,t,o,sd){const c=CH[this.chords[b]],m=this.mel[b][i];
+      if(i===0)c.forEach((n,k)=>play('pad',n+'3',t,sd*7.5,0.014,o));
+      if(i===0)play('box',c[0]+'3',t,1,0.04,o);
+      play('box',[c[0],c[1],c[2],c[1]][i%4]+(i<4?'4':'5'),t,1,0.018,o);
+      if(m!=='-')play('box',m,t,1,0.06,o);}},
+};
+function bgmPlay(name){
+  if(!AC)return; bgmInit(); if(BGM.cur===name)return;
+  if(BGM.g){const og=BGM.g;og.gain.setTargetAtTime(0.0001,AC.currentTime,0.35);setTimeout(()=>{try{og.disconnect();}catch(e){}},3500);}
+  BGM.cur=name; BGM.g=null; if(!name)return;
+  const g=AC.createGain();g.gain.setValueAtTime(0.0001,AC.currentTime);g.gain.setTargetAtTime(1,AC.currentTime+0.05,0.4);
+  g.connect(BGM.bus);const sd=AC.createGain();sd.gain.value=0.6;g.connect(sd);sd.connect(BGM.rev);
+  BGM.g=g;BGM.step=0;BGM.nextT=AC.currentTime+0.12;
+}
+function bgmTick(){
+  if(!AC||!BGM.g||!BGM.cur)return; const tr=TRACKS[BGM.cur], sd=60/tr.bpm/tr.spb, N=tr.bars*tr.per;
+  if(BGM.nextT<AC.currentTime-0.5)BGM.nextT=AC.currentTime+0.05; // 分頁休眠後重新對齊
+  while(BGM.nextT<AC.currentTime+0.25){const s=BGM.step%N;try{tr.fn(Math.floor(s/tr.per),s%tr.per,BGM.nextT,BGM.g,sd);}catch(e){}BGM.nextT+=sd;BGM.step++;}
+}
+function bgmWant(){
+  const vis=id=>{const e=$(id);return e&&!e.classList.contains('hide');};
+  if(vis('title')||vis('cls')||vis('dev')||(vis('shop')&&S.mode!=='over'&&!RUN))return 'title';
+  if(vis('story')||vis('map')||vis('evt')||S.mode==='over'||S.mode==='map'||S.mode==='adv')return 'calm';
+  if(S.boss)return 'boss';
+  return S.stage===2?'dungeon':'court';
+}
+setInterval(()=>{if(AC){const w=bgmWant();if(w!==BGM.cur)bgmPlay(w);}},250);
+
+['pointerdown','keydown','touchstart'].forEach(ev=>addEventListener(ev,()=>initAudio(),{passive:true}));
 // ====== 職業與轉職 ======
 const CLS={
   warrior:{nm:'夜薔薇',ic:'🌹',start:'slash',hp:140,col:'#2a2238',hair:'#1c1726',
@@ -2330,10 +2433,12 @@ $('devExit').onclick=()=>{exitSandbox();$('dev').classList.add('hide');$('title'
 $('devClose').onclick=()=>{$('dev').classList.add('hide');$('title').classList.remove('hide');showBest();};
 if(/[?&]dev\b/.test(location.search))setTimeout(openDev,300);
 $('epiBtn').onclick=()=>{initAudio();$('title').classList.add('hide');playEpilogue(()=>{S.mode='title';$('title').classList.remove('hide');showBest();});};
-$('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent='音效：'+(muted?'關':'開');};
+$('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent='聲音：'+(muted?'關':'開');if(BGM.bus)BGM.bus.gain.setTargetAtTime(muted?0:MUSVOL*1.4,AC.currentTime,0.05);};
 let volT=0;
-document.querySelectorAll('.volsl').forEach(e=>{e.oninput=()=>{initAudio();setVol(e.value/100);
-  if(muted&&VOL>0){muted=false;$('muteBtn').textContent='音效：開';}
+document.querySelectorAll('.mussl').forEach(e=>{e.oninput=()=>{initAudio();bgmSetVol(e.value/100);if(muted&&MUSVOL>0){muted=false;$('muteBtn').textContent='聲音：開';if(BGM.bus)BGM.bus.gain.value=MUSVOL*1.4;}};});
+bgmSetVol(MUSVOL);
+document.querySelectorAll('.volsl:not(.mussl)').forEach(e=>{e.oninput=()=>{initAudio();setVol(e.value/100);
+  if(muted&&VOL>0){muted=false;$('muteBtn').textContent='聲音：開';}
   const n=performance.now();if(n-volT>120){volT=n;sfx.pick();}};});
 setVol(VOL);
 $('fsBtn').onclick=()=>{
