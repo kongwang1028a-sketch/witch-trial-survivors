@@ -84,6 +84,8 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
 .gres .g .i{font-size:24px}
 @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
 .devp{max-width:640px}
+.devnote{font-size:12px;color:#bba;margin:4px 0 8px}
+#devBadge{position:fixed;left:50%;top:4px;transform:translateX(-50%);z-index:99;background:rgba(201,162,74,.92);color:#1a1226;font-weight:900;font-size:12px;padding:3px 10px;border-radius:10px;pointer-events:none}
 .devsec{color:#ffd27a;font-weight:900;text-align:left;margin:10px 0 4px;font-size:13px}
 .devrow{display:flex;flex-wrap:wrap;gap:6px}
 .devrow button{font:inherit;font-size:12px;padding:6px 9px;border-radius:8px;border:1px solid #6a4a9a;background:#2e2246;color:#e8dcff;cursor:pointer}
@@ -161,6 +163,7 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
   </div>
 </div>
 
+<div id="devBadge" class="hide">🛠️ 開發者模式・不會存檔</div>
 <div id="dev" class="ov hide">
   <div class="panel devp">
     <h2>🛠️ 開發者模式</h2>
@@ -169,7 +172,9 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
     <div class="devsec">同伴劇情（主角遇到）</div><div class="devrow" id="devComp"></div>
     <div class="devsec">存檔與測試</div><div class="devrow" id="devCheat"></div>
     <div class="devmsg" id="devMsg"></div>
-    <button class="btn gray" id="devClose">關閉</button>
+    <div class="devnote">開發者模式中的金幣、解鎖、結局與通關紀錄都不會存檔。重新整理頁面或按下方按鈕即可回到原本的紀錄。</div>
+    <button class="btn gray" id="devClose">關閉（保持開發者模式）</button>
+    <button class="btn" id="devExit">🚪 離開開發者模式（還原紀錄）</button>
   </div>
 </div>
 <div id="pause" class="ov hide">
@@ -601,7 +606,11 @@ function loadSave(){
   SAVE=Object.assign({coins:0,shard:0,pity:0,up:{},own:{},eq:{hat:null,trail:null,aura:null}},d||{});
   SAVE.up=SAVE.up||{}; SAVE.own=SAVE.own||{}; SAVE.eq=Object.assign({hat:null,trail:null,aura:null},SAVE.eq||{});
 }
-function writeSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch(e){}}
+// 開發者沙盒：開啟後所有存檔與紀錄只留在記憶體，不寫入瀏覽器
+let DEV_SB=null, DEV_BAK=null;
+function writeSave(){if(DEV_SB)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch(e){}}
+function enterSandbox(){if(DEV_SB)return;DEV_SB={};DEV_BAK=JSON.stringify(SAVE);const b=$('devBadge');if(b)b.classList.remove('hide');}
+function exitSandbox(){if(!DEV_SB)return;SAVE=JSON.parse(DEV_BAK);DEV_SB=null;DEV_BAK=null;DEV_GOD=false;const b=$('devBadge');if(b)b.classList.add('hide');}
 loadSave();
 const UPG=[
   {id:'hp',ic:'❤️',nm:'生命祝福',max:5,per:8,unit:'% 最大生命',cost:[60,120,200,320,480]},
@@ -2234,8 +2243,8 @@ function openPause(){
 function closePause(){ $('pause').classList.add('hide'); S.mode='play'; input.dash=false; }
 function fmt(t){t=Math.floor(t);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');}
 function bestKey(st){return 'witchsurv_best'+((st||1)===1?'':st);}
-function loadBest(st){try{return JSON.parse(localStorage.getItem(bestKey(st))||'null');}catch(e){return null;}}
-function saveBest(b,st){try{localStorage.setItem(bestKey(st),JSON.stringify(b));}catch(e){}}
+function loadBest(st){const k=bestKey(st);if(DEV_SB&&k in DEV_SB)return JSON.parse(DEV_SB[k]);try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
+function saveBest(b,st){if(DEV_SB){DEV_SB[bestKey(st)]=JSON.stringify(b);return;}try{localStorage.setItem(bestKey(st),JSON.stringify(b));}catch(e){}}
 function showBest(){
   const t=[1,2].map(n=>{const b=loadBest(n);return b?`${STAGES[n].nm}：${b.job||''} 存活 ${fmt(b.time)}・Lv.${b.lv}${b.win?'・已通關 🏆':''}`:'';}).filter(Boolean);
   const ba=loadBest('adv'); if(ba)t.push(`冒險模式：${ba.job||''} ${ba.win?'已完成 🏆':`最遠 第 ${ba.ch} 章 ${ba.col+1}/7`}`);
@@ -2291,6 +2300,7 @@ function devRun(cls,ch){ // 建立一個測試用的冒險狀態
 function devBack(){$('story').classList.add('hide');RUN=null;S.mode='title';$('title').classList.remove('hide');openDev();}
 function devMsg(t){$('devMsg').textContent=t;}
 function openDev(){
+  enterSandbox();
   $('title').classList.add('hide');$('dev').classList.remove('hide');
   const others=()=>Object.keys(CLS).filter(k=>k!==DEV.cls);
   $('devCls').innerHTML=Object.keys(CLS).map(k=>`<button data-c="${k}" class="${DEV.cls===k?'on':''}">${CLS[k].ic} ${GNAME[k]}</button>`).join('');
@@ -2316,6 +2326,7 @@ function openDev(){
   $('devCheat').querySelectorAll('button').forEach(b=>b.onclick=()=>cheats[b.dataset.i][1]());
 }
 {let n=0,t=0;document.querySelector('#title h1').addEventListener('click',()=>{const now=performance.now();n=now-t<600?n+1:1;t=now;if(n>=5){n=0;openDev();}});}
+$('devExit').onclick=()=>{exitSandbox();$('dev').classList.add('hide');$('title').classList.remove('hide');showBest();};
 $('devClose').onclick=()=>{$('dev').classList.add('hide');$('title').classList.remove('hide');showBest();};
 if(/[?&]dev\b/.test(location.search))setTimeout(openDev,300);
 $('epiBtn').onclick=()=>{initAudio();$('title').classList.add('hide');playEpilogue(()=>{S.mode='title';$('title').classList.remove('hide');showBest();});};
