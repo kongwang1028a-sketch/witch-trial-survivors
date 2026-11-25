@@ -91,6 +91,11 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
 .devrow button{font:inherit;font-size:12px;padding:6px 9px;border-radius:8px;border:1px solid #6a4a9a;background:#2e2246;color:#e8dcff;cursor:pointer}
 .devrow button.on{background:#c9a24a;color:#1a1226;font-weight:900}
 .devmsg{min-height:18px;color:#9fe0a0;font-size:12px;margin:8px 0}
+.banter{display:flex;align-items:center;gap:10px;max-width:520px;margin:8px auto 2px;padding:6px 12px 6px 6px;background:rgba(30,20,46,.92);border:1px solid #c9a24a;border-radius:12px;cursor:pointer;text-align:left}
+.banter.pop{animation:banpop .25s ease-out}
+@keyframes banpop{from{transform:translateY(6px);opacity:.3}to{transform:none;opacity:1}}
+.banter .bic img{width:46px;height:46px;border-radius:50%;background:#2a1e40;display:block}
+.banter b{display:block;color:#ffd27a;font-size:12px}.banter span{color:#f0e8ff;font-size:14px}
 .volrow{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px auto;color:#e8dcff;font-weight:700;font-size:14px;max-width:280px}
 .volsl{flex:1;accent-color:#c9a24a;cursor:pointer}
 .volv{min-width:40px;text-align:right;color:#ffd27a}
@@ -225,6 +230,7 @@ h2{margin:2px 0 10px;font-size:24px;color:#ffd27a;text-shadow:0 0 10px rgba(200,
     <h2 id="mapTitle"></h2>
     <div class="sub" id="mapSub" style="color:#ffd27a"></div>
     <div id="mapBox" class="mapbox"></div>
+    <div id="banter" class="banter hide"><div class="bic"></div><div class="btx"><b></b><span></span></div></div>
     <div class="sub">⚔️ 戰鬥　💀 精英（必得遺物）　🔥 營火　🛒 商人　❓ 事件　👑 魔王</div>
     <div id="mapRelics" class="sklist"></div>
     <button class="btn gray" id="mapQuit">放棄冒險</button>
@@ -856,9 +862,9 @@ function afterFloor(){
     const fought=Object.keys(S.helped||{}); for(const k of fought)addTrust(k,1); // 並肩作戰：協戰的同伴信任 +1
     const ftxt=fought.length?`<br>🤝 並肩作戰：${fought.map(k=>GNAME[k]).join('、')}的信任 +1`:'';
     if(RUN.seq){playScene(sceneSeqFinale(),()=>{SAVE.sequel=1;writeSave();endGame(true);});return;}
-    if(RUN.ch>=2){playScene(sceneEnding(),()=>{if(RUN.ending==='true')playEpilogue(()=>endGame(true));else endGame(true);});return;}
+    if(RUN.ch>=2){playScene(bossScene(2,'outro'),()=>playScene(sceneEnding(),()=>{if(RUN.ending==='true')playEpilogue(()=>endGame(true));else endGame(true);}));return;}
     P.hp=Math.min(P.maxHp,P.hp+Math.round(P.maxHp*0.3));
-    playScene(sceneInterlude(),()=>relicPick(()=>{RUN.ch++;RUN.map=genMap(RUN.ch);RUN.pos=null;const cs=nextCompanion();if(cs)playCompanion(cs,showMap);else showMap();},'👑 擊敗典獄長！','回復 30% 生命，再選一件遺物。'+ftxt));
+    playScene(bossScene(1,'outro'),()=>playScene(sceneInterlude(),()=>relicPick(()=>{RUN.ch++;RUN.map=genMap(RUN.ch);RUN.pos=null;const cs=nextCompanion();if(cs)playCompanion(cs,showMap);else showMap();},'👑 擊敗典獄長！','回復 30% 生命，再選一件遺物。'+ftxt)));
   }else if(RUN.seq){const q=nextSeqScene();if(q!==null&&(Math.random()<0.45||RUN.col>=3))playSeqScene(q,showMap);else showMap();
   }else{const cs=nextCompanion(), need=RUN.ch===1?2:3, late=RUN.col>=(RUN.ch===1?2:3);
     if(cs&&(Math.random()<0.4||(late&&RUN.met.length<need)))playCompanion(cs,showMap);else showMap();}
@@ -891,6 +897,8 @@ function showChoice(title,text,opts,foot){
 }
 function enterNode(n){
   RUN.pos={c:n.c,j:n.j}; RUN.col=n.c; n.vis=true; $('map').classList.add('hide');
+  hideBanter();
+  if(n.t==='boss'&&BOSS_TALK[RUN.ch]&&!RUN.dev){playScene(bossScene(RUN.ch,'intro'),()=>startFloor(n));return;}
   if(n.t==='battle'||n.t==='elite'||n.t==='boss'){startFloor(n);return;}
   RUN.depth++;
   const cs=nextCompanion();
@@ -903,7 +911,8 @@ function openCamp(){
   showChoice('🔥 營火','溫暖的火光讓人放鬆下來。選擇一項：',[
     {ic:'😴',nm:'休息',ds:`回復 40% 最大生命（+${h}）`,go:()=>{P.hp=Math.min(P.maxHp,P.hp+h);sfx.lvl();showMap();}},
     {ic:'📖',nm:'冥想',ds:'立即升級一次（三選一）',go:()=>{S.pendingLv=1;MENU_CB=showMap;openLevelUp();}}]
-    .concat(RUN.met.some(k=>RUN.trust[k]>=0)?[{ic:'💬',nm:'聊天',ds:'和同伴聊聊，信任 +1',go:openChat}]:[]));
+    .concat(RUN.met.some(k=>RUN.trust[k]>=0)?[{ic:'💬',nm:'聊天',ds:'和同伴聊聊，信任 +1',go:openChat}]:[])
+    .concat(memReady().map(k=>({ic:'💭',nm:`${GNAME[k]}的回憶`,ds:'信任最深的她，願意說出被抓的理由（不佔用營火）',tag:'回憶篇',go:()=>playMemory(k,openCamp)}))));
 }
 function openMerchant(){
   const st=RUN.stock, o=[];
@@ -1429,6 +1438,129 @@ function startSequel(cls){
   playScene(sceneSeqPrologue(cls),()=>relicPick(()=>{enterNode(RUN.map[0][0]);S.pendingLv=2+(upLv('start')?1:0);},'🎒 出發前的準備','四人帶來了各自的寶物。選一件遺物帶進鐘塔。'));
 }
 
+
+// ====== 魔王戰前後對話（冒險模式） ======
+const BOSS_TALK={
+  1:{who:['🏮','典獄長'],
+    intro:me=>[[N,'地牢最深處，提燈的光晃了晃。一個高大的身影，擋住了通往地面的階梯。'],
+      [['🏮','典獄長'],'……又是逃獄的。每隔幾年，總會有這樣的孩子。'],
+      [['🏮','典獄長'],'回去吧。妳們的罪，天秤大人還沒有秤完。'],
+      [me,{warrior:'我們沒有罪。讓開。',mage:'請讓我們過去……我們只是想回家。',archer:'天秤大人？誰啊？總之我們要出去啦！',thief:'……妳說的天秤，是誰。'}[me]],
+      [['🏮','典獄長'],'……多說無益。']],
+    outro:()=>[[N,'提燈落在地上，火光一點一點地變弱。'],
+      [['🏮','典獄長'],'……原來如此。四個人，一起啊……'],
+      [['🏮','典獄長'],'我也曾經……想放走一個孩子。可是天秤大人說，那樣的話，我也會變成有罪的人。'],
+      [['🏮','典獄長'],'往上走吧。審判庭裡……會有人在等妳們。'],
+      [N,'老人閉上了眼睛。他的鑰匙圈上，刻著一個小小的天秤。']]},
+  2:{who:['⚖️','石像審判長'],
+    intro:me=>[[N,'審判庭的中央，巨大的石像緩緩轉過頭來。空洞的眼窩裡，亮起了紅色的光。'],
+      [['⚖️','石像審判長'],'被告四名。罪狀：逃獄、毀損、反抗審判。'],
+      [['⚖️','石像審判長'],'判決——有罪。'],
+      [me,{warrior:'我們連一次審判都沒有接受過。',mage:'等一下！我們什麼都還沒說……！',archer:'哪有這樣的啦！律師呢！',thief:'……石像不會聽人說話。打倒它就好。'}[me]],
+      [N,'石像舉起法槌的瞬間，一個不屬於它的、溫柔又冰冷的女聲，在大廳裡迴盪。'],
+      [['❔','某人的聲音'],'「……讓我看看，妳們的罪有多重。」']],
+    outro:()=>[[N,'石像審判長的身體裂開了，碎石嘩啦啦地落下。'],
+      [N,'從裂縫裡飄出一縷金色的光，像是被線牽著一樣，朝北方的夜空飛去。'],
+      ['mage','……那道光，好像在哭。'],
+      ['thief','北邊……是那座從來沒有人進去過的鐘塔。']]},
+  3:{who:['⚖️','艾絲緹拉'],
+    intro:me=>[[N,'鐘塔頂端。巨大的鐘擺下，一位蒙著眼睛的女子靜靜站著，手裡提著金色的天秤。'],
+      [['⚖️','艾絲緹拉'],'歡迎，四位魔女。不……應該說，四位逃獄者。'],
+      ['thief','小雛在哪裡。'],
+      [['⚖️','艾絲緹拉'],'那孩子在沉睡。她的時間魔法，能讓這座鐘塔倒轉。只要再一點點，我就能回到那一天。'],
+      ['warrior','為了妳自己，就要犧牲別人的妹妹？'],
+      [['⚖️','艾絲緹拉'],'……妳們不會懂的。親手把最重要的人，送上審判台的感覺。'],
+      ['mage','我們是不懂。可是，我們知道失去重要的人有多痛。'],
+      ['archer','所以才更不能讓妳這樣做啦！'],
+      [['⚖️','艾絲緹拉'],'那麼，就讓天秤來決定吧。']]},
+};
+function bossScene(ch,kind){const B=BOSS_TALK[ch];if(!B||!B[kind])return null;
+  return {t:kind==='intro'?`👑 ${B.who[1]}`:`👑 擊敗${B.who[1]}`,sub:`第 ${ch} 章・${STAGES[STG(ch)].nm}`,lines:B[kind](RUN.cls),btn:kind==='intro'?'迎戰':'繼續'};}
+// ====== 回憶篇：信任達到 3 的同伴，在營火說出被抓的理由 ======
+const MEM={
+  warrior:{t:'玫瑰宅邸的最後一夜',lines:[[N,'火光映在夜薔薇的劍上。她看著火堆，難得地先開了口。'],
+    ['warrior','……我的家族，代代都是守護這座城鎮的騎士。'],
+    ['warrior','可是有一天，審判庭送來一封信。信上說，玫瑰家族的血裡，流著魔女的詛咒。'],
+    ['warrior','父親、母親、哥哥……一個接一個被帶走。沒有人回來。'],
+    ['warrior','最後那一夜，櫻音偷偷翻過圍牆來找我。她說：「薔薇，我們一起逃吧。」'],
+    ['warrior','……我沒有逃。我想，只要我乖乖留下來，他們就不會去找櫻音。'],
+    ['warrior','然後，我就在那間牢房裡醒來了。……櫻音也在。我什麼都沒有守住。'],
+    [N,'她從懷裡拿出一張泛黃的紙。那是當年的逮捕令。']],fx:()=>[FX.maxhp(15),FX.skill()]},
+  mage:{t:'治癒之歌',lines:[[N,'櫻音抱著膝蓋，看著火堆輕聲說了起來。'],
+    ['mage','我小時候，在教堂的唱詩班唱歌。'],
+    ['mage','有一次，鄰居家的小男孩發高燒，一直醒不過來。我坐在他的床邊，唱了一整晚的歌。'],
+    ['mage','天亮的時候，他的燒退了。大家都說，是奇蹟。'],
+    ['mage','……可是過了幾天，審判庭的人來了。他們說，能用歌聲治病的，只有魔女。'],
+    ['mage','是那個男孩的媽媽告發的。她說，她很害怕。'],
+    ['mage','我不怪她喔。……真的。只是從那天起，我就不太敢在別人面前唱歌了。'],
+    ['mage','是薔薇和大家，讓我又想唱了。'],
+    [N,'她的口袋裡，也收著一張皺巴巴的逮捕令。']],fx:()=>[FX.full(),FX.maxhp(10)]},
+  archer:{t:'會動的畫',lines:[['archer','欸嘿，我的故事很好笑喔。'],
+    ['archer','我畫的東西，有時候會從紙上跑出來。小鳥會飛走，花會開，畫的貓還會偷吃我的晚餐。'],
+    ['archer','我覺得超酷的！所以就在廣場上，辦了一場「會動的畫展」。'],
+    ['archer','……結果第二天，就被抓走了。'],
+    ['archer','大家說那是妖術。我的畫全部被燒掉了，連一張都沒剩。'],
+    ['archer','……其實一點都不好笑嘛。哈哈。'],
+    [N,'她低著頭，用樹枝在地上畫了一隻小鳥。小鳥拍拍翅膀，飛進了夜空。'],
+    ['archer','不過啊，我在牢裡遇到了妳們。所以就當作扯平了吧！'],
+    [N,'她從畫具箱的夾層裡，抽出一張被燒掉一角的逮捕令。']],fx:()=>[FX.relic()]},
+  thief:{t:'被搶走的妹妹',lines:[[N,'哨兵擦著槍，沉默了很久。'],
+    ['thief','……我和小雛，沒有父母。從小，就是我一個人照顧她。'],
+    ['thief','小雛很特別。她哭的時候，時鐘會停下來；她笑的時候，花會開得比較快。'],
+    ['thief','三年前，一個蒙著眼睛的女人來到我們家。她說，要帶小雛去「接受審判」。'],
+    ['thief','我拿著父親留下的槍，一路追到審判庭。……然後，什麼都沒有做到。'],
+    ['thief','醒來的時候，我在牢裡。槍不見了，小雛也不見了。'],
+    ['thief','……所以我一直不相信任何人。因為相信了，就會再失去一次。'],
+    ['thief','可是現在……我想再相信一次。'],
+    [N,'她把一張摺得很小的逮捕令，攤開在火光下。']],fx:()=>[FX.skill(),FX.heal(0.3)]},
+};
+function playMemory(k,after){
+  RUN.memSeen=RUN.memSeen||[]; RUN.memSeen.push(k);
+  SAVE.mems=SAVE.mems||[]; if(!SAVE.mems.includes(k)){SAVE.mems.push(k);writeSave();}
+  const all=RUN.memSeen.length+(RUN.memSeen.includes(RUN.cls)?0:1)>=4; // 自己的過去也算在內
+  const tail=[[N,'逮捕令的角落，蓋著一個金色的天秤印章。']];
+  if(all)tail.push([N,'把大家的逮捕令放在一起，上面的天秤印章一模一樣。'],[RUN.cls,'……我們四個人被抓，原來都是同一個人下的命令。']);
+  playStory({t:`💭 ${GNAME[k]}的回憶・${MEM[k].t}`,who:k,lines:MEM[k].lines.concat(tail),opts:[{t:'靜靜握住她的手',go:()=>[[N,'火堆劈啪作響。說出口之後，她的表情好像輕鬆了一點。']].concat(MEM[k].fx())}]});
+  RUN.done=after;
+}
+function memReady(){RUN.memSeen=RUN.memSeen||[];return RUN.met.filter(k=>RUN.trust[k]>=3&&!RUN.memSeen.includes(k));}
+// ====== 路線圖上的日常小劇場 ======
+const BANTER=[
+  {w:['archer','thief'],l:[['archer','哨兵，妳的槍可以借我畫一下嗎？'],['thief','不行。'],['archer','那妳可以借我畫一下嗎？'],['thief','……更不行。']]},
+  {w:['mage','warrior'],l:[['mage','薔薇，給妳。我偷偷留了一顆糖。'],['warrior','……妳自己吃。'],['mage','那一人一半！'],['warrior','……嗯。']]},
+  {w:['warrior','thief'],l:[['thief','……前面的路，我先去偵查。'],['warrior','我跟妳一起去。'],['thief','不需要。'],['warrior','我也不是去幫妳的。只是順路。']]},
+  {w:['mage','archer'],l:[['archer','歌姬！逃出去之後，我們開一場「歌唱畫展」！'],['mage','好耶！我唱歌，妳畫畫！'],['archer','然後冰山大人負責站在門口當保全！'],['mage','嘿嘿，她一定會板著臉答應的。']]},
+  {w:['archer','warrior'],l:[['archer','冰山大人～今天笑了嗎？'],['warrior','沒有。'],['archer','那我來講笑話！為什麼骷髏不打架？因為牠沒有膽！'],['warrior','……'],['archer','啊！嘴角動了！']]},
+  {w:['thief','mage'],l:[['mage','哨兵，妳的繃帶又鬆了。'],['thief','……沒關係。'],['mage','有關係！手伸出來。'],['thief','……（乖乖伸手）']]},
+  {w:['archer','thief'],l:[['archer','欸欸搭檔，我們來取個組合名吧！'],['thief','不要。'],['archer','「彩虹霰彈隊」怎麼樣？'],['thief','……難聽。'],['archer','那妳說嘛！'],['thief','……「安靜二人組」。']]},
+  {w:['warrior','mage'],l:[['warrior','櫻音，腳還痛嗎。'],['mage','咦？妳怎麼知道……'],['warrior','妳走路的樣子，從小就藏不住。'],['mage','……薔薇最溫柔了。']]},
+  {w:['thief','warrior'],l:[['warrior','……剛才，謝了。'],['thief','什麼？'],['warrior','妳從背後幫我擋了一下。'],['thief','……順手而已。']]},
+  {w:['mage','archer'],l:[['mage','畫師，妳在畫什麼？'],['archer','秘密～等出去之後再給妳看！'],['mage','是我們嗎？'],['archer','……妳怎麼知道！？']]},
+  {w:['archer','mage','thief','warrior'],l:[['archer','肚子好餓……'],['mage','我還有一塊餅乾！'],['thief','……我有乾糧。'],['warrior','……分著吃吧。']]},
+  {w:['thief','archer'],l:[['thief','……畫師。'],['archer','嗯？'],['thief','妳的顏料，沾到我的袖子了。'],['archer','欸嘿，那是藝術！']]},
+  {seq:1,w:['thief','mage'],l:[['mage','哨兵，小雛是什麼樣的孩子？'],['thief','……愛哭。愛笑。很會撒嬌。'],['mage','跟妳一點都不像呢。'],['thief','……嗯。所以我才要保護她。']]},
+  {seq:1,w:['archer','warrior'],l:[['archer','這座塔裡的時鐘，全都慢了三分鐘！'],['warrior','……妳數過了？'],['archer','數了三十七個！'],['warrior','……專心爬樓梯。']]},
+];
+const BAN={timer:0};
+function hideBanter(){clearTimeout(BAN.timer);const b=$('banter');if(b)b.classList.add('hide');}
+function showBanter(force){
+  hideBanter(); if(!RUN)return;
+  RUN.banSeen=RUN.banSeen||[];
+  const ok=i=>{const B=BANTER[i];return !RUN.banSeen.includes(i)&&(!B.seq||RUN.seq)&&B.w.every(k=>k===RUN.cls||RUN.trust[k]>=0);};
+  let pool=BANTER.map((b,i)=>i).filter(ok);
+  if(!pool.length)return;
+  if(!force&&Math.random()>0.45)return;
+  const i=pool[Math.floor(Math.random()*pool.length)], L=BANTER[i].l; RUN.banSeen.push(i);
+  const box=$('banter'); let n=0;
+  const step=()=>{if(n>=L.length){box.classList.add('hide');return;}
+    const [k,t]=L[n++]; box.querySelector('.bic').innerHTML=`<img src="${portrait(k,emoOf(t))}">`;
+    box.querySelector('b').textContent=GNAME[k]+(k===RUN.cls?'（妳）':'');box.querySelector('span').textContent=t;
+    box.classList.remove('hide');box.classList.remove('pop');void box.offsetWidth;box.classList.add('pop');
+    clearTimeout(BAN.timer);BAN.timer=setTimeout(step,2600);};
+  box.onclick=()=>{clearTimeout(BAN.timer);step();};
+  BAN.timer=setTimeout(step,450);
+}
+
 function nextCompanion(){
   if(!RUN||!RUN.trust)return null;
   const left=Object.keys(RUN.trust).filter(k=>!RUN.met.includes(k));
@@ -1629,6 +1761,7 @@ function showMap(){
   $('mapBox').querySelectorAll('.mnode.av').forEach(b=>b.onclick=()=>{const [c,j]=b.dataset.k.split('-').map(Number);enterNode(M[c][j]);});
   $('mapRelics').innerHTML=RUN.relics.map(id=>`<span title="${RELIC[id].ds}">${RELIC[id].ic} ${RELIC[id].nm}</span>`).join('')||'<span style="opacity:.6">還沒有遺物</span>';
   $('map').classList.remove('hide');
+  showBanter();
 }
 
 // ====== 遊戲狀態 ======
@@ -2757,6 +2890,9 @@ function openDev(){
     ...Object.keys(ENDS).map(e=>[`${ENDS[e].ic} ${ENDS[e].nm}`,()=>{devRun(DEV.cls,2);for(const k of others())RUN.trust[k]=e==='bond'?(k===others()[0]?2:1):e==='rift'?(k==='thief'||(DEV.cls==='thief'&&k===others()[0])?-1:2):tv[e];
       playScene(sceneEnding(),()=>{if(e==='true')playEpilogue(devBack);else devBack();});}]),
     ['📖 後日談',()=>{$('dev').classList.add('hide');playEpilogue(devBack);}],
+    ...[1,2,3].map(ch=>[`👑 第 ${ch} 章魔王對話`,()=>{devRun(DEV.cls,ch);if(ch===3)RUN.seq=true;const o=bossScene(ch,'outro');playScene(bossScene(ch,'intro'),o?()=>playScene(o,devBack):devBack);}]),
+    ...Object.keys(MEM).map(k=>[`💭 回憶：${GNAME[k]}`,()=>{devRun(DEV.cls,1);RUN.memSeen=Object.keys(MEM).filter(x=>x!==k&&x!==DEV.cls).slice(0,2);playMemory(k,devBack);}]),
+    ['💬 地圖小劇場',()=>{devRun(DEV.cls,1);showMap();showBanter(true);}],
     ['🕰️ 續篇序章',()=>{devRun(DEV.cls,3);RUN.seq=true;playScene(sceneSeqPrologue(DEV.cls),devBack);}],
     ['🕰️ 續篇終章',()=>{devRun(DEV.cls,3);RUN.seq=true;playScene(sceneSeqFinale(),devBack);}],
     ...SEQ_SC.map((q,k)=>['🕰️ '+q.t,()=>{devRun(DEV.cls,3);RUN.seq=true;RUN.seqSeen=[];playSeqScene(k,devBack);}]),
