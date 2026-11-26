@@ -619,6 +619,11 @@ const SK={
   poison:{t:'w',ic:'🌫️',nm:'詛咒霧',ds:'在魔物群中放出詛咒霧氣，持續造成傷害。'},
   chain:{t:'w',ic:'⛓️',nm:'鎖鏈雷',ds:'帶電的鎖鏈在魔物之間跳躍，等級越高跳越多次。'},
   beam:{t:'w',ic:'🔆',nm:'月光射線',ds:'朝魔物射出一道貫穿直線的月光。'},
+  tarot:{t:'w',ic:'🃏',nm:'塔羅飛牌',ds:'擲出會自動追蹤魔物的塔羅牌，等級越高牌越多。'},
+  candle:{t:'w',ic:'🕯️',nm:'鬼火燭台',ds:'在身邊立起燭台，藍色鬼火會自動射向附近的魔物。'},
+  vortex:{t:'w',ic:'🕳️',nm:'深淵之眼',ds:'在魔物群中張開深淵，把魔物吸向中心並持續造成傷害。'},
+  pump:{t:'w',ic:'🎃',nm:'南瓜炸彈',ds:'把南瓜炸彈拋向魔物群，落地時大範圍爆炸。'},
+  crystal:{t:'w',ic:'💎',nm:'預言水晶',ds:'放出緩慢前進的水晶球，貫穿魔物並不斷對周圍放電。'},
   slashX:{t:'e',from:'slash',ic:'💫',nm:'千薔薇劍舞',ds:'360 度連續旋斬，範圍與傷害大幅提升。'},
   boltX:{t:'e',from:'bolt',ic:'🌸',nm:'千本櫻終章',ds:'一次唱出 5 顆大型櫻心音符，櫻花綻放範圍更大。'},
   arrowX:{t:'e',from:'arrow',ic:'🌈',nm:'彩虹連射',ds:'高速噴出 5 發貫穿的大顆顏料彈。'},
@@ -632,6 +637,11 @@ const SK={
   poisonX:{t:'e',from:'poison',ic:'☠️',nm:'瘴氣庭園',ds:'同時放出 3 團巨大詛咒霧，傷害更高、持續更久。'},
   chainX:{t:'e',from:'chain',ic:'🔗',nm:'千鎖雷獄',ds:'兩道雷鎖各跳躍 14 次。'},
   beamX:{t:'e',from:'beam',ic:'☀️',nm:'最終審判',ds:'四道巨大光柱十字旋轉掃射。'},
+  tarotX:{t:'e',from:'tarot',ic:'🎴',nm:'命運之輪',ds:'一次擲出 10 張塔羅牌，命中時引發魔力爆炸。'},
+  candleX:{t:'e',from:'candle',ic:'👻',nm:'百鬼夜燭',ds:'同時點亮 4 座燭台，鬼火射得更快並能貫穿魔物。'},
+  vortexX:{t:'e',from:'vortex',ic:'🌑',nm:'虛無深淵',ds:'更大更久的深淵，吸力更強，消失時引發大爆炸。'},
+  pumpX:{t:'e',from:'pump',ic:'🎆',nm:'南瓜煙火祭',ds:'南瓜炸彈落地後，再分裂成 4 顆小南瓜接連爆炸。'},
+  crystalX:{t:'e',from:'crystal',ic:'🌌',nm:'星辰水晶',ds:'三顆巨大水晶永久環繞身邊，不停放電攻擊附近的魔物。'},
   wave:{t:'b',ic:'🥀',nm:'薔薇劍氣',ds:'朝魔物放出貫穿一切的紅色劍氣。'},
   shield:{t:'b',ic:'✝️',nm:'聖十字',ds:'定時擋下一次傷害，並震開周圍魔物。'},
   meteor:{t:'b',ic:'💘',nm:'愛心流星',ds:'巨大愛心砸向魔物群，留下燃燒的心焰。'},
@@ -663,6 +673,11 @@ const WT={
   poison:{dmg:[4,5,6,7,9],cd:[3,2.8,2.6,2.4,2.2],r:[45,50,55,60,66],n:[1,1,1,2,2],life:[3,3,3.2,3.4,3.6]},
   chain:{dmg:[16,19,23,27,32],cd:[2.2,2.0,1.8,1.6,1.4],n:[1,1,1,1,1],hops:[3,4,5,6,8]},
   beam:{dmg:[20,25,30,36,44],cd:[2.4,2.2,2.0,1.8,1.6],w:[14,16,18,20,24],n:[1,1,1,2,2]},
+  tarot:{dmg:[10,12,15,18,22],cd:[1.3,1.2,1.1,1.0,.9],n:[2,3,3,4,5]},
+  candle:{dmg:[8,10,12,15,18],cd:[5,4.6,4.2,3.8,3.4],n:[1,1,2,2,3],life:[5,5.5,6,6.5,7],rate:[.8,.75,.7,.65,.6]},
+  vortex:{dmg:[5,6,7,9,11],cd:[5,4.6,4.2,3.8,3.4],r:[60,66,72,78,86],life:[2.5,2.8,3,3.2,3.5],pull:[60,70,80,90,100]},
+  pump:{dmg:[30,36,44,52,62],cd:[2.4,2.2,2.0,1.8,1.6],n:[1,1,2,2,3],r:[50,55,60,66,72]},
+  crystal:{dmg:[6,7,9,11,13],cd:[3.5,3.2,2.9,2.6,2.3],zap:[12,14,17,20,24],life:[3,3.2,3.4,3.6,4]},
   wave:{dmg:[22,27,33,40,48],cd:[1.6,1.45,1.3,1.15,1.0]},
   shield:{dmg:[30,38,46,55,66],cd:[8,7,6,5,4]},
   meteor:{dmg:[34,42,52,62,75],cd:[3.2,2.9,2.6,2.3,2.0],n:[1,1,2,2,3],r:[50,54,58,62,68]},
@@ -687,6 +702,11 @@ const EV={
   poison:{dmg:16,cd:2,r:85,n:3,life:4.5},
   chain:{dmg:45,cd:1.1,n:2,hops:14},
   beam:{dmg:70,cd:1.2,w:34,n:4,cross:1},
+  tarot:{dmg:28,cd:.8,n:10,boom:36},
+  candle:{dmg:22,cd:3,n:4,life:6,rate:.45,pierce:3},
+  vortex:{dmg:14,cd:3.2,r:120,life:4,pull:150,blast:1},
+  pump:{dmg:70,cd:1.5,n:3,r:80,split:4},
+  crystal:{dmg:16,cd:0,zap:30,orbit:1,n:3},
 };
 const BASEW=Object.keys(EV);
 // 取得武器目前數值（已進化就用 EV）
@@ -2116,6 +2136,44 @@ function updateWeapons(dt){
       tone(1500,0.2,'sine',0.03,-900);
     }
   }
+  // 塔羅飛牌 / 命運之輪
+  if((w=wp('tarot'))&&cdReady('tarot')){
+    const ts=randOnScreen(w.n);
+    if(ts.length){P.cd.tarot=w.cd*cdm;
+      for(let i=0;i<w.n;i++){const a=-Math.PI/2+(i-(w.n-1)/2)*(w.n>6?0.6:0.45)+rand(-0.1,0.1);
+        shoot('card',P.x,P.y,a,260,{life:2.4,dmg:w.dmg,pierce:1,tgt:ts[i%ts.length],boom:w.boom||0,suit:Math.floor(Math.random()*4)});}
+      tone(900,0.06,'triangle',0.02,300);}
+  }
+  // 鬼火燭台 / 百鬼夜燭
+  if((w=wp('candle'))&&cdReady('candle')){
+    P.cd.candle=w.cd*cdm;
+    for(let i=0;i<w.n;i++){const a=i*Math.PI*2/w.n+Math.random(),d=rand(34,70);
+      S.zones.push({type:'candle',x:P.x+Math.cos(a)*d,y:P.y+Math.sin(a)*d*0.7,r:0,life:w.life,max:w.life,tick:0.3+i*0.12,dmg:w.dmg,rate:w.rate,pierce:w.pierce||1});}
+    tone(600,0.1,'sine',0.02,200);
+  }
+  // 深淵之眼 / 虛無深淵
+  if((w=wp('vortex'))&&cdReady('vortex')){
+    const t=randOnScreen(1)[0];
+    if(t){P.cd.vortex=w.cd*cdm;S.zones.push({type:'vortex',x:t.x,y:t.y,r:w.r,life:w.life,max:w.life,tick:0,dmg:w.dmg,pull:w.pull,blast:w.blast});tone(180,0.4,'sine',0.04,-100);}
+  }
+  // 南瓜炸彈 / 南瓜煙火祭
+  if((w=wp('pump'))&&cdReady('pump')){
+    const ts=randOnScreen(w.n);
+    if(ts.length){P.cd.pump=w.cd*cdm;
+      for(const t of ts)S.projs.push({kind:'pump',x:P.x,y:P.y,sx:P.x,sy:P.y,tx:t.x,ty:t.y,t:0,T:0.7,vx:0,vy:0,rot:0,hit:new Set(),pierce:1,life:9,dmg:w.dmg,r:w.r,split:w.split||0});
+      tone(300,0.1,'triangle',0.03,200);}
+  }
+  // 預言水晶 / 星辰水晶
+  if((w=wp('crystal'))){
+    if(w.orbit){
+      if(cdReady('crystal')){P.cd.crystal=0.45*cdm;
+        for(let i=0;i<w.n;i++){const a=S.t*1.6+i*Math.PI*2/w.n,cx=P.x+Math.cos(a)*85,cy=P.y+Math.sin(a)*55;
+          aoe(cx,cy,18,w.dmg,60,true);const t=nearestTo(cx,cy,170);
+          if(t){hurt(t,w.zap,cx,cy,40);S.fx.push({type:'chain',pts:[{x:cx,y:cy-24},{x:t.x,y:t.y-t.h/2-(t.fly?22:0)}],life:.18,max:.18,seed:Math.random()*100});}}
+        if(Math.random()<0.25)sfx.zap();}
+    }else if(cdReady('crystal')){const t=nearest(380);
+      if(t){P.cd.crystal=w.cd*cdm;shoot('crystal',P.x,P.y,Math.atan2(t.y-P.y,t.x-P.x),90,{life:w.life,dmg:w.dmg,pierce:999,zap:w.zap,zt:0});tone(700,0.2,'sine',0.03,-200);}}
+  }
   // ---- 轉職技能 ----
   if(ready('wave')){ // 劍聖：劍氣
     const t=nearest(360);
@@ -2217,6 +2275,18 @@ function updateZones(dt){
     }
     z.life-=dt; z.tick-=dt;
     if(z.follow){z.x=P.x;z.y=P.y;}
+    if(z.type==='candle'){
+      if(z.tick<=0){z.tick=z.rate;const t=nearestTo(z.x,z.y,260);
+        if(t){const a=Math.atan2(t.y-z.y,t.x-z.x);S.projs.push({kind:'wisp',x:z.x,y:z.y-11,vx:Math.cos(a)*300,vy:Math.sin(a)*300,rot:a,hit:new Set(),pierce:z.pierce,life:1,dmg:z.dmg});}}
+      if(z.life<=0)z.done=true; continue;
+    }
+    if(z.type==='vortex'){
+      for(const e of S.enemies){if(e.boss||e.dead||e.sleep)continue;const dx=z.x-e.x,dy=z.y-e.y,d=Math.hypot(dx,dy);
+        if(d<z.r*1.6&&d>5){const k=z.pull*dt*(1-d/(z.r*1.6))*1.6;if(DUN)moveCirc(e,dx/d*k,dy/d*k,e.r*0.5);else{e.x+=dx/d*k;e.y+=dy/d*k;}}}
+      if(z.tick<=0){z.tick=0.35;aoe(z.x,z.y,z.r,z.dmg,0,true);}
+      if(z.life<=0){z.done=true;if(z.blast){explode(z.x,z.y,z.r*1.3,z.dmg*6,'150,90,255');S.shake=Math.max(S.shake,0.2);}}
+      continue;
+    }
     if(z.type==='slow')for(const e of S.enemies)if(!e.boss&&Math.hypot(e.x-z.x,e.y-z.y)<z.r+e.r)e.slowT=0.2;
     if(z.tick<=0){
       z.tick=z.type==='rain'?0.15:z.type==='poison'?0.4:0.5;
@@ -2470,15 +2540,31 @@ function update(dt){
       }
       if(Math.random()<0.5&&S.fx.length<450)S.fx.push({type:'p',x:p.x,y:p.y-14,vx:0,vy:0,life:.25,max:.25,col:P.br==='elem'?'#ff8a7a':P.br==='star'?'#b8ccff':'#ffc0d8',size:3});
     }
+    if(p.kind==='card'){ // 先散開，再追蹤
+      p.age=(p.age||0)+dt; p.rot+=dt*14;
+      if(p.age>0.25){if(!p.tgt||p.tgt.dead)p.tgt=nearestTo(p.x,p.y,420);
+        if(p.tgt){const want=Math.atan2(p.tgt.y-p.y,p.tgt.x-p.x),cur=Math.atan2(p.vy,p.vx);let df=want-cur;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;
+          const na=cur+clamp(df,-9*dt,9*dt),sp=Math.min(520,Math.hypot(p.vx,p.vy)+500*dt);p.vx=Math.cos(na)*sp;p.vy=Math.sin(na)*sp;}}
+    }
+    if(p.kind==='pump'){ // 拋物線飛行，落地爆炸
+      p.t+=dt;const k=Math.min(1,p.t/p.T);p.x=p.sx+(p.tx-p.sx)*k;p.y=p.sy+(p.ty-p.sy)*k;p.z=Math.sin(Math.PI*k)*(p.mini?50:90);p.rot+=dt*8;
+      if(k>=1){explode(p.x,p.y,p.r,p.dmg,'255,150,40');S.shake=Math.max(S.shake,p.mini?0.05:0.12);
+        if(p.split)for(let i=0;i<p.split;i++){const a=i*Math.PI*2/p.split+0.4,d=rand(50,85);
+          S.projs.push({kind:'pump',x:p.x,y:p.y,sx:p.x,sy:p.y,tx:p.x+Math.cos(a)*d,ty:p.y+Math.sin(a)*d*0.8,t:0,T:0.45,vx:0,vy:0,rot:0,hit:new Set(),pierce:1,life:9,dmg:p.dmg*0.45,r:p.r*0.55,split:0,mini:1});}
+        p.life=0;}
+      continue;
+    }
+    if(p.kind==='crystal'){p.zt-=dt;if(p.zt<=0){p.zt=0.4;const t=nearestTo(p.x,p.y,130);
+      if(t){hurt(t,p.zap,p.x,p.y,30);S.fx.push({type:'chain',pts:[{x:p.x,y:p.y-16},{x:t.x,y:t.y-t.h/2-(t.fly?22:0)}],life:.16,max:.16,seed:Math.random()*100});}}}
     p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt;
-    if(DUN&&p.kind!=='moon'&&solidAt(p.x,p.y)){p.life=0;if(S.fx.length<440)puff(p.x,p.y,'#8a8494',3,60);continue;}
+    if(DUN&&p.kind!=='moon'&&p.kind!=='crystal'&&solidAt(p.x,p.y)){p.life=0;if(S.fx.length<440)puff(p.x,p.y,'#8a8494',3,60);continue;}
     if(p.kind==='blade'||p.kind==='moon')p.rot+=dt*(p.kind==='moon'?18:25);
     if(p.kind==='moon'){
       p.vx-=p.ax*520*dt; p.vy-=p.ay*520*dt;
       if(!p.back&&p.vx*p.ax+p.vy*p.ay<0){p.back=true;p.hit=new Set();}
       if(p.back&&Math.hypot(P.x-p.x,P.y-p.y)<18)p.life=0;
     }
-    const hr=p.kind==='shot'?6:p.kind==='wave'?24:p.kind==='bolt'?9:p.kind==='moon'?12*p.sz:7*(p.big?1.4:1);
+    const hr=p.kind==='crystal'?16:p.kind==='card'?8:p.kind==='shot'?6:p.kind==='wave'?24:p.kind==='bolt'?9:p.kind==='moon'?12*p.sz:7*(p.big?1.4:1);
     for(const e of S.enemies){
       if(p.pierce<=0)break;
       if(p.hit.has(e)||e.dead)continue;
@@ -2489,6 +2575,7 @@ function update(dt){
         if(p.kind==='arrow'&&S.splats&&S.splats.length<60)S.splats.push({x:p.x+rand(-6,6),y:e.y+rand(-3,3),c:PAINT_COLS.indexOf(p.col),s:(p.big?42:32)*rand(0.8,1.15),rot:rand(-0.4,0.4),fl:Math.random()<0.5,life:4,max:4});
         if(p.kind==='arrow'&&S.fx.length<420)for(let k=0;k<5;k++)S.fx.push({type:'p',x:p.x,y:p.y-14,vx:rand(-90,90),vy:rand(-110,30),life:.4,max:.4,col:p.col,size:p.big?4:3});
         if(p.kind==='ice'&&!e.boss){e.slowT=Math.max(e.slowT,p.slow);if(p.freeze)e.frzT=1;}
+        if(p.kind==='card'&&p.boom)explode(p.x,p.y,p.boom,p.dmg*0.6,'200,140,255');
       }
     }
   }
@@ -3126,7 +3213,7 @@ function drawDark(cx,cy){
   for(const t of DUN.torches)hole(t.x,t.ly+14,140+Math.sin(S.t*9+t.x)*8,0.92);
   if(S.boss)hole(S.boss.x+S.boss.face*20,S.boss.y-40-(S.boss.z||0),130,0.85);
   let n=0;for(const p of S.projs){if(++n>40)break;hole(p.x,p.y-14,46,0.55);}
-  for(const z of S.zones)if(z.r)hole(z.x,z.y,z.r*1.3,0.5);
+  for(const z of S.zones)if(z.r||z.type==='candle')hole(z.x,z.y,(z.r||40)*1.3,0.5);
   ctx.save();ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);ctx.imageSmoothingEnabled=true;ctx.drawImage(DK,0,0,VW,VH);
   for(const t of DUN.torches){const X=t.x-cx,Y=t.ly-cy;if(X>-60&&X<VW+60&&Y>-60&&Y<VH+60)addGlow(X,Y-10,22,'255,170,80',.6);}
   ctx.restore();
@@ -4109,6 +4196,7 @@ function drawLairs(){
   }
 }
 function drawGroundFx(){
+  drawNewZones();
   if(S.stage===3)drawTowerFx();
   drawLairs();
   for(const h of S.hazards){
@@ -4201,7 +4289,48 @@ function drawGroundFx(){
     ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*(0.3+k*0.7),f.r*0.6*(0.3+k*0.7),0,0,Math.PI*2);ctx.stroke();
   }
 }
+
+// ====== 新技能的繪圖：塔羅牌、南瓜、水晶、鬼火、燭台、深淵 ======
+function drawCrystalOrb(x,y,s){const b=Math.sin(S.t*4+x*0.05)*2;addGlow(x,y+b,22*s,'160,140,255',.55);
+  ctx.save();ctx.translate(x,y+b);ctx.scale(s,s);
+  const g=ctx.createRadialGradient(-3,-4,1,0,0,10);g.addColorStop(0,'#ffffff');g.addColorStop(0.35,'#c8b8ff');g.addColorStop(1,'#5a3ab0');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#2a1a4a';ctx.lineWidth=1.2;ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=0.9;ctx.beginPath();ctx.arc(0,0,6,-2.4,-1.4);ctx.stroke();
+  ctx.fillStyle='#c89a4a';ctx.beginPath();ctx.moveTo(-6,8);ctx.lineTo(6,8);ctx.lineTo(4,11);ctx.lineTo(-4,11);ctx.closePath();ctx.fill();ctx.restore();}
+function drawNewProj(p){
+  if(p.kind==='card'){ctx.save();ctx.translate(p.x,p.y-14);ctx.rotate(p.rot);
+    ctx.fillStyle='#1a1028';ctx.fillRect(-6,-9,12,18);ctx.fillStyle=p.boom?'#2a1846':'#3a2458';ctx.fillRect(-5,-8,10,16);
+    ctx.strokeStyle='#f0d08a';ctx.lineWidth=1;ctx.strokeRect(-3.8,-6.8,7.6,13.6);
+    ctx.fillStyle=['#ff6a9a','#f0d08a','#9ad8ff','#c8a0ff'][p.suit||0];ctx.font='900 9px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(['♥','★','♦','☾'][p.suit||0],0,0.5);ctx.textBaseline='alphabetic';
+    ctx.restore();addGlow(p.x,p.y-14,11,p.boom?'200,140,255':'240,208,138',.4);}
+  else if(p.kind==='pump'){const z=p.z||0,sz=p.mini?0.62:1;shadow(p.x,p.y,8*sz*Math.max(0.3,1-z/160));
+    ctx.save();ctx.translate(p.x,p.y-8*sz-z);ctx.rotate(Math.sin(p.rot)*0.35);ctx.scale(sz,sz);
+    ctx.fillStyle='#1a1222';ctx.beginPath();ctx.ellipse(0,0,10.5,9,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#e8781e';ctx.beginPath();ctx.ellipse(0,0,9.3,7.8,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#c85a10';ctx.beginPath();ctx.ellipse(-3.6,0,2.3,7.2,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(3.6,0,2.3,7.2,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ffd23a';ctx.beginPath();ctx.moveTo(-5.5,-1.5);ctx.lineTo(-2,-1.5);ctx.lineTo(-3.7,-4.5);ctx.fill();ctx.beginPath();ctx.moveTo(5.5,-1.5);ctx.lineTo(2,-1.5);ctx.lineTo(3.7,-4.5);ctx.fill();
+    ctx.beginPath();ctx.moveTo(-4.5,2);ctx.lineTo(4.5,2);ctx.lineTo(2.5,4.6);ctx.lineTo(0,3);ctx.lineTo(-2.5,4.6);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#3a6a2a';ctx.fillRect(-1,-11,2,3.6);ctx.restore();addGlow(p.x,p.y-8*sz-z,11*sz,'255,180,60',.4);}
+  else if(p.kind==='crystal')drawCrystalOrb(p.x,p.y-16,1);
+  else{addGlow(p.x,p.y-14,12,'120,200,255',.6);ctx.fillStyle='rgba(120,200,255,.5)';circ(p.x-p.vx*0.025,p.y-14-p.vy*0.025,2.6);ctx.fillStyle='#e0f6ff';circ(p.x,p.y-14,3.2);}
+}
+function drawCrystalOrbit(){if(!P||!P.sk.crystalX)return;const w=wp('crystal');for(let i=0;i<w.n;i++){const a=S.t*1.6+i*Math.PI*2/w.n;drawCrystalOrb(P.x+Math.cos(a)*85,P.y+Math.sin(a)*55-24,1.25);}}
+function drawNewZones(){for(const z of S.zones){
+  if(z.type==='candle'){const a=Math.max(0,Math.min(1,z.life/0.4,(z.max-z.life)/0.2+0.2)),f=Math.sin(S.t*14+z.x);
+    ctx.save();ctx.globalAlpha=a;shadow(z.x,z.y,6);
+    ctx.fillStyle='#2a2236';ctx.fillRect(z.x-5,z.y-3,10,3);ctx.fillStyle='#c89a4a';ctx.fillRect(z.x-1,z.y-10,2,8);ctx.fillRect(z.x-4.5,z.y-11,9,2);
+    ctx.fillStyle='#efe4d4';ctx.fillRect(z.x-2.3,z.y-21,4.6,10);ctx.fillStyle='#d8ccb8';ctx.fillRect(z.x+0.8,z.y-21,1.5,10);
+    ctx.fillStyle='#7ad0ff';ctx.beginPath();ctx.ellipse(z.x+f*0.4,z.y-25.5,2.6,4.4,f*0.08,0,Math.PI*2);ctx.fill();ctx.fillStyle='#effaff';ctx.beginPath();ctx.ellipse(z.x,z.y-24.5,1.1,2,0,0,Math.PI*2);ctx.fill();
+    ctx.restore();addGlow(z.x,z.y-25,20,'120,200,255',.55*a);}
+  else if(z.type==='vortex'){const a=Math.max(0,Math.min(1,z.life/0.4,(z.max-z.life)/0.25));
+    ctx.save();ctx.translate(z.x,z.y);ctx.scale(1,0.55);ctx.globalAlpha=a;
+    const g=ctx.createRadialGradient(0,0,2,0,0,z.r*1.1);g.addColorStop(0,'rgba(0,0,0,.95)');g.addColorStop(0.55,'rgba(40,10,70,.7)');g.addColorStop(1,'rgba(90,40,160,0)');ctx.fillStyle=g;circ(0,0,z.r*1.1);
+    ctx.lineWidth=2.5;for(let k=0;k<3;k++){const r0=z.r*(0.32+k*0.24),s0=S.t*(4-k)+k*2;ctx.strokeStyle=`rgba(${180-k*30},${130-k*20},255,.7)`;ctx.beginPath();ctx.arc(0,0,r0,s0,s0+Math.PI*1.15);ctx.stroke();ctx.beginPath();ctx.arc(0,0,r0,s0+Math.PI,s0+Math.PI*2.15);ctx.stroke();}
+    ctx.fillStyle='#d8c0ff';ctx.beginPath();ctx.ellipse(0,0,z.r*0.18,z.r*0.1,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff4a8a';circ(0,0,z.r*0.065);ctx.fillStyle='#000';circ(0,0,z.r*0.03);
+    ctx.restore();addGlow(z.x,z.y,z.r*0.6,'150,90,255',.25*a);}}}
+
 function drawProj(p){
+  if(p.kind==='card'||p.kind==='pump'||p.kind==='crystal'||p.kind==='wisp'){drawNewProj(p);return;}
   if(p.big&&p.kind!=='bolt'&&p.kind!=='shot')addGlow(p.x,p.y-14,16,'255,220,120',.6);
   if(p.kind==='ice')addGlow(p.x,p.y-14,10,'150,210,255',.5);
   if(p.kind==='bolt')addGlow(p.x,p.y-14,p.big?24:17,SAKU_COL()[3],IMG.note?.38:.8);
@@ -4498,6 +4627,7 @@ function render(){
           ctx.fillStyle=wc[1];ctx.beginPath();ctx.ellipse(s2*3.4*wf,3,3.4*wf,2.6,-s2*0.4,0,Math.PI*2);ctx.fill();}
         ctx.fillStyle='#1a1028';ctx.fillRect(-0.8,-4,1.6,8);ctx.restore();}}
     for(const p of S.projs)drawProj(p);
+    drawCrystalOrbit();
     drawHazards();drawFx();drawNums();
   }
   ctx.restore();
